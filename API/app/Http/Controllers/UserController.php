@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        // Get the authenticated user
-        $user = $request->user();
+       $users = User::all();
 
-        // Return the user data as JSON
-        return response()->json($user);
+       return response()->json($users);
     }
 
     public function show(Request $request)
