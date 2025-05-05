@@ -1,25 +1,16 @@
-import { Group, Container, Box } from "@mantine/core";
 import React from "react";
-import Logout from "../src/Auth/Logout";
+import Logout from "./Auth/Logout";
 
-const Header = () => {
+export default function Header() {
   return (
-    <Box className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg">
-      <Container size="xl" className="p-0">
-        <Group position="apart" className="px-6 py-4" align="center">
-          {/* Left Side: App Title */}
-          <div>
-            <h1 className="text-white font-bold text-lg">My App</h1>
-          </div>
+    <header className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg relative z-10">
+      <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Left: App Title */}
+        <h1 className="text-white font-bold text-lg">My App</h1>
 
-          {/* Right Side: Logout Button */}
-          <Group spacing="lg" align="center">
-            <Logout />
-          </Group>
-        </Group>
-      </Container>
-    </Box>
+        {/* Right: Logout Button */}
+        <Logout />
+      </div>
+    </header>
   );
-};
-
-export default Header;
+}

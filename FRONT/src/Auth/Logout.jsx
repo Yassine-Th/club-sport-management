@@ -1,14 +1,14 @@
 import React from "react";
 import { IconLogout2 } from "@tabler/icons-react";
-import { Button } from "@mantine/core";
 import instance from "../helpers/axios";
 
 export default function Logout() {
   const handleLogout = async () => {
     try {
       // Call logout API
-      await instance.post("/logout");
-
+      const response = await instance.post("/logout");
+      console.log(response.data);
+      
       // Clear auth headers and tokens
       instance.defaults.headers.common["Authorization"] = "";
       localStorage.removeItem("user");
@@ -22,13 +22,19 @@ export default function Logout() {
   };
 
   return (
-    <Button
-      color="red"
-      variant="light"
-      leftIcon={<IconLogout2 size={18} />}
+    <button
       onClick={handleLogout}
+      className="
+        flex items-center
+        px-3 py-2
+        bg-red-600 hover:bg-red-700
+        text-white font-medium
+        rounded focus:outline-none focus:ring-2 focus:ring-red-400
+        transition-colors
+      "
     >
+      <IconLogout2 size={18} className="mr-2" />
       Logout
-    </Button>
+    </button>
   );
 }

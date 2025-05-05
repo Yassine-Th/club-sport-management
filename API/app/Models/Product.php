@@ -29,4 +29,8 @@ class Product extends Model
             ->withPivot(['quantity', 'price'])
             ->withTimestamps();
     }
+    public function category()
+    {
+        return $this->belongsTo(Categories::class);
+    }
 }
