@@ -5,6 +5,7 @@ import isLoggedIn from "./Auth/CheckLoggedIn";
 import Login from "./Auth/Login";
 import { getUserRole } from "./helpers/access_token";
 import Register from "./Auth/Register";
+import AdLayout from "./app/Admin/AdLayout";
 
 function App() {
   const user_role = getUserRole();
@@ -24,7 +25,7 @@ function App() {
             <>
               {user_role === "admin" && (
                 <>
-                  <Route path="/admin" element={<h1>Admin Page</h1>} />
+                  <Route path="/admin" element={<AdLayout></AdLayout>} />
                 </>
               )}
               {user_role === "journalist" && (
