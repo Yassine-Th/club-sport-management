@@ -6,6 +6,9 @@ import Login from "./Auth/Login";
 import { getUserRole } from "./helpers/access_token";
 import Register from "./Auth/Register";
 import AdLayout from "./app/Admin/AdLayout";
+import AdTLayout from "./app/Journalist/AdLayout";
+import FormNews from "./app/Journalist/News/News";
+import JRTLayout from "./app/Journalist/AdLayout";
 
 function App() {
   const user_role = getUserRole();
@@ -32,8 +35,13 @@ function App() {
                 <>
                   <Route
                     path="/journalist"
-                    element={<h1>journalist Page</h1>}
+                    element={<JRTLayout>  </JRTLayout>}
                   />
+                  <Route
+                    path="/journalist/news"
+                    element={<JRTLayout> <FormNews/> </JRTLayout>}
+                  />
+                  
                 </>
               )}
               {user_role === "store_manager" && (
