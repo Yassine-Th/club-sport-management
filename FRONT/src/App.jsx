@@ -6,6 +6,7 @@ import Login from "./Auth/Login";
 import { getUserRole } from "./helpers/access_token";
 import Register from "./Auth/Register";
 import AdLayout from "./app/Admin/AdLayout";
+import UnauthorizedPage from "./layouts/Unauthorized";
 
 function App() {
   const user_role = getUserRole();
@@ -23,6 +24,9 @@ function App() {
         <Routes>
           {isAuthorized ? (
             <>
+              <Route path="/unauthorized" element={<UnauthorizedPage />} />
+              <Route path="*" element={<UnauthorizedPage />} />
+
               {user_role === "admin" && (
                 <>
                   <Route path="/admin" element={<AdLayout></AdLayout>} />
@@ -53,7 +57,7 @@ function App() {
           ) : (
             <>
               <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register/>} />
+              <Route path="/register" element={<Register />} />
               <Route path="*" element={<Login />} />
             </>
           )}

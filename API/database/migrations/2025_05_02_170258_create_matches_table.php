@@ -17,9 +17,8 @@ return new class extends Migration
             $table->foreignId('opponent_club_id')->constrained('clubs');
             $table->dateTime('match_date'); 
             $table->boolean('is_home')->default(true);
-            $table->string('my_club_goals')->nullable();
-            $table->string('opponent_club_goals')->nullable();
-            $table->json('opponent_goals')->nullable();
+            $table->unsignedBigInteger('my_club_goals')->nullable();
+            $table->unsignedBigInteger('opponent_club_goals')->nullable();
             $table->timestamps();
         });
     }

@@ -20,7 +20,7 @@ class Ticket extends Model
 
     public function match()
     {
-        return $this->belongsTo(Matchs::class);
+        return $this->belongsTo(Matches::class);
     }
 
     public function orderTickets()

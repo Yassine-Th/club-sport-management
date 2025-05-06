@@ -33,4 +33,8 @@ class Product extends Model
     {
         return $this->belongsTo(Categories::class);
     }
+    public function clothes()
+    {
+        return $this->hasOne(Clothes::class);
+    }
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import Logout from "./Auth/Logout";
+import Logout from "../Auth/Logout";
 
 export default function Header() {
   return (
