@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('stadium_name')->nullable();
             $table->integer('stadium_capacity')->nullable();
             $table->string('president')->nullable();
-            $table->string('coach')->nullable();
+            $table->string('coach_name')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
         });

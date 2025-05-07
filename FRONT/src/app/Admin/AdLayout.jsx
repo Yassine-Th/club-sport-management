@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useViewportSize } from "@mantine/hooks";
 import AdSideBar from "./AdSideBar";
-import Header from "../../Header";
+import Header from "../../layouts/Header";
 import React from "react";
 
 function AdTLayout({ children }) {
@@ -26,11 +26,7 @@ function AdTLayout({ children }) {
     <>
       <Header />
       <div className="flex bg-gray-50 overflow-x-hidden">
-        <AdSideBar
-          width={sidebarWidth}
-          opened={opened}
-          setOpened={setOpened}
-        />
+        <AdSideBar width={sidebarWidth} opened={opened} setOpened={setOpened} />
         <div
           className="transition-all duration-300 ease-in-out min-h-screen w-full p-6"
           style={{ marginLeft: `${sidebarWidth}px` }}

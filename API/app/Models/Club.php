@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Club extends Model
 {
     use HasFactory;
+    protected $table = 'clubs';
 
     protected $fillable = [
         'name',
@@ -19,6 +20,6 @@ class Club extends Model
     // Matches where this club was the opponent
     public function matches()
     {
-        return $this->hasMany(Matchs::class, 'opponent_club_id');
+        return $this->hasMany(Matches::class, 'opponent_club_id');
     }
 }

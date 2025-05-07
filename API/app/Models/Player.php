@@ -16,6 +16,10 @@ class Player extends Model
         'number',
         'nationality',
         'photo',
+        'height',
+        'weight',
+        'birth_date',
+        "foot",
     ];
 
     public function club()
@@ -25,5 +29,9 @@ class Player extends Model
     public function matchStats()
     {
         return $this->hasMany(MyPlayerMatchStat::class);
+    }
+    public function goals()
+    {
+        return $this->hasManyThrough(PlayerMatchGoal::class, MyPlayerMatchStat::class);
     }
 }
