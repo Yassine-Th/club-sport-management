@@ -1,7 +1,9 @@
+import React from "react";
 import instance from "../helpers/axios";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { setAxiosToken } from "../helpers/axios";
+import logo from "../assets/logo.png"
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -45,12 +47,16 @@ const Login = () => {
         password: userInput.password,
       });
 
-      const { access_token } = response.data;
+      const { access_token, user } = response.data;
       localStorage.setItem("access_token", JSON.stringify(access_token));
       setAxiosToken(access_token);
-      const { user } = response.data;
       localStorage.setItem("user", JSON.stringify(user));
-      window.location.reload();
+
+      if (user.role === "admin") {
+        window.location.href = "/admin";
+      } else {
+        window.location.reload();
+      }
     } catch (error) {
       console.error(error);
       setNotFound("Email or Password incorrect");
@@ -58,74 +64,126 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded shadow-md">
-        <h2 className="text-2xl font-bold text-center">Login</h2>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
+    <div className="flex items-center justify-center min-h-screen bg-white overflow-hidden relative">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-r from-red-600 to-red-800"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-red-50 rounded-full -mr-32 -mt-32"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-red-50 rounded-full -ml-40 -mb-40"></div>
+
+      <div className="w-full max-w-md relative">
+        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-red-500 to-red-700 rounded-full"></div>
+
+        <div className="bg-white rounded-xl shadow-xl p-8 border border-gray-100">
+          <div className="text-center mb-8">
+            <div className="inline-block p-3 bg-red-50 rounded-full mb-3">
+              <img src={logo} alt="Logo" className="h-16 w-16 rounded-full" />
+            </div>
+            <h2 className="font-title text-3xl text-gray-800 tracking-wider">
+              HUSA CLUB
+            </h2>
+            <p className="text-gray-500 font-section text-sm mt-1">
+              MEMBER LOGIN
+            </p>
+          </div>
+
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {notFound && (
-              <p className="mt-2 text-sm text-red-600">{notFound}</p>
+              <div className="bg-red-50 p-3 rounded-lg">
+                <p className="text-sm text-red-600 font-player text-center">
+                  {notFound}
+                </p>
+              </div>
             )}
+
+            <div>
+              <label
+                htmlFor="emailOrUsername"
+                className="block text-sm font-section text-gray-600 mb-1"
+              >
+                EMAIL OR USERNAME
+              </label>
+              <div className="relative">
+                <input
+                  id="emailOrUsername"
+                  name="emailOrUsername"
+                  type="text"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  value={formData.emailOrUsername}
+                  onChange={handleChange}
+                />
+                <div
+                  className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-full transition-all duration-300"
+                  style={{ width: formData.emailOrUsername ? "100%" : "0%" }}
+                ></div>
+              </div>
+              {err.emailUsernameErr && (
+                <p className="mt-2 text-sm text-red-600 font-player">
+                  {err.emailUsernameErr}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-section text-gray-600 mb-1"
+              >
+                PASSWORD
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+                <div
+                  className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-full transition-all duration-300"
+                  style={{ width: formData.password ? "100%" : "0%" }}
+                ></div>
+              </div>
+              {err.passwordErr && (
+                <p className="mt-2 text-sm text-red-600 font-player">
+                  {err.passwordErr}
+                </p>
+              )}
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="w-full px-4 py-3 text-white bg-gradient-to-r from-red-600 to-red-800 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 font-title tracking-wider text-lg transition-all duration-200 transform hover:-translate-y-0.5"
+              >
+                LOGIN
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-6 pt-4 text-center border-t border-gray-100">
+            <p className="text-sm text-gray-500 font-section">
+              DON'T HAVE AN ACCOUNT?{" "}
+              <Link
+                to="/register"
+                className="text-red-600 hover:text-red-700 font-bold"
+              >
+                REGISTER
+              </Link>
+            </p>
           </div>
-          <div>
-            <label
-              htmlFor="emailOrUsername"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email address or username
-            </label>
-            <input
-              id="emailOrUsername"
-              name="emailOrUsername"
-              type="text"
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              value={formData.emailOrUsername}
-              onChange={handleChange}
-            />
-            {err.emailUsernameErr && (
-              <p className="mt-2 text-sm text-red-600">
-                {err.emailUsernameErr}
-              </p>
-            )}
+
+          <div className="mt-6 flex items-center justify-center space-x-4">
+            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+              <span className="text-red-600 font-bold text-xs">FB</span>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+              <span className="text-red-600 font-bold text-xs">TW</span>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+              <span className="text-red-600 font-bold text-xs">IG</span>
+            </div>
           </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            {err.passwordErr && (
-              <p className="mt-2 text-sm text-red-600">{err.passwordErr}</p>
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            <button
-              type="submit"
-              className="w-full px-4 py-2 text-white bg-indigo-600 rounded shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-indigo-500"
-            >
-              Login
-            </button>
-          </div>
-        </form>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
-            <Link
-              to="/register"
-              className="text-indigo-600 hover:text-indigo-500"
-            >
-              Register
-            </Link>
-          </p>
         </div>
       </div>
     </div>

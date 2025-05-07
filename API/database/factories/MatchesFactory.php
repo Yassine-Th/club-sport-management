@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Club;
 use App\Models\Matches;
+use App\Models\tabler;
 use App\Models\Matchs;
 use App\Models\MyClub;
 use Illuminate\Database\Eloquent\Factories\Factory;

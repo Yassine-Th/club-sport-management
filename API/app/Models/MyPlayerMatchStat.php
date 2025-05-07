@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MyPlayerMatchStat extends Model
 {
-      use HasFactory;
+    use HasFactory;
 
     protected $fillable = [
         'match_id',

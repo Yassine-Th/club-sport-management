@@ -17,8 +17,8 @@ class Club extends Model
         'coach_name',
     ];
 
-    // Matches where this club was the opponent
-    public function matches()
+    // tabler where this club was the opponent
+    public function Matches()
     {
         return $this->hasMany(Matches::class, 'opponent_club_id');
     }

@@ -9,7 +9,7 @@ class Matches extends Model
 {
     /** @use HasFactory<\Database\Factories\MatchsFactory> */
     use HasFactory;
-    
+
 
     protected $fillable = [
         'my_club_id',

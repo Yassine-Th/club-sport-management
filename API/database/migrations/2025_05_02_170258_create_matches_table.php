@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('my_club_id')->constrained('my_club');
             $table->foreignId('opponent_club_id')->constrained('clubs');
-            $table->dateTime('match_date'); 
+            $table->dateTime('match_date');
             $table->boolean('is_home')->default(true);
             $table->unsignedBigInteger('my_club_goals')->nullable();
             $table->unsignedBigInteger('opponent_club_goals')->nullable();
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('matches');
+        Schema::dropIfExists('tabler');
     }
 };

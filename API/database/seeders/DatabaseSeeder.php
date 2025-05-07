@@ -5,11 +5,11 @@ namespace Database\Seeders;
 use App\Models\Categories;
 use App\Models\Clothes;
 use App\Models\Club;
-use App\Models\Matches;
+use App\Models\tabler;
 use App\Models\Product;
 use App\Models\Size;
 use App\Models\User;
-use App\Models\Matchs;
+use App\Models\Matches;
 use App\Models\MyClub;
 use App\Models\Player;
 use App\Models\MyPlayerMatchStat;
@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
         Clothes::factory(5)->create();
         MyClub::factory(1)->create();
         Club::factory(5)->create();
-        // Seed matches
+        // Seed tabler
         Matches::factory(5)->create()->each(function ($match) {
             // Seed players for each match
             Player::factory(11)->create(['my_club_id' => $match->my_club_id])->each(function ($player) use ($match) {
