@@ -6,9 +6,9 @@ import Login from "./Auth/Login";
 import { getUserRole } from "./helpers/access_token";
 import Register from "./Auth/Register";
 import AdLayout from "./app/Admin/AdLayout";
-import AdTLayout from "./app/Journalist/AdLayout";
-import FormNews from "./app/Journalist/News/News";
 import JRTLayout from "./app/Journalist/AdLayout";
+import News from "./app/Journalist/News/News";
+import CreateNew from "./app/Journalist/News/Create";
 
 function App() {
   const user_role = getUserRole();
@@ -39,9 +39,13 @@ function App() {
                   />
                   <Route
                     path="/journalist/news"
-                    element={<JRTLayout> <FormNews/> </JRTLayout>}
+                    element={<JRTLayout> <News/> </JRTLayout>}
                   />
-                  
+
+                  <Route
+                    path="/journalist/create"
+                    element={<JRTLayout> <CreateNew/> </JRTLayout>}
+                  />
                 </>
               )}
               {user_role === "store_manager" && (

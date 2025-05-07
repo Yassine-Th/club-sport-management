@@ -11,7 +11,7 @@ class News extends Model
     use HasFactory;
 
     protected $fillable = [
-        'author_id',
+        'journalist_id',
         'title',
         'content',
         'image',
@@ -20,7 +20,7 @@ class News extends Model
 
     public function author()
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->belongsTo(User::class, 'journalist_id');
     }
 
     public function comments()
