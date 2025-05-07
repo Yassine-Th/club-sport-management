@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Matches extends Model
+class tabler extends Model
 {
     /** @use HasFactory<\Database\Factories\MatchsFactory> */
     use HasFactory;
-    
+
 
     protected $fillable = [
         'my_club_id',

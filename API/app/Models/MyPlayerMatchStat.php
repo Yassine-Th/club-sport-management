@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MyPlayerMatchStat extends Model
 {
-      use HasFactory;
+    use HasFactory;
 
     protected $fillable = [
         'match_id',
@@ -20,7 +20,7 @@ class MyPlayerMatchStat extends Model
 
     public function match()
     {
-        return $this->belongsTo(Matches::class);
+        return $this->belongsTo(tabler::class);
     }
 
     public function player()

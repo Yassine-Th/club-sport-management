@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 import instance from "../helpers/axios";
@@ -82,7 +82,8 @@ const Register = () => {
       address: formData.address,
     };
 
-    instance.post("/register", user)
+    instance
+      .post("/register", user)
       .then(() => {
         navigate("/login");
       })
@@ -102,146 +103,224 @@ const Register = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded shadow-md">
-        <h2 className="text-2xl font-bold text-center">Register</h2>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Username
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              value={formData.username}
-              onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded shadow-sm"
-            />
-            {err.usernameErr && (
-              <p className="mt-1 text-sm text-red-600">{err.usernameErr}</p>
-            )}
+    <div className="flex items-center justify-center min-h-screen bg-white py-12 overflow-hidden relative">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-r from-red-600 to-red-800"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-red-50 rounded-full -mr-32 -mt-32"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-red-50 rounded-full -ml-40 -mb-40"></div>
+
+      <div className="w-full max-w-2xl relative">
+        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-red-500 to-red-700 rounded-full"></div>
+
+        <div className="bg-white rounded-xl shadow-xl p-8 border border-gray-100">
+          <div className="text-center mb-6">
+            <div className="inline-block p-3 bg-red-50 rounded-full mb-3">
+              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-r from-red-600 to-red-800 rounded-full text-white font-title text-xl">
+                HC
+              </div>
+            </div>
+            <h2 className="font-title text-3xl text-gray-800 tracking-wider">
+              JOIN HUSA CLUB
+            </h2>
+            <p className="text-gray-500 font-section text-sm mt-1">
+              BECOME A MEMBER
+            </p>
           </div>
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded shadow-sm"
-            />
-            {err.emailErr && (
-              <p className="mt-1 text-sm text-red-600">{err.emailErr}</p>
-            )}
-          </div>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-section text-gray-600 mb-1"
+                >
+                  USERNAME
+                </label>
+                <div className="relative">
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={formData.username}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  />
+                  <div
+                    className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-full transition-all duration-300"
+                    style={{ width: formData.username ? "100%" : "0%" }}
+                  ></div>
+                </div>
+                {err.usernameErr && (
+                  <p className="mt-1 text-sm text-red-600 font-player">
+                    {err.usernameErr}
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded shadow-sm"
-            />
-            {err.passwordErr && (
-              <p className="mt-1 text-sm text-red-600">{err.passwordErr}</p>
-            )}
-          </div>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-section text-gray-600 mb-1"
+                >
+                  EMAIL
+                </label>
+                <div className="relative">
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  />
+                  <div
+                    className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-full transition-all duration-300"
+                    style={{ width: formData.email ? "100%" : "0%" }}
+                  ></div>
+                </div>
+                {err.emailErr && (
+                  <p className="mt-1 text-sm text-red-600 font-player">
+                    {err.emailErr}
+                  </p>
+                )}
+              </div>
+            </div>
 
-          <div>
-            <label
-              htmlFor="password_confirmation"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Confirm Password
-            </label>
-            <input
-              id="password_confirmation"
-              name="password_confirmation"
-              type="password"
-              value={formData.password_confirmation}
-              onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded shadow-sm"
-            />
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-section text-gray-600 mb-1"
+                >
+                  PASSWORD
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  />
+                  <div
+                    className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-full transition-all duration-300"
+                    style={{ width: formData.password ? "100%" : "0%" }}
+                  ></div>
+                </div>
+                {err.passwordErr && (
+                  <p className="mt-1 text-sm text-red-600 font-player">
+                    {err.passwordErr}
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Phone
-            </label>
-            <input
-              id="phone"
-              name="phone"
-              type="text"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded shadow-sm"
-            />
-            {err.phoneErr && (
-              <p className="mt-1 text-sm text-red-600">{err.phoneErr}</p>
-            )}
-          </div>
+              <div>
+                <label
+                  htmlFor="password_confirmation"
+                  className="block text-sm font-section text-gray-600 mb-1"
+                >
+                  CONFIRM PASSWORD
+                </label>
+                <div className="relative">
+                  <input
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    type="password"
+                    value={formData.password_confirmation}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  />
+                  <div
+                    className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-full transition-all duration-300"
+                    style={{
+                      width: formData.password_confirmation ? "100%" : "0%",
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
 
-          <div>
-            <label
-              htmlFor="address"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Address
-            </label>
-            <input
-              id="address"
-              name="address"
-              type="text"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded shadow-sm"
-            />
-            {err.addressErr && (
-              <p className="mt-1 text-sm text-red-600">{err.addressErr}</p>
-            )}
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-section text-gray-600 mb-1"
+                >
+                  PHONE
+                </label>
+                <div className="relative">
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="text"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  />
+                  <div
+                    className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-full transition-all duration-300"
+                    style={{ width: formData.phone ? "100%" : "0%" }}
+                  ></div>
+                </div>
+                {err.phoneErr && (
+                  <p className="mt-1 text-sm text-red-600 font-player">
+                    {err.phoneErr}
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
-            >
-              Register
-            </button>
-          </div>
+              <div>
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-section text-gray-600 mb-1"
+                >
+                  ADDRESS
+                </label>
+                <div className="relative">
+                  <input
+                    id="address"
+                    name="address"
+                    type="text"
+                    value={formData.address}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  />
+                  <div
+                    className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-full transition-all duration-300"
+                    style={{ width: formData.address ? "100%" : "0%" }}
+                  ></div>
+                </div>
+                {err.addressErr && (
+                  <p className="mt-1 text-sm text-red-600 font-player">
+                    {err.addressErr}
+                  </p>
+                )}
+              </div>
+            </div>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">Already have an account? </p>
-            <Link
-              to="/login"
-              className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              Login
-            </Link>
-          </div>
-        </form>
+            <div className="pt-4">
+              <button
+                type="submit"
+                className="w-full px-4 py-3 text-white bg-gradient-to-r from-red-600 to-red-800 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 font-title tracking-wider text-lg transition-all duration-200 transform hover:-translate-y-0.5"
+              >
+                REGISTER
+              </button>
+            </div>
+
+            <div className="text-center pt-4 border-t border-gray-100 mt-4">
+              <p className="text-sm text-gray-500 font-section">
+                ALREADY HAVE AN ACCOUNT?
+              </p>
+              <Link
+                to="/login"
+                className="text-sm font-medium text-red-600 hover:text-red-700 font-bold"
+              >
+                LOGIN
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

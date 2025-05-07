@@ -20,7 +20,7 @@ class Ticket extends Model
 
     public function match()
     {
-        return $this->belongsTo(Matches::class);
+        return $this->belongsTo(tabler::class);
     }
 
     public function orderTickets()
@@ -31,7 +31,7 @@ class Ticket extends Model
     public function orders()
     {
         return $this->belongsToMany(Order::class, 'order_tickets')
-                    ->withPivot(['quantity','purchase_price'])
-                    ->withTimestamps();
+            ->withPivot(['quantity', 'purchase_price'])
+            ->withTimestamps();
     }
 }

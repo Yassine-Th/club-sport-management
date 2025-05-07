@@ -6,13 +6,11 @@ import {
     Container,
     Paper,
     Title,
-    Text,
     TextInput,
     PasswordInput,
     Button,
     Stack,
     Alert, // Use Alert for status/general errors
-    LoadingOverlay, // Optional: for visual loading state
 } from '@mantine/core';
 import { IconAt, IconLock, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 

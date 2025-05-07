@@ -8,15 +8,15 @@ import Register from "./Auth/Register";
 import AdLayout from "./app/Admin/AdLayout";
 import UnauthorizedPage from "./layouts/Unauthorized";
 import Home from "./app/User/Home";
+import Header from "./app/User/Header";
+import Boutique from "./app/User/Boutique/Boutique";
 
 function App() {
   const user_role = getUserRole();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    isLoggedIn(setIsAuthorized);
-     console.log(user_role);
-      
+    isLoggedIn(setIsAuthorized);      
   }, []);
 
   return (
@@ -33,20 +33,23 @@ function App() {
                   <Route path="/admin" element={<AdLayout></AdLayout>} />
                 </>
               )}
-              
-              {user_role === "user" && (
-                <>
-                  <Route path="/home" element={<Home/>} />
-                </>
-              )}
             </>
           ) : (
             <>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="*" element={<Login />} />
             </>
           )}
+          (
+          <>
+            <Route path="/" element={<Home />} />
+            <Route path="/boutique" element={<Boutique />} />
+
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="*" element={<Login />} />
+          </>
+          )
         </Routes>
       </BrowserRouter>
     </>

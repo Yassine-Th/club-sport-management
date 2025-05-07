@@ -1,6 +1,6 @@
-import React from "react";
+import React from "react"; 
 import { useState, useEffect } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { UnstyledButton, Group, Text, Tooltip, Avatar } from "@mantine/core";
 import { useHotkeys } from "@mantine/hooks";
 import { IconChevronRight, IconChevronLeft } from "@tabler/icons-react";
@@ -11,10 +11,10 @@ function Sidebar({ navData, user }) {
 
   const activeLabel = navData.find((i) => i.link === location.pathname)?.label;
 
-  //Toggle collapse on Ctrl+B
+  // Toggle collapse on Ctrl+B
   useHotkeys([["mod+B", () => setCollapsed((c) => !c)]], []);
 
-  // auto-collapse on small screens
+  // Auto-collapse on small screens
   useEffect(() => {
     const handleResize = () => {
       window.innerWidth < 768 && setCollapsed(true);
@@ -30,7 +30,7 @@ function Sidebar({ navData, user }) {
       key={item.label}
       className={({ isActive }) =>
         `no-underline w-full block mb-1 ${
-          isActive ? "text-white" : "text-gray-400 hover:text-white"
+          isActive ? "text-white" : "text-gray-300 hover:text-white"
         }`
       }
       end
@@ -39,7 +39,7 @@ function Sidebar({ navData, user }) {
         <Tooltip label={item.label} position="right" withArrow>
           <div
             className={`flex justify-center py-3 rounded-md transition-all duration-200 ${
-              activeLabel === item.label ? "bg-blue-600 text-white" : ""
+              activeLabel === item.label ? "bg-red-700 text-white" : ""
             }`}
           >
             <item.icon size="1.5rem" stroke={1.5} />
@@ -49,8 +49,8 @@ function Sidebar({ navData, user }) {
         <UnstyledButton
           className={`!w-full !rounded-md !px-4 !py-3 !transition-all !duration-200 !flex !items-center !gap-3 ${
             activeLabel === item.label
-              ? "!bg-blue-600 !text-white !font-medium"
-              : "!text-gray-300 hover:!bg-slate-800 hover:!text-white"
+              ? "!bg-red-700 !text-white !font-medium"
+              : "!text-gray-300 hover:!bg-red-900 hover:!text-white"
           }`}
         >
           <item.icon size="1.2rem" stroke={1.5} />
@@ -65,44 +65,39 @@ function Sidebar({ navData, user }) {
   return (
     <div
       style={{ width: collapsed ? 70 : 250 }}
-      className="transition-all duration-300 ease-in-out bg-slate-900 text-white h-screen fixed left-0 top-0 flex flex-col shadow-lg z-10"
+      className="transition-all duration-300 ease-in-out bg-gradient-to-b from-red-950 to-red-900 text-white h-screen fixed left-0 top-0 flex flex-col shadow-lg z-10"
     >
-      {/* Header */}
+      {/* Header with Logo */}
       <div
-        className={`flex items-center justify-between p-4 mb-6 border-b border-slate-800 ${
-          collapsed ? "justify-center" : ""
+        className={`flex flex-col items-center justify-center p-4 mb-2 border-b border-red-800 ${
+          collapsed ? "py-3" : "py-4"
         }`}
       >
         {!collapsed ? (
-          <Group spacing="sm">
-            <div className="h-8 w-8 rounded-md bg-blue-600 flex items-center justify-center text-white font-bold">
-              {
-                {
-                  admin: "AD",
-                  Journalist: "JR",
-                  store_manager: "STM",
-                }[user?.role || "NN"]
-              }
-            </div>
-            <Text fw={600} size="md" className="text-white tracking-wide">
-              {user?.name ?? "NN"}
+          <div className="flex flex-col items-center">
+            <img
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/z7UKOJyj_400x400.jpg-FaTwQMgv7594yqhjFNixF4tBplhmUG.jpeg"
+              alt="Club Logo"
+              className="h-12 w-12 mb-2"
+            />
+            <Text
+              fw={700}
+              size="md"
+              className="text-white tracking-wide uppercase"
+            >
+              HUSA Club
             </Text>
-          </Group>
-        ) : (
-          <div className="h-8 w-8 rounded-md bg-blue-600 flex items-center justify-center text-white font-bold">
-            {
-              {
-                administrateur: "AD",
-                formateur: "FM",
-                stagiaire: "ST",
-                surveillant_generale: "SG",
-              }[user?.role || "NN"]
-            }
           </div>
+        ) : (
+          <img
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/z7UKOJyj_400x400.jpg-FaTwQMgv7594yqhjFNixF4tBplhmUG.jpeg"
+            alt="Club Logo"
+            className="h-8 w-8"
+          />
         )}
         <UnstyledButton
           onClick={() => setCollapsed((c) => !c)}
-          className="!absolute !-right-3 !top-5 !h-6 !w-6 !rounded-full !bg-blue-600 border !border-slate-800 flex items-center justify-center shadow-md hover:!bg-blue-700 transition-colors"
+          className="!absolute !-right-3 !top-12 !h-6 !w-6 !rounded-full !bg-red-600 border !border-red-800 flex items-center justify-center shadow-md hover:!bg-red-700 transition-colors"
         >
           {collapsed ? (
             <IconChevronRight size="0.8rem" />
@@ -112,6 +107,9 @@ function Sidebar({ navData, user }) {
         </UnstyledButton>
       </div>
 
+      {/* User Role Badge */}
+      
+
       {/* Nav links */}
       <div
         className={`flex-grow overflow-y-auto px-2 ${
@@ -120,30 +118,64 @@ function Sidebar({ navData, user }) {
       >
         {links}
       </div>
+      <div className={`px-4 mb-4 ${collapsed ? "flex justify-center" : ""}`}>
+        {!collapsed ? (
+          <div className="bg-red-800/50 rounded-md p-2 flex items-center gap-2">
+            <div className="h-6 w-6 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
+              {
+                {
+                  admin: "AD",
+                  Journalist: "JR",
+                  store_manager: "STM",
+                }[user?.role || "NN"]
+              }
+            </div>
+            <Text size="xs" className="text-gray-200">
+              {
+                {
+                  admin: "Administrator",
+                  Journalist: "Journalist",
+                  store_manager: "Store Manager",
+                }[user?.role || "User"]
+              }
+            </Text>
+          </div>
+        ) : (
+          <div className="h-6 w-6 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
+            {
+              {
+                admin: "AD",
+                Journalist: "JR",
+                store_manager: "STM",
+              }[user?.role || "NN"]
+            }
+          </div>
+        )}
+      </div>
 
       {/* Footer */}
-      <div className="border-t border-slate-800 p-4 mt-auto">
+      {/* <div className="border-t border-red-800 p-4 mt-auto bg-red-950/50">
         <Group position={collapsed ? "center" : "apart"}>
           <Group>
-            {/* <Avatar
+            <Avatar
               size={36}
               radius="xl"
               src={user?.avatar}
-              className="border-2 border-slate-700"
-            /> */}
+              className="border-2 border-red-700"
+            />
             {!collapsed && (
               <div>
                 <Text size="sm" fw={600}>
-                  {user?.name}
+                  {user?.name || "User Name"}
                 </Text>
                 <Text size="xs" className="text-gray-400">
-                  {user?.email}
+                  {user?.email || "user@example.com"}
                 </Text>
               </div>
             )}
           </Group>
         </Group>
-      </div>
+      </div> */}
     </div>
   );
 }
