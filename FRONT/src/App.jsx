@@ -7,6 +7,7 @@ import { getUserRole } from "./helpers/access_token";
 import Register from "./Auth/Register";
 import AdLayout from "./app/Admin/AdLayout";
 import UnauthorizedPage from "./layouts/Unauthorized";
+import Home from "./app/User/Home";
 
 function App() {
   const user_role = getUserRole();
@@ -32,25 +33,10 @@ function App() {
                   <Route path="/admin" element={<AdLayout></AdLayout>} />
                 </>
               )}
-              {user_role === "journalist" && (
-                <>
-                  <Route
-                    path="/journalist"
-                    element={<h1>journalist Page</h1>}
-                  />
-                </>
-              )}
-              {user_role === "store_manager" && (
-                <>
-                  <Route
-                    path="/store_manager"
-                    element={<h1>Store_manager Page</h1>}
-                  />
-                </>
-              )}
+              
               {user_role === "user" && (
                 <>
-                  <Route path="/home" element={<h1>user Page</h1>} />
+                  <Route path="/home" element={<Home/>} />
                 </>
               )}
             </>
