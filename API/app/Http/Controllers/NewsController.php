@@ -91,19 +91,21 @@ class NewsController extends Controller
         $news->category = $request->category;
         $news->author_id = $request->author_id;
 
-        // التعامل مع الصورة
         if ($request->hasFile('image')) {
             // حذف الصورة القديمة إن وجدت
-            if ($news->image && file_exists(public_path('uploads/news/' . $news->image))) {
-                unlink(public_path('uploads/news/' . $news->image));
+            if ($news->image && file_exists(storage_path('images/' . $news->image))) {
+                unlink(storage_path('images/' . $news->image));
             }
-
+        
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/news'), $imageName);
+        
+            // حفظ الصورة في مجلد storage/app/public/images
+            $image->storeAs('public/images', $imageName);
+        
+            // حفظ اسم الصورة في قاعدة البيانات
             $news->image = $imageName;
         }
-
         $news->save();
 
         return response()->json([
