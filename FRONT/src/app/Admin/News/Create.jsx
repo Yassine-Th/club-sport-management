@@ -9,7 +9,7 @@ const CreateNew = () => {
   const user_id = user.id
 
   const [formData, setFormData] = useState({
-    journalist_id: user_id,
+    author_id: user_id,
     title: "",
     content: "",
     category: "",
@@ -32,7 +32,7 @@ const CreateNew = () => {
     e.preventDefault()
     setLoading(true)
     const formDataToSend = new FormData()
-    formDataToSend.append("journalist_id", formData.journalist_id)
+    formDataToSend.append("author_id", formData.author_id)
     formDataToSend.append("title", formData.title)
     formDataToSend.append("content", formData.content)
     formDataToSend.append("category", formData.category)
@@ -48,7 +48,7 @@ const CreateNew = () => {
       }, 3000)
       setError(null)
       setFormData({
-        journalist_id: user_id,
+        author_id: user_id,
         title: "",
         content: "",
         category: "",

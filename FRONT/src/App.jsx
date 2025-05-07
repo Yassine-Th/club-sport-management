@@ -8,6 +8,9 @@ import Register from "./Auth/Register";
 import AdLayout from "./app/Admin/AdLayout";
 import UnauthorizedPage from "./layouts/Unauthorized";
 import Home from "./app/User/Home";
+import News from "./app/Admin/News/News";
+import CreateNew from "./app/Admin/News/Create";
+import EditNew from "./app/Admin/News/edit";
 
 function App() {
   const user_role = getUserRole();
@@ -31,6 +34,11 @@ function App() {
               {user_role === "admin" && (
                 <>
                   <Route path="/admin" element={<AdLayout></AdLayout>} />
+                  <Route path="/admin/news" element={<AdLayout><News /></AdLayout>} />
+                  <Route path="/admin/create-new" element={<AdLayout><CreateNew /></AdLayout>} />
+                  <Route path="/admin/edit-new/:id" element={<AdLayout><EditNew /></AdLayout>} />
+
+
                 </>
               )}
               

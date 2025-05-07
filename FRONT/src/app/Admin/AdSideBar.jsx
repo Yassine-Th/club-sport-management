@@ -22,6 +22,7 @@ export default function AdSideBar() {
   }
   const nav_data = [
     { link: "/admin", label: "Dashboard", icon: IconDashboard },
+    { link: "/admin/news", label: "News", icon: IconReport },
     // { link: "/groupes", label: "Groupes", icon: IconUsersGroup },
    
   ];

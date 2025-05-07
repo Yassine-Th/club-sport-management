@@ -51,7 +51,7 @@ class User extends Authenticatable
     }
     public function news()
     {
-        return $this->hasMany(News::class, 'journalist_id');
+        return $this->hasMany(News::class, 'author_id');
     }
 
     // Comments made by this user
