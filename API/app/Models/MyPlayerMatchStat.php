@@ -20,7 +20,7 @@ class MyPlayerMatchStat extends Model
 
     public function match()
     {
-        return $this->belongsTo(tabler::class);
+        return $this->belongsTo(Matches::class);
     }
 
     public function player()

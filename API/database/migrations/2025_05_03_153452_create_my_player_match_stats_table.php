@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('my_player_match_stats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('match_id')->constrained('tabler')->onDelete('cascade');
+            $table->foreignId('match_id')->constrained('matches')->onDelete('cascade');
             $table->foreignId('player_id')->constrained('players')->onDelete('cascade');
             $table->unsignedInteger('goals_count')->default(0);
             $table->unsignedInteger('assists_count')->default(0);

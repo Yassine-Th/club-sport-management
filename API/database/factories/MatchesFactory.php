@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Club;
+use App\Models\Matches;
 use App\Models\tabler;
 use App\Models\Matchs;
 use App\Models\MyClub;
@@ -11,9 +12,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Matchs>
  */
-class tablerFactory extends Factory
+class MatchesFactory extends Factory
 {
-    protected $model = tabler::class;
+    protected $model = Matches::class;
 
     public function definition()
     {
