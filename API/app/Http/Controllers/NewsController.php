@@ -66,53 +66,47 @@ class NewsController extends Controller
     }
 
 
-    public function update(Request $request, $id)
-    {
-       
+  public function update(Request $request, $id)
+{
+    $validatedData = $request->validate([
+        'author_id' => 'required|exists:users,id',
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+        'category' => 'required|string|in:match,transfer,club,other',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        $request->validate([
-           'author_id' => 'required|exists:users,id',
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'category' => 'required|string|in:match,transfer,club,other',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+    $news = News::find($id);
 
-        $news = News::find($id);
-
-        if (!$news) {
-            return response()->json([
-                'message' => 'الخبر غير موجود.'
-            ], 404);
-        }
-        // تحديث الحقول
-        $news->title = $request->title;
-        $news->content = $request->content;
-        $news->category = $request->category;
-        $news->author_id = $request->author_id;
-
-        if ($request->hasFile('image')) {
-            // حذف الصورة القديمة إن وجدت
-            if ($news->image && file_exists(storage_path('images/' . $news->image))) {
-                unlink(storage_path('images/' . $news->image));
-            }
-        
-            $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-        
-            // حفظ الصورة في مجلد storage/app/public/images
-            $image->storeAs('public/images', $imageName);
-        
-            // حفظ اسم الصورة في قاعدة البيانات
-            $news->image = $imageName;
-        }
-        $news->save();
-
+    if (!$news) {
         return response()->json([
-            'message' => 'News updated successfully',
-            'news' => $news
-        ], 200);
+            'message' => 'news  not found.'
+        ], 404);
     }
+
+    // تحديث الحقول
+    $news->title = $validatedData['title'];
+    $news->content = $validatedData['content'];
+    $news->category = $validatedData['category'];
+    $news->author_id = $validatedData['author_id'];
+
+    if ($request->hasFile('image')) {
+       if ($news->image && Storage::disk('public')->exists($news->image)) {
+            Storage::disk('public')->delete($news->image);
+        }
+        // رفع الصورة الجديدة
+        $news->image =  $request->hasFile('image') ? $request->file('image')->store('images', 'public') : null;
+
+    }
+
+    $news->save();
+
+    return response()->json([
+        'message' => 'تم تحديث الخبر بنجاح.',
+        'news' => $news
+    ], 200);
+}
+
     
-    }
+}
 

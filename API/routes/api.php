@@ -12,9 +12,12 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ClothesController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserNewsController;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
     ->middleware('guest')
@@ -68,6 +71,14 @@ Route::delete('/news-delete/{id}', [NewsController::class, 'destroy']);
 Route::get('/news/{id}', [NewsController::class, 'edit']);
 Route::put('/news/update/{id}', [NewsController::class, 'update']);
 
+
+Route::get('/latest-news', [HomeController::class, 'index_news']);
+Route::get('/news-user', [UserNewsController::class, 'index']);
+route::get('/news-user/{id}', [UserNewsController::class, 'show']);
+route::post('/comment-add', [CommentController::class, 'store']);
+route::get('/comments-by-news/{id}', [CommentController::class, 'index']);
+route::delete('/comments-delete/{id}', [CommentController::class, 'destroy']);
+Route::put('/comments-edit/{id}', [CommentController::class, 'update']);
 
 
 

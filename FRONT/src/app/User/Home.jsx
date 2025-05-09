@@ -3,8 +3,24 @@ import React from "react";
 import Footer from "./Footer";
 import logo from "../../assets/logo.png";
 import Header from "./Header";
+import { useState,useEffect } from "react";
+import axios from "axios";
+import instance from "../../helpers/axios";
 
 const Home = () => {
+  const [lastNews, setLastNews] = useState([]);
+
+  useEffect(() => {
+    instance.get("/latest-news")
+      .then((response) => {
+        setLastNews(response.data.latestNews);
+        console.log("Last news:", response.data.message);
+      })
+      .catch((error) => {
+        console.error("Error fetching last news:", error);
+      });
+  }, []);
+
   return (
     <>
       <Header />
@@ -54,29 +70,33 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((item) => (
+            {lastNews.map((item) => (
               <div
                 key={item}
                 className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:-translate-y-1"
               >
-                <div className="h-48 bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-center">
-                  <span className="font-title text-white text-xl">
-                    IMAGE ACTU
-                  </span>
+                <div className="h-48 bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-center overflow-hidden rounded-md">
+                  <img
+                    src={`http://localhost:8000/storage/${item.image}`}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="p-6">
                   <div className="font-section text-xs text-red-600 mb-2">
-                    10 MAI 2023
+                    {item.date}
                   </div>
                   <h3 className="font-title text-xl mb-2">
-                    L'équipe se prépare pour le prochain match
+                    {item.title}
                   </h3>
                   <p className="text-gray-600 mb-4 line-clamp-2">
-                    L'équipe s'entraîne intensément en vue du match contre le
-                    Raja Club...
+                   {item.content}
                   </p>
+                  <div className="font-section text-xs text-red-600 mb-2">
+                    {item.category}
+                  </div>
                   <Link
-                    to={`/news/${item}`}
+                    to={`/news/${item.id}`}
                     className="font-section text-red-600 hover:text-red-700"
                   >
                     LIRE PLUS →

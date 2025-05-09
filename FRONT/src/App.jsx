@@ -13,6 +13,8 @@ import CreateNew from "./app/Admin/News/Create";
 import EditNew from "./app/Admin/News/edit";
 import Header from "./app/User/Header";
 import Boutique from "./app/User/Boutique/Boutique";
+import NewsUser from "./app/User/News/News";
+import DetailNews from "./app/User/News/Details";
 
 function App() {
   const user_role = getUserRole();
@@ -37,8 +39,6 @@ function App() {
                   <Route path="/admin/news" element={<AdLayout><News /></AdLayout>} />
                   <Route path="/admin/create-new" element={<AdLayout><CreateNew /></AdLayout>} />
                   <Route path="/admin/edit-new/:id" element={<AdLayout><EditNew /></AdLayout>} />
-
-
                 </>
               )}
             </>
@@ -52,6 +52,9 @@ function App() {
           <>
             <Route path="/" element={<Home />} />
             <Route path="/boutique" element={<Boutique />} />
+            <Route path="/news" element={<NewsUser />} />
+            <Route path="/news/:id" element={<DetailNews />} />
+
 
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

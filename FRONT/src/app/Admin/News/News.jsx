@@ -1,70 +1,73 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
-import React from "react"
-import { ChevronRight, Loader2, PlusCircle, RefreshCw, AlertCircle } from "lucide-react"
-import instance from "../../../helpers/axios"
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import React from "react";
+import { ChevronRight, Loader2, PlusCircle, RefreshCw, AlertCircle } from "lucide-react";
+import { FaTrash, FaEdit } from "react-icons/fa";
+import instance from "../../../helpers/axios";
+
 export default function News() {
-  const [news, setNews] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [loadingDelete, setLoadingDelete] = useState(false)
-  const [error, setError] = useState(null)
-  const [success, setSuccess] = useState(null)
+  const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [deleteItemId, setDeleteItemId] = useState(null); // Track the item ID to delete
 
   const fetchNews = async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      const response = await instance.get("/news")
-      const data = response.data.data ?? response.data
-      console.log(data)
-      setNews(data)
+      const response = await instance.get("/news");
+      const data = response.data.data ?? response.data;
+      console.log(data);
+      setNews(data);
     } catch (err) {
-      console.error("Error fetching news:", err)
-      setError("Impossible de charger les actualités.")
+      console.error("Error fetching news:", err);
+      setError("Impossible de charger les actualités.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleRefresh = () => {
-    fetchNews()
-  }
+    fetchNews();
+  };
 
   useEffect(() => {
-    fetchNews()
-  }, [])
+    fetchNews();
+  }, []);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen text-lg font-semibold">
         Chargement…
       </div>
-    )
+    );
   }
 
-  const hnadeldelete = async (e,id) => {
-    e.preventDefault()
-    setLoadingDelete(true)
-    setError(null)
+  const handleDelete = async (id) => {
+    setLoadingDelete(true);
+    setError(null);
     try {
-      const response = await instance.delete(`/news-delete/${id}`)
-      const data = response.data.data ?? response.data
-      setSuccess(data.message)
+      const response = await instance.delete(`/news-delete/${id}`);
+      const data = response.data.data ?? response.data;
+      setSuccess(data.message);
       setTimeout(() => {
-        setSuccess("")
-      }, 3000)
-      setError(null)
-      console.log(data)
-      setNews((prevNews) => prevNews.filter((item) => item.id !== id)) // Remove the deleted news item from the state
+        setSuccess("");
+      }, 3000);
+      setError(null);
+      console.log(data);
+      setNews((prevNews) => prevNews.filter((item) => item.id !== id));
+      setDeleteItemId(null); // Close the modal after delete
     } catch (err) {
-      console.error("Error fetching news:", err)
-      setError("Impossible de charger les actualités.")
+      console.error("Error fetching news:", err);
+      setError("Impossible de charger les actualités.");
     } finally {
-      setLoadingDelete(false)
+      setLoadingDelete(false);
     }
-  }
+  };
 
   if (error) {
     return (
@@ -84,9 +87,8 @@ export default function News() {
           </button>
         </div>
       </div>
-    )
+    );
   }
-
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6">
@@ -109,7 +111,7 @@ export default function News() {
 
           <Link
             to="/admin/create-new"
-            className="group flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 font-medium"
+            className="group flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 font-medium"
           >
             <PlusCircle className="h-5 w-5" />
             Ajouter une actualité
@@ -124,12 +126,8 @@ export default function News() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Journaliste
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Titre
-                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Journaliste</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -150,23 +148,21 @@ export default function News() {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.title}</td>
-                      <td>
-                      <Link
-                        to={`/admin/edit-new/${item.id}`} 
-                        className="inline-block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                      >
-                        Modifeir
-                      </Link>
-                      <button className="inline-block px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors duration-200 ml-2"
-                        onClick={(e) => {
-                          if (window.confirm("Êtes-vous sûr de vouloir supprimer cette actualité ?")) {
-                            hnadeldelete(e,item.id)
-                          }
-                        }
-                      }
-                      >
-                        {loadingDelete ? "Loding..." : "Supprimer"}
-                      </button>
+                      <td className="flex items-center space-x-4">
+                        <Link
+                          to={`/admin/edit-new/${item.id}`}
+                          className="text-blue-600 hover:text-blue-800 transition-colors duration-200 text-xl mt-2"
+                          title="Modifier"
+                        >
+                          <FaEdit />
+                        </Link>
+                        <button
+                          onClick={() => setDeleteItemId(item.id)} // Set the delete item ID
+                          className="text-red-600 hover:text-red-800 transition-colors duration-200 text-xl mt-2"
+                          title="Supprimer"
+                        >
+                          <FaTrash />
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -199,6 +195,33 @@ export default function News() {
           </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {deleteItemId && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-[9999]"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+        >
+          <div className="bg-white rounded-lg p-6 shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-semibold mb-4 text-center">Confirmer la suppression</h2>
+            <p className="mb-6 text-center">Voulez-vous vraiment supprimer cette actualité ?</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => handleDelete(deleteItemId)} // Call handleDelete with the item ID
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+              >
+                Supprimer
+              </button>
+              <button
+                onClick={() => setDeleteItemId(null)} // Close the modal without deleting
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }

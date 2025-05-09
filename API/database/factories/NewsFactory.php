@@ -17,10 +17,10 @@ class NewsFactory extends Factory
     public function definition(): array
     {
         return [
-            'journalist_id' => \App\Models\User::factory()->create()->id,
+            'author_id' => \App\Models\User::factory()->create()->id,
             'title' => $this->faker->sentence(),
             'content' => $this->faker->paragraph(),
-            'image' => $this->faker->imageUrl(),
+            'image' => 'images/husa.png',
             'category' => $this->faker->randomElement(['match', 'transfer', 'club', 'other']),
             'created_at' => now(),
             'updated_at' => now(),
