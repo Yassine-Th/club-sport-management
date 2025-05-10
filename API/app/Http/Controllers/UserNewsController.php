@@ -10,6 +10,7 @@ class UserNewsController extends Controller
     public function index(){
         $news = News::orderBy('id', 'desc')->get();
 
+
         return response()->json([
             'message' => 'News fetched successfully',
             'news' => $news,
@@ -25,9 +26,15 @@ class UserNewsController extends Controller
             ])->setStatusCode(404);
         }
 
+        $relationNews = News::where('category', $news->category)->get();
+
+
+
         return response()->json([
             'message' => 'News fetched successfully',
             'news' => $news,
+            'relationNews' => $relationNews
+
         ])->setStatusCode(200);
     }
 }
