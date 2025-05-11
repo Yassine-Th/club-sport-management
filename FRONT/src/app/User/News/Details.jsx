@@ -14,6 +14,8 @@ import {
   FaComment,
   FaChevronDown,
   FaChevronUp,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa"
 import { ChevronRight } from "lucide-react"
 import instance from "../../../helpers/axios"
@@ -43,6 +45,10 @@ const DetailNews = () => {
   const [relationNews, setRelationNews] = useState(null)
   const [showFull, setShowFull] = useState(false)
   const maxChars = 20
+
+  // Pagination state for related news
+  const [currentPage, setCurrentPage] = useState(1)
+  const newsPerPage = 3
 
   useEffect(() => {
     const fetchNewsDetail = async () => {
@@ -182,6 +188,27 @@ const DetailNews = () => {
     setVisibleCommentsCount(Math.max(3, visibleCommentsCount - 3))
   }
 
+  // Pagination functions for related news
+  const nextPage = () => {
+    if (relationNews && currentPage < Math.ceil(relationNews.length / newsPerPage)) {
+      setCurrentPage(currentPage + 1)
+    }
+  }
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
+
+  // Get current news items
+  const getCurrentNews = () => {
+    if (!relationNews) return []
+    const indexOfLastNews = currentPage * newsPerPage
+    const indexOfFirstNews = indexOfLastNews - newsPerPage
+    return relationNews.slice(indexOfFirstNews, indexOfLastNews)
+  }
+
   if (loading) {
     return (
       <>
@@ -259,10 +286,14 @@ const DetailNews = () => {
     ? `http://localhost:8000/storage/${actualite.image}`
     : "https://via.placeholder.com/800x400?text=No+Image+Available"
 
+  // Get current news for pagination
+  const currentNews = getCurrentNews()
+  const totalPages = relationNews ? Math.ceil(relationNews.length / newsPerPage) : 0
+
   return (
     <>
       <Headers />
-      <div className="max-w-5xl mx-auto px-4 py-12 md:py-16">
+      <div className="max-w-6xl mx-auto px-4 py-12 md:py-16">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           {/* Image with gradient overlay */}
           <div className="relative">
@@ -461,7 +492,7 @@ const DetailNews = () => {
           </div>
         </div>
 
-        {/* Related News Section */}
+        {/* Related News Section with Pagination */}
         {relationNews && relationNews.length > 0 && (
           <div className="mt-12">
             <div className="flex items-center mb-8">
@@ -469,38 +500,75 @@ const DetailNews = () => {
               <h2 className="text-2xl font-bold text-gray-900">Articles similaires</h2>
             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                             {relationNews.map((item) => (
-                               <div
-                                 key={item.id}
-                                 className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-lg"
-                               >
-                                 <div className="h-56 overflow-hidden relative">
-                                   <img
-                                     src={`http://localhost:8000/storage/${item.image}`}
-                                     alt={item.title}
-                                     className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
-                                     style={{ objectPosition: "center" }}
-                                   />
-                                   <div className="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                                     {item.category}
-                                   </div>
-                                 </div>
-                                 <div className="p-6">
-                                   <div className="text-sm text-red-600 font-medium mb-3">{item.date}</div>
-                                   <h3 className="text-xl font-bold mb-3 text-gray-900 line-clamp-2">{item.title}</h3>
-                                   <p className="text-gray-600 mb-5 line-clamp-3">{item.content}</p>
-                                   <Link
-                                     to={`/news/${item.id}`}
-                                     className="inline-flex items-center text-red-600 hover:text-red-800 font-semibold group"
-                                   >
-                                     LIRE PLUS
-                                     <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                                   </Link>
-                                 </div>
-                               </div>
-                             ))}
-                           </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {currentNews.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
+                >
+                  <div className="h-56 overflow-hidden relative">
+                    <img
+                      src={`http://localhost:8000/storage/${item.image}`}
+                      alt={item.title}
+                      className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
+                      style={{ objectPosition: "center" }}
+                    />
+                    <div className="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                      {item.category}
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="text-sm text-red-600 font-medium mb-3">{item.date}</div>
+                    <h3 className="text-xl font-bold mb-3 text-gray-900 line-clamp-2 hover:text-red-600 transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-600 mb-5 line-clamp-3">{item.content}</p>
+                    <Link
+                      to={`/news/${item.id}`}
+                      className="inline-flex items-center text-red-600 hover:text-red-800 font-semibold group"
+                    >
+                      LIRE PLUS
+                      <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination controls for related news */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-8 space-x-4">
+                <button
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                  className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                    currentPage === 1
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-red-600 text-white hover:bg-red-700"
+                  } transition-colors shadow`}
+                  aria-label="Page précédente"
+                >
+                  <FaChevronLeft className="w-4 h-4" />
+                </button>
+
+                <div className="text-gray-700 font-medium">
+                  Page {currentPage} sur {totalPages}
+                </div>
+
+                <button
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                  className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                    currentPage === totalPages
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-red-600 text-white hover:bg-red-700"
+                  } transition-colors shadow`}
+                  aria-label="Page suivante"
+                >
+                  <FaChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

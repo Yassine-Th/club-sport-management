@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react"
 import logo from "../../../assets/logo.png"
 import { ChevronLeft, ChevronRight, Loader2, ArrowLeft } from "lucide-react"
+import {FaChevronLeft, FaChevronRight} from 'react-icons/fa'
 import { Link } from "react-router-dom"
 import instance from "../../../helpers/axios"
 import Headers from "../../User/Header"
@@ -180,35 +181,29 @@ export default function NewsUser() {
                     <button
                       onClick={handlePrevPage}
                       disabled={currentPage === 1}
-                      className="flex items-center px-5 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <ChevronLeft className="mr-1 h-4 w-4" />
-                      Précédent
+                    className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                    currentPage === 1
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-red-600 text-white hover:bg-red-700"
+                      } transition-colors shadow`}
+                      aria-label="Page précédente"                    >
+                    <FaChevronLeft className="w-4 h-4" />
                     </button>
 
-                    <div className="flex items-center">
-                      {Array.from({ length: totalPages }, (_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setCurrentPage(i + 1)}
-                          className={`w-10 h-10 mx-1 rounded-md flex items-center justify-center transition-colors ${
-                            currentPage === i + 1
-                              ? "bg-red-600 text-white"
-                              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          {i + 1}
-                        </button>
-                      ))}
-                    </div>
+                   <div className="text-gray-700 font-medium">
+                      Page {currentPage} sur {totalPages}
+                   </div>
 
                     <button
                       onClick={handleNextPage}
                       disabled={currentPage === totalPages}
-                      className="flex items-center px-5 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      Suivant
-                      <ChevronRight className="ml-1 h-4 w-4" />
+                    className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                    currentPage === totalPages
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-red-600 text-white hover:bg-red-700"
+                    } transition-colors shadow`}
+                    aria-label="Page suivante"                    >
+                    <FaChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 )}
