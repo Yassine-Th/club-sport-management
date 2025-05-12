@@ -10,9 +10,11 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ClothesController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SizeController;
 use App\Http\Controllers\UserController;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -57,7 +59,9 @@ Route::apiResource('clothes', ClothesController::class)->only(['index', 'show'])
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Route::apiResource('products', ProductController::class);
+    Route::apiResource('produits', ProductController::class);
+    Route::apiResource("categories", CategoriesController::class);
+    Route::apiResource('sizes',SizeController::class);
     Route::apiResource('players', PlayerController::class);
 });
 

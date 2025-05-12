@@ -9,12 +9,18 @@ class SizeFactory extends Factory
 {
     protected $model = Size::class;
 
+    private static $labels = ['Small', 'Medium', 'Large', 'Extra-Large'];
+
     public function definition(): array
     {
-        $labels = ['Small', 'Medium', 'Large', 'Extra Large'];
+        if (empty(self::$labels)) {
+            throw new \Exception('No more unique labels available.');
+        }
+
+        $label = array_shift(self::$labels);
 
         return [
-            'label' => $this->faker->randomElement($labels),
+            'label' => $label,
         ];
     }
 }

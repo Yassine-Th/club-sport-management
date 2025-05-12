@@ -14,9 +14,9 @@ return new class extends Migration {
             $table->foreignId('product_id')
                 ->constrained('products')
                 ->onDelete('cascade');
-
             // Any clothes-specific fields:
-            $table->enum('gender', ['men', 'women',"children" ,'unisex'])->default('unisex');
+            $table->enum('gender', ['homme', 'femme',"enfant"])->default('homme');
+            $table->string('type')->default('Tenues de match');
             $table->timestamps();
         });
     }
