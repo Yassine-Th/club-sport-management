@@ -10,6 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { AddToCartButton,CartSidebar } from "./Cart";
 
 const Boutique = () => {
   const [products, setProducts] = useState([]);
@@ -136,6 +137,7 @@ const Boutique = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-800 to-red-600">
       <Header />
+      <CartSidebar />
       <section className="py-8 px-0">
         <div className="w-full">
           <div className="flex flex-col md:flex-row">
@@ -352,16 +354,15 @@ const Boutique = () => {
                                   : "0.00"}
                                 DH
                               </span>
-                              <button
-                                className="flex items-center text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors cursor-pointer"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  // Add your cart logic here
-                                }}
-                              >
-                                <ShoppingCart className="w-4 h-6 mr-1" />
-                                Ajouter au panier
-                              </button>
+                              {product.clothes ? (
+                                <></>
+                              ) : (
+                                <AddToCartButton
+                                  product={product}
+                                  quantity={1}
+                                  className="text-xs bg-red-600 text-white px-2 py-1 rounded-md hover:bg-red-700 transition-colors"
+                                />
+                              )}
                             </div>
                             {product.clothes &&
                               product.clothes.sizes &&

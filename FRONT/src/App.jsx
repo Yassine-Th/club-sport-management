@@ -15,6 +15,7 @@ import ProduitsList from "./app/Admin/Boutique/Produits/Produits-List";
 import ProduitForm from "./app/Admin/Boutique/Produits/produit-form";
 import AdProduitDetails from "./app/Admin/Boutique/Produits/AdProduitDetails";
 import AdUpdateProduct from "./app/Admin/Boutique/Produits/AdUpdateProduct";
+import CheckoutPage from "./app/User/Boutique/Checkout";
 
 
 function App() {
@@ -37,16 +38,48 @@ function App() {
               {user_role === "admin" && (
                 <>
                   <Route path="/admin" element={<AdLayout></AdLayout>} />
-                  <Route path="/admin/boutique/produits" element={<AdLayout> <ProduitsList/> </AdLayout>} />
-                  <Route path="/admin/boutique/produits/ajouter" element={<AdLayout> <ProduitForm/> </AdLayout>} />
-                  <Route path="/admin/boutique/produits/:id" element={<AdLayout> <AdProduitDetails/> </AdLayout>} />
-                  <Route path="/admin/boutique/produits/edit/:id" element={<AdLayout> <AdUpdateProduct/> </AdLayout>} />
+                  <Route
+                    path="/admin/boutique/produits"
+                    element={
+                      <AdLayout>
+                        {" "}
+                        <ProduitsList />{" "}
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/boutique/produits/ajouter"
+                    element={
+                      <AdLayout>
+                        {" "}
+                        <ProduitForm />{" "}
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/boutique/produits/:id"
+                    element={
+                      <AdLayout>
+                        {" "}
+                        <AdProduitDetails />{" "}
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/boutique/produits/edit/:id"
+                    element={
+                      <AdLayout>
+                        {" "}
+                        <AdUpdateProduct />{" "}
+                      </AdLayout>
+                    }
+                  />
                 </>
               )}
             </>
           ) : (
             <>
-              <Route path="/*" element={<Login/>} />
+              <Route path="/*" element={<Login />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
             </>
@@ -56,7 +89,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/boutique" element={<Boutique />} />
             <Route path="/boutique/:id" element={<ProduitDetail />} />
-
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </>

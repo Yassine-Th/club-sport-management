@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import Header from "../Header";
-import instance from "../../../helpers/axios";
 import {
   ShoppingCart,
   ChevronLeft,
-  Star,
   Package,
   Clock,
   Truck,
   Shield,
-  Edit,
-  Save,
-  X,
 } from "lucide-react";
+import Header from "../Header";
+import instance from "../../../helpers/axios";
+import { AddToCartButton, CartSidebar } from "./Cart";
 
 const ProduitDetail = () => {
   const { id } = useParams();
@@ -25,19 +23,12 @@ const ProduitDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
 
-  // Edit mode state
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedProduct, setEditedProduct] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState(null);
-
   useEffect(() => {
     const fetchProduit = async () => {
       try {
         const response = await instance.get(`/products/${id}`);
         const data = response.data.data;
         setProduit(data);
-        setEditedProduct(data); // Initialize edit form with current data
 
         // If product has sizes, select the first size by default
         if (data.clothes?.sizes?.length > 0) {
@@ -82,91 +73,7 @@ const ProduitDetail = () => {
       setQuantity((q) => q - 1);
     }
   };
-
-  const handleAddToCart = () => {
-    console.log("Added to cart:", {
-      product: produit,
-      quantity,
-      selectedSize: produit.clothes?.sizes?.find((s) => s.id === selectedSize),
-    });
-    // Show success notification or redirect to cart
-  };
-
-  // Handle form field changes
-  const handleFieldChange = (field, value) => {
-    setEditedProduct((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  // Handle clothes-specific fields
-  const handleClothesFieldChange = (field, value) => {
-    setEditedProduct((prev) => ({
-      ...prev,
-      clothes: {
-        ...prev.clothes,
-        [field]: value,
-      },
-    }));
-  };
-
-  // Handle stock changes for non-clothes products
-  const handleStockChange = (value) => {
-    const numValue = parseInt(value, 10) || 0;
-    setEditedProduct((prev) => ({
-      ...prev,
-      stock: numValue >= 0 ? numValue : 0,
-    }));
-  };
-
-  // Handle stock changes for specific sizes of clothes
-  const handleSizeStockChange = (sizeId, value) => {
-    const numValue = parseInt(value, 10) || 0;
-    setEditedProduct((prev) => ({
-      ...prev,
-      clothes: {
-        ...prev.clothes,
-        sizes: prev.clothes.sizes.map((size) =>
-          size.id === sizeId
-            ? {
-                ...size,
-                pivot: {
-                  ...size.pivot,
-                  stock: numValue >= 0 ? numValue : 0,
-                },
-              }
-            : size
-        ),
-      },
-    }));
-  };
-
-  // Save product changes
-  const handleSaveChanges = async () => {
-    setSaving(true);
-    setSaveError(null);
-
-    try {
-      const response = await instance.put(`/products/${id}`, editedProduct);
-      setProduit(response.data.data);
-      setIsEditing(false);
-      // Show success notification
-      alert("Produit mis à jour avec succès");
-    } catch (err) {
-      console.error(err);
-      setSaveError("Erreur lors de la sauvegarde. Veuillez réessayer.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Cancel editing
-  const handleCancelEdit = () => {
-    setEditedProduct(produit);
-    setIsEditing(false);
-    setSaveError(null);
-  };
+  
 
   if (loading) {
     return (
@@ -181,6 +88,8 @@ const ProduitDetail = () => {
       </div>
     );
   }
+  const selectedSizeObj =
+    produit?.clothes?.sizes?.find((s) => s.id === selectedSize) || null;
 
   if (error || !produit) {
     return (
@@ -210,6 +119,7 @@ const ProduitDetail = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-800 to-red-600">
       <Header />
+      <CartSidebar />
 
       <div className="px-4 py-8">
         {/* Product Details */}
@@ -219,7 +129,7 @@ const ProduitDetail = () => {
             <div className="w-full md:w-1/2 p-4 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
               {produit.image ? (
                 <img
-                  src={produit.image}
+                  src={produit.image || "/placeholder.svg"}
                   alt={produit.name}
                   className="max-h-96 object-contain"
                 />
@@ -230,175 +140,41 @@ const ProduitDetail = () => {
                   </span>
                 </div>
               )}
-
-              {isEditing && (
-                <div className="mt-4">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">
-                    URL de l'image
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                    value={editedProduct.image || ""}
-                    onChange={(e) => handleFieldChange("image", e.target.value)}
-                    placeholder="URL de l'image"
-                  />
-                </div>
-              )}
             </div>
 
             {/* Info */}
             <div className="w-full md:w-1/2 p-6">
               <div className="flex items-center justify-between mb-2">
-                {isEditing ? (
-                  <input
-                    type="text"
-                    className="font-title text-3xl w-full border-b border-gray-300 focus:outline-none focus:border-red-500"
-                    value={editedProduct.name}
-                    onChange={(e) => handleFieldChange("name", e.target.value)}
-                  />
-                ) : (
-                  <h1 className="font-title text-3xl">{produit.name}</h1>
-                )}
+                <h1 className="font-title text-3xl">{produit.name}</h1>
 
                 {produit.clothes && (
                   <span className="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-full">
-                    {isEditing ? (
-                      <select
-                        value={editedProduct.clothes.gender}
-                        onChange={(e) =>
-                          handleClothesFieldChange("gender", e.target.value)
-                        }
-                        className="bg-transparent border-none focus:outline-none"
-                      >
-                        <option value="homme">Homme</option>
-                        <option value="femme">Femme</option>
-                        <option value="enfant">Enfant</option>
-                      </select>
-                    ) : produit.clothes.gender === "homme" ? (
-                      "Homme"
-                    ) : produit.clothes.gender === "femme" ? (
-                      "Femme"
-                    ) : (
-                      "Enfant"
-                    )}
+                    {produit.clothes.gender === "homme"
+                      ? "Homme"
+                      : produit.clothes.gender === "femme"
+                      ? "Femme"
+                      : "Enfant"}
                   </span>
                 )}
               </div>
-
-              {/* Edit/Save Controls */}
-              <div className="flex justify-end mb-4">
-                {!isEditing ? (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-1 bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition-colors"
-                  >
-                    <Edit className="w-4 h-4" />
-                    Modifier
-                  </button>
-                ) : (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleCancelEdit}
-                      className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1 rounded-md hover:bg-gray-600 transition-colors"
-                      disabled={saving}
-                    >
-                      <X className="w-4 h-4" />
-                      Annuler
-                    </button>
-                    <button
-                      onClick={handleSaveChanges}
-                      className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition-colors"
-                      disabled={saving}
-                    >
-                      {saving ? (
-                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-1"></div>
-                      ) : (
-                        <Save className="w-4 h-4" />
-                      )}
-                      Enregistrer
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {saveError && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-md mb-4">
-                  {saveError}
-                </div>
-              )}
 
               {/* Price & Availability */}
               <div className="mb-6">
-                {isEditing ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      className="font-section text-2xl text-red-600 font-bold w-32 border-b border-gray-300 focus:outline-none focus:border-red-500"
-                      value={editedProduct.price}
-                      onChange={(e) =>
-                        handleFieldChange(
-                          "price",
-                          parseFloat(e.target.value) || 0
-                        )
-                      }
-                    />
-                    <span className="font-section text-2xl text-red-600 font-bold">
-                      DH
-                    </span>
-                  </div>
-                ) : (
-                  <span className="font-section text-2xl text-red-600 font-bold">
-                    {Number.parseFloat(produit.price).toFixed(2)} DH
-                  </span>
-                )}
+                <span className="font-section text-2xl text-red-600 font-bold">
+                  {Number.parseFloat(produit.price).toFixed(2)} DH
+                </span>
 
-                {!isEditing && (
-                  <span className="text-sm text-gray-500 ml-2">
-                    {isAvailable ? (
-                      <span className="text-green-600">Disponible</span>
-                    ) : (
-                      <span className="text-red-600">Rupture de stock</span>
-                    )}
-                  </span>
-                )}
+                <span className="text-sm text-gray-500 ml-2">
+                  {isAvailable ? (
+                    <span className="text-green-600">Disponible</span>
+                  ) : (
+                    <span className="text-red-600">Rupture de stock</span>
+                  )}
+                </span>
               </div>
 
-              {/* Stock Management for non-clothes */}
-              {isEditing && !produit.clothes && (
-                <div className="mb-6">
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Stock
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                    value={editedProduct.stock}
-                    onChange={(e) => handleStockChange(e.target.value)}
-                  />
-                </div>
-              )}
-
               {/* Description */}
-              {isEditing ? (
-                <div className="mb-6">
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                    value={editedProduct.description}
-                    onChange={(e) =>
-                      handleFieldChange("description", e.target.value)
-                    }
-                  ></textarea>
-                </div>
-              ) : (
-                <p className="text-gray-600 mb-6">{produit.description}</p>
-              )}
+              <p className="text-gray-600 mb-6">{produit.description}</p>
 
               {/* Size Selector */}
               {produit.clothes?.sizes?.length > 0 && (
@@ -422,150 +198,104 @@ const ProduitDetail = () => {
                         >
                           {size.label}
                         </button>
-
-                        {isEditing && (
-                          <div className="mt-1">
-                            <input
-                              type="number"
-                              min="0"
-                              className="w-16 px-2 py-1 border border-gray-300 rounded-md text-xs"
-                              value={
-                                editedProduct.clothes.sizes.find(
-                                  (s) => s.id === size.id
-                                )?.pivot.stock || 0
-                              }
-                              onChange={(e) =>
-                                handleSizeStockChange(size.id, e.target.value)
-                              }
-                              placeholder="Stock"
-                            />
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Only show these in view mode, not edit mode */}
-              {!isEditing && (
-                <>
-                  {/* Quantity */}
-                  <div className="mb-6">
-                    <label className="block text-gray-700 font-medium mb-2">
-                      Quantité
-                    </label>
-                    <div className="flex items-center">
-                      <button
-                        onClick={() => handleQuantityChange("decrement")}
-                        className={`px-3 py-1 border border-gray-300 rounded-l-md ${
-                          quantity === 1
-                            ? "text-gray-400"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`}
-                        disabled={!isAvailable || quantity === 1}
-                      >
-                        -
-                      </button>
-                      <input
-                        type="text"
-                        value={quantity}
-                        readOnly
-                        className="w-16 text-center border-t border-b border-gray-300 py-1"
-                      />
-                      <button
-                        onClick={() => handleQuantityChange("increment")}
-                        className={`px-3 py-1 border border-gray-300 rounded-r-md ${
-                          !isAvailable ||
-                          quantity >=
-                            (produit.clothes
-                              ? selectedSizeStock
-                              : produit.stock)
-                            ? "text-gray-400"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`}
-                        disabled={
-                          !isAvailable ||
-                          quantity >=
-                            (produit.clothes
-                              ? selectedSizeStock
-                              : produit.stock)
-                        }
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Add to Cart */}
+              {/* Quantity */}
+              <div className="mb-6">
+                <label className="block text-gray-700 font-medium mb-2">
+                  Quantité
+                </label>
+                <div className="flex items-center">
                   <button
-                    onClick={handleAddToCart}
-                    disabled={!isAvailable}
-                    className={`w-full py-3 px-6 rounded-lg flex items-center justify-center gap-2 text-white font-medium ${
-                      isAvailable
-                        ? "bg-red-600 hover:bg-red-700"
-                        : "bg-gray-400 cursor-not-allowed"
-                    } transition-colors`}
+                    onClick={() => handleQuantityChange("decrement")}
+                    className={`px-3 py-1 border border-gray-300 rounded-l-md ${
+                      quantity === 1
+                        ? "text-gray-400"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                    disabled={!isAvailable || quantity === 1}
                   >
-                    <ShoppingCart className="w-5 h-5" />
-                    {isAvailable ? "Ajouter au panier" : "Produit indisponible"}
+                    -
                   </button>
+                  <input
+                    type="text"
+                    value={quantity}
+                    readOnly
+                    className="w-16 text-center border-t border-b border-gray-300 py-1"
+                  />
+                  <button
+                    onClick={() => handleQuantityChange("increment")}
+                    className={`px-3 py-1 border border-gray-300 rounded-r-md ${
+                      !isAvailable ||
+                      quantity >=
+                        (produit.clothes ? selectedSizeStock : produit.stock)
+                        ? "text-gray-400"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                    disabled={
+                      !isAvailable ||
+                      quantity >=
+                        (produit.clothes ? selectedSizeStock : produit.stock)
+                    }
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
 
-                  {/* Features */}
-                  <div className="mt-8 grid grid-cols-2 gap-4">
-                    <div className="flex items-center">
-                      <div className="rounded-full bg-red-100 p-2 mr-3">
-                        <Truck className="w-5 h-5 text-red-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-sm">
-                          Livraison rapide
-                        </h4>
-                        <p className="text-xs text-gray-500">
-                          2-4 jours ouvrables
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="rounded-full bg-red-100 p-2 mr-3">
-                        <Package className="w-5 h-5 text-red-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-sm">
-                          Produit authentique
-                        </h4>
-                        <p className="text-xs text-gray-500">
-                          Qualité garantie
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="rounded-full bg-red-100 p-2 mr-3">
-                        <Shield className="w-5 h-5 text-red-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-sm">
-                          Garantie sécurisée
-                        </h4>
-                        <p className="text-xs text-gray-500">
-                          30 jours de garantie
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="rounded-full bg-red-100 p-2 mr-3">
-                        <Clock className="w-5 h-5 text-red-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-sm">Support 24/7</h4>
-                        <p className="text-xs text-gray-500">
-                          Assistance en ligne
-                        </p>
-                      </div>
-                    </div>
+              {/* Add to Cart */}
+              <AddToCartButton
+                product={produit}
+                selectedSize={selectedSizeObj}
+                quantity={quantity}
+                isAvailable={isAvailable}
+              />
+
+              {/* Features */}
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                <div className="flex items-center">
+                  <div className="rounded-full bg-red-100 p-2 mr-3">
+                    <Truck className="w-5 h-5 text-red-600" />
                   </div>
-                </>
-              )}
+                  <div>
+                    <h4 className="font-medium text-sm">Livraison rapide</h4>
+                    <p className="text-xs text-gray-500">2-4 jours ouvrables</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <div className="rounded-full bg-red-100 p-2 mr-3">
+                    <Package className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-sm">Produit authentique</h4>
+                    <p className="text-xs text-gray-500">Qualité garantie</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <div className="rounded-full bg-red-100 p-2 mr-3">
+                    <Shield className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-sm">Garantie sécurisée</h4>
+                    <p className="text-xs text-gray-500">
+                      30 jours de garantie
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <div className="rounded-full bg-red-100 p-2 mr-3">
+                    <Clock className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-sm">Support 24/7</h4>
+                    <p className="text-xs text-gray-500">Assistance en ligne</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

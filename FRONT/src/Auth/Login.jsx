@@ -1,11 +1,12 @@
 import React from "react";
 import instance from "../helpers/axios";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { setAxiosToken } from "../helpers/axios";
 import logo from "../assets/logo.png"
 
 const Login = () => {
+  const location = useLocation();
   const [formData, setFormData] = useState({
     emailOrUsername: "",
     password: "",
@@ -27,13 +28,11 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const userData = new FormData(e.target);
     const userInput = {
       emailOrUsername: userData.get("emailOrUsername"),
       password: userData.get("password"),
     };
-
     const email = userInput.emailOrUsername.includes("@")
       ? userInput.emailOrUsername
       : "";
@@ -46,16 +45,26 @@ const Login = () => {
         email: email || username,
         password: userInput.password,
       });
-
       const { access_token, user } = response.data;
+
+      // Store authentication information
       localStorage.setItem("access_token", JSON.stringify(access_token));
       setAxiosToken(access_token);
       localStorage.setItem("user", JSON.stringify(user));
 
+      // Check if there's a previous location in the state
+      const locationState = location.state;
+
       if (user.role === "admin") {
-        window.location.href = "/admin";
+        navigate("/admin");
       } else {
-        window.location.reload();
+        // If there's a previous location, navigate there
+        if (locationState && locationState.from) {
+          navigate(locationState.from);
+        } else {
+          // Default to boutique if no previous location
+          navigate("/");
+        }
       }
     } catch (error) {
       console.error(error);
