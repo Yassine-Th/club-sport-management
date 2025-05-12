@@ -15,12 +15,12 @@ class MyClub extends Model
         'founded',
         'coach_name',
     ];
-    public function matches()
+    /*public function matches()
     {
         return $this->hasMany(Matches::class, 'my_club_id');
     }
     public function players()
     {
         return $this->hasMany(Player::class, 'my_club_id');
-    }
+    }*/
 }

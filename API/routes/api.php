@@ -75,10 +75,28 @@ Route::put('/news/update/{id}', [NewsController::class, 'update']);
 Route::get('/latest-news', [HomeController::class, 'index_news']);
 Route::get('/news-user', [UserNewsController::class, 'index']);
 route::get('/news-user/{id}', [UserNewsController::class, 'show']);
+
 route::post('/comment-add', [CommentController::class, 'store']);
 route::get('/comments-by-news/{id}', [CommentController::class, 'index']);
 route::delete('/comments-delete/{id}', [CommentController::class, 'destroy']);
 Route::put('/comments-edit/{id}', [CommentController::class, 'update']);
+
+
+
+Route::get('/players', [PlayerController::class, 'index']);
+Route::delete('/player-delete/{id}', [PlayerController::class, 'destroy']);
+Route::post('/player-create', [PlayerController::class, 'store']);
+Route::get('/player-edit/{id}', [PlayerController::class, 'edit']);
+Route::put('/player/update/{id}', [PlayerController::class, 'update']);
+
+
+Route::get('/latest-players', [HomeController::class, 'index_players']);
+
+
+
+
+
+
 
 
 

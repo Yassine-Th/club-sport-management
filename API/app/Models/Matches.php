@@ -12,16 +12,16 @@ class Matches extends Model
 
 
     protected $fillable = [
-        'my_club_id',
+        //'my_club_id',
         'opponent_club_id',
         'match_date',
         'is_home',
     ];
 
-    public function myClub()
+    /*public function myClub()
     {
         return $this->belongsTo(MyClub::class, 'my_club_id');
-    }
+    }*/
 
     public function opponent()
     {

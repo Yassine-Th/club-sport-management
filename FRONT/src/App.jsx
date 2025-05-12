@@ -15,6 +15,9 @@ import Header from "./app/User/Header";
 import Boutique from "./app/User/Boutique/Boutique";
 import NewsUser from "./app/User/News/News";
 import DetailNews from "./app/User/News/Details";
+import Players from "./app/Admin/Players/Players";
+import PlayerCreate from "./app/Admin/Players/Create";
+import EditPlayer from "./app/Admin/Players/edit";
 
 function App() {
   const user_role = getUserRole();
@@ -39,6 +42,9 @@ function App() {
                   <Route path="/admin/news" element={<AdLayout><News /></AdLayout>} />
                   <Route path="/admin/create-new" element={<AdLayout><CreateNew /></AdLayout>} />
                   <Route path="/admin/edit-new/:id" element={<AdLayout><EditNew /></AdLayout>} />
+                  <Route path="/admin/players" element={<AdLayout><Players /></AdLayout>} />
+                  <Route path="/admin/create-player" element={<AdLayout><PlayerCreate /></AdLayout>} />
+                  <Route path="/admin/edit-player/:id" element={<AdLayout><EditPlayer /></AdLayout>} />
                 </>
               )}
             </>

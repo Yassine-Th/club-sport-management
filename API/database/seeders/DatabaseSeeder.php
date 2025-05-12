@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             NewsSeeder::class,
+            PlayersSeeder::class
         ]);
 
         // Seed sizes and categories

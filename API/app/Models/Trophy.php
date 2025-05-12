@@ -10,14 +10,14 @@ class Trophy extends Model
     use HasFactory;
 
     protected $fillable = [
-        'my_club_id',
+        //'my_club_id',
         'title',
         'year',
         'competition',
     ];
 
-    public function club()
+    /*public function club()
     {
         return $this->belongsTo(MyClub::class, 'my_club_id');
-    }
+    }*/
 }

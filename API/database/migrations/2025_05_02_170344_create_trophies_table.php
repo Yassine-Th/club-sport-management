@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('trophies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('my_club_id')->constrained('my_club');
+            //$table->foreignId('my_club_id')->constrained('my_club');
             $table->string('title');
             $table->integer('year');
             $table->string('competition')->nullable();

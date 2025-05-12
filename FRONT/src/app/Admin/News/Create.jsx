@@ -2,6 +2,7 @@ import React from "react"
 import { useState } from "react"
 import { getUserInfo } from "../../../helpers/access_token"
 import instance from "../../../helpers/axios"
+import {FaImage,FaHeading,FaThLarge,FaInfoCircle} from "react-icons/fa"
 
 const CreateNew = () => {
   const user = getUserInfo()
@@ -99,13 +100,16 @@ const CreateNew = () => {
           <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-6">
             {/* Titre */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
+              <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+                <FaHeading  className="mr-2 text-red-500" />
+                Titre
+              </label>
               <input
                 type="text"
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
                 placeholder="Titre de l'actualité"
               />
               {error?.title && (
@@ -124,13 +128,16 @@ const CreateNew = () => {
 
             {/* Contenu */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contenu</label>
+              <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+                <FaInfoCircle  className="mr-2 text-red-500" />
+                Contenu
+              </label>
               <textarea
                 name="content"
                 value={formData.content}
                 onChange={handleChange}
                 rows={5}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
                 placeholder="Décris l'actualité..."
               ></textarea>
               {error?.content && (
@@ -149,13 +156,16 @@ const CreateNew = () => {
 
             {/* Catégorie */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+              <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+                <FaThLarge  className="mr-2 text-red-500" />
+                Catégorie
+              </label>
               <div className="relative">
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full bg-white px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  className="w-full bg-white px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
                 >
                   <option value="">Choisir une catégorie</option>
                   <option value="match">Match</option>
@@ -185,8 +195,11 @@ const CreateNew = () => {
 
             {/* Image */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors duration-200">
+              <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+                <FaImage className="mr-2 text-red-500" />
+                Image
+              </label>
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-red-400 transition-colors duration-200">
                 <div className="space-y-1 text-center">
                   <svg
                     className="mx-auto h-12 w-12 text-gray-400"
@@ -205,7 +218,7 @@ const CreateNew = () => {
                   <div className="flex text-sm text-gray-600">
                     <label
                       htmlFor="imgInput"
-                      className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
+                      className="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none"
                     >
                       <span>Télécharger un fichier</span>
                       <input id="imgInput" name="image" type="file" className="sr-only" onChange={handleFileChange} />
@@ -237,7 +250,7 @@ const CreateNew = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md ${
+                className={`w-full flex items-center justify-center gap-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-medium py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md ${
                   loading ? "opacity-70 cursor-not-allowed" : ""
                 }`}
               >

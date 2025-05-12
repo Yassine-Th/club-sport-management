@@ -10,7 +10,7 @@ class Player extends Model
     use HasFactory;
 
     protected $fillable = [
-        'my_club_id',
+        //'my_club_id',
         'name',
         'position',
         'number',
@@ -22,10 +22,10 @@ class Player extends Model
         "foot",
     ];
 
-    public function club()
+    /*public function club()
     {
         return $this->belongsTo(MyClub::class, 'my_club_id');
-    }
+    }*/
     public function matchStats()
     {
         return $this->hasMany(MyPlayerMatchStat::class);

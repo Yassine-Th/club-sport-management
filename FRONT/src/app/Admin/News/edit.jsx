@@ -207,21 +207,6 @@ const EditNew = () => {
 
             {/* Image */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
-
-              {/* Current image preview */}
-              {news.image && !(news.image instanceof File) && (
-                <div className="mb-4">
-                  <p className="text-sm text-gray-500 mb-2">Image actuelle:</p>
-                  <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                    <img
-                      src={`http://localhost:8000/storage/${news.image}`}
-                      alt="Preview"
-                      className="w-full h-full"
-                    />
-                  </div>
-                </div>
-              )}
 
               {/* New image upload */}
               <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors duration-200">
@@ -253,25 +238,7 @@ const EditNew = () => {
                   <p className="text-xs text-gray-500">PNG, JPG, GIF jusqu'à 10MB</p>
                 </div>
               </div>
-
-              {/* New image preview */}
-              {news.image instanceof File && (
-                <div className="mt-4">
-                  <p className="text-sm text-gray-500 mb-2">Nouvelle image:</p>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                      <img
-                        src={URL.createObjectURL(news.image) || "/placeholder.svg"}
-                        alt="New preview"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <span className="text-sm text-gray-600">{news.image.name}</span>
-                  </div>
-                </div>
-              )}
             </div>
-
             {/* Bouton Submit */}
             <div className="pt-4">
               <button

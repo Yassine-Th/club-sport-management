@@ -24,7 +24,7 @@ export default function AdSideBar() {
   // Updated navigation data with football club related items
   const nav_data = [
     { link: "/admin", label: "Dashboard", icon: IconDashboard },
-    { link: "/admin/team", label: "Team", icon: IconUsersGroup },
+    { link: "/admin/players", label: "Players", icon: IconUsersGroup },
     { link: "/admin/fixtures", label: "Fixtures", icon: IconCalendarEvent },
     { link: "/admin/news", label: "News", icon: IconNews },
     { link: "/admin/shop", label: "Shop", icon: IconShirt },

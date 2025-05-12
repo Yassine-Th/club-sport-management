@@ -9,11 +9,23 @@ import instance from "../../helpers/axios";
 
 const Home = () => {
   const [lastNews, setLastNews] = useState([]);
+  const [lastPlayers, setLastPlayers] = useState([]);
 
   useEffect(() => {
     instance.get("/latest-news")
       .then((response) => {
         setLastNews(response.data.latestNews);
+        console.log("Last news:", response.data.message);
+      })
+      .catch((error) => {
+        console.error("Error fetching last news:", error);
+      });
+  }, []);
+
+   useEffect(() => {
+    instance.get("/latest-players")
+      .then((response) => {
+        setLastPlayers(response.data.latestPlayers);
         console.log("Last news:", response.data.message);
       })
       .catch((error) => {
@@ -236,23 +248,24 @@ const Home = () => {
             <div className="h-1 w-20 bg-gradient-to-r from-red-500 to-red-700 mx-auto"></div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="text-center">
-                <div className="w-full aspect-square bg-gray-100 rounded-full mb-4 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-red-600/20 to-red-800/20 flex items-end justify-center">
-                    <div className="w-full h-2/3 bg-gradient-to-t from-red-900 to-transparent flex items-end justify-center pb-4">
-                      <span className="font-title text-white text-xl">
-                        JOUEUR {item}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <h3 className="font-section text-lg">Nom du joueur</h3>
-                <p className="text-red-600 font-player text-sm">Poste</p>
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+  {lastPlayers.map((item) => (
+    <div key={item.id} className="text-center">
+      <div className="w-full aspect-square bg-gray-100 rounded-full mb-4 overflow-hidden relative">
+        <div className="w-full h-full bg-gradient-to-br from-red-600/20 to-red-800/20 absolute inset-0"></div>
+        <div className="w-full h-full bg-gradient-to-t from-red-900 to-transparent absolute inset-0 flex items-end justify-center pb-4">
+          <img
+            src={`http://localhost:8000/storage/${item.photo}`}
+            alt={item.name}
+            className="w-full h-full object-cover absolute inset-0"
+          />
+        </div>
+      </div>
+      <h3 className="font-section text-lg">{item.name}</h3>
+      <p className="text-red-600 font-player text-sm">{item.position}</p>
+    </div>
+  ))}
+</div>
 
           <div className="text-center mt-8">
             <Link

@@ -102,7 +102,7 @@ class NewsController extends Controller
     $news->save();
 
     return response()->json([
-        'message' => 'تم تحديث الخبر بنجاح.',
+        'message' => 'news modifier success',
         'news' => $news
     ], 200);
 }

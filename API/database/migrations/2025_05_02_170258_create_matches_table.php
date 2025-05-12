@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('matches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('my_club_id')->constrained('my_club');
+            //$table->foreignId('my_club_id')->constrained('my_club');
             $table->foreignId('opponent_club_id')->constrained('clubs');
             $table->dateTime('match_date');
             $table->boolean('is_home')->default(true);
