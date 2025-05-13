@@ -86,7 +86,7 @@ class ProductController extends Controller
     return response()->json(['success' => true, 'data' => $product->fresh('clothes.sizes')]);
 }
 
-            public function update(Request $request, $id)
+    public function update(Request $request, $id)
             {
                 $product = Product::with('clothes.sizes')->find($id);
 

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   IconEdit,
@@ -8,6 +9,7 @@ import {
   IconFilter,
   IconX,
   IconEye,
+  IconAlertCircle,
 } from "@tabler/icons-react";
 import { Text, Badge, Tooltip, UnstyledButton, Loader } from "@mantine/core";
 import instance from "../../../../helpers/axios";
@@ -73,6 +75,38 @@ const Produits = () => {
       : true;
     return matchesSearch && matchesCategory;
   });
+
+  // Check if a product has low stock (either regular product or any size for clothing)
+  const hasLowStock = (produit) => {
+    // For regular products
+    if (!produit.clothes) {
+      return produit.stock < 10;
+    }
+
+    // For clothing products, check if any size has stock < 10
+    if (
+      produit.clothes &&
+      produit.clothes.sizes &&
+      produit.clothes.sizes.length > 0
+    ) {
+      return produit.clothes.sizes.some(
+        (size) => size.pivot && size.pivot.stock < 10
+      );
+    }
+
+    return false;
+  };
+
+  // Get total stock for clothing products
+  const getTotalStock = (produit) => {
+    if (!produit.clothes || !produit.clothes.sizes) {
+      return produit.stock;
+    }
+
+    return produit.clothes.sizes.reduce((total, size) => {
+      return total + (size.pivot ? size.pivot.stock : 0);
+    }, 0);
+  };
 
   if (loading && produits.length === 0) {
     return (
@@ -198,18 +232,36 @@ const Produits = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {Number.parseFloat(produit.price).toFixed(2)} €
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge
-                      color={
-                        produit.stock > 10
-                          ? "green"
-                          : produit.stock > 0
-                          ? "yellow"
-                          : "red"
-                      }
-                    >
-                      {produit.clothes ? "Voir tailles" : produit.stock}
-                    </Badge>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap ${
+                      hasLowStock(produit) ? "bg-red-100" : ""
+                    }`}
+                  >
+                    {produit.clothes ? (
+                      <div className="flex items-center">
+                        <Badge color="blue">Voir tailles</Badge>
+                        {hasLowStock(produit) && (
+                          <Tooltip label="Stock faible pour certaines tailles">
+                            <IconAlertCircle
+                              size="1rem"
+                              className="ml-2 text-red-500"
+                            />
+                          </Tooltip>
+                        )}
+                      </div>
+                    ) : (
+                      <Badge
+                        color={
+                          produit.stock > 10
+                            ? "green"
+                            : produit.stock > 0
+                            ? "yellow"
+                            : "red"
+                        }
+                      >
+                        {produit.stock}
+                      </Badge>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Badge color={produit.clothes ? "blue" : "gray"}>

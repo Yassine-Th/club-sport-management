@@ -167,7 +167,6 @@ export function CartSidebar() {
   useEffect(() => {
     isLoggedIn(setIsAuth);
   }, []);
-  console.log(isAuth);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   

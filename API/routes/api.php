@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ClothesController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SizeController;
@@ -63,5 +64,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource("categories", CategoriesController::class);
     Route::apiResource('sizes',SizeController::class);
     Route::apiResource('players', PlayerController::class);
+        Route::put('orders/{order}/status', [OrderController::class, 'updateStatus']);
+
+    Route::apiResource(('orders'), OrderController::class);
+    Route::get('commandes/{id}', [OrderController::class, 'UserOrders']);
 });
 

@@ -15,4 +15,8 @@ class Size extends Model
     {
         return $this->belongsToMany(Clothes::class,'clothes_size')->withPivot('stock')->withTimestamps();
     }
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

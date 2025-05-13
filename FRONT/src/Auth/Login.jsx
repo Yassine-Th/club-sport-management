@@ -56,7 +56,7 @@ const Login = () => {
       const locationState = location.state;
 
       if (user.role === "admin") {
-        navigate("/admin");
+        window.location.href="/admin";
       } else {
         // If there's a previous location, navigate there
         if (locationState && locationState.from) {

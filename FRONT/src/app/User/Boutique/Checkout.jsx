@@ -18,6 +18,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useCart } from "./Cart";
+import instance from "../../../helpers/axios";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -183,6 +184,13 @@ const CheckoutPage = () => {
 
       console.log("Order processed:", orderData);
 
+       try{
+        const response = await instance.post("/orders", orderData)
+        console.log(response);
+        
+      }catch(err){
+        console.error(err);
+      };
       // Show success and clear cart
       setSuccess(true);
       setStep(3);
@@ -351,40 +359,6 @@ const CheckoutPage = () => {
             </div>
           </div>
 
-          {/* <div>
-            <label
-              htmlFor="addressType"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Type d'adresse
-            </label>
-            <div className="flex space-x-4">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="addressType"
-                  value="home"
-                  checked={shippingInfo.addressType === "home"}
-                  onChange={handleShippingChange}
-                  className="h-4 w-4 text-red-600 focus:ring-red-500"
-                />
-                <Home className="h-4 w-4 ml-1 mr-1 text-gray-500" />
-                <span className="ml-1 text-sm text-gray-700">Domicile</span>
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="addressType"
-                  value="work"
-                  checked={shippingInfo.addressType === "work"}
-                  onChange={handleShippingChange}
-                  className="h-4 w-4 text-red-600 focus:ring-red-500"
-                />
-                <Building className="h-4 w-4 ml-1 mr-1 text-gray-500" />
-                <span className="ml-1 text-sm text-gray-700">Travail</span>
-              </label>
-            </div>
-          </div> */}
 
           <div className="md:col-span-2">
             <label
@@ -696,7 +670,7 @@ const CheckoutPage = () => {
           Continuer vos achats
         </Link>
         <Link
-          to="/mon-compte"
+          to="/commandes"
           className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
         >
           Voir mes commandes

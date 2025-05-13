@@ -16,6 +16,12 @@ import ProduitForm from "./app/Admin/Boutique/Produits/produit-form";
 import AdProduitDetails from "./app/Admin/Boutique/Produits/AdProduitDetails";
 import AdUpdateProduct from "./app/Admin/Boutique/Produits/AdUpdateProduct";
 import CheckoutPage from "./app/User/Boutique/Checkout";
+import Commandes from "./app/User/Boutique/Commandes";
+import Orders from "./app/Admin/Boutique/Orders/Orders-list";
+import OrderDetail from "./app/Admin/Boutique/Orders/OrderDetail";
+import Categories from "./app/Admin/Boutique/Categorie/Categories";
+import CategoryEdit from "./app/Admin/Boutique/Categorie/CategoryEdit";
+import AdminBoutique from "./app/Admin/Boutique/AdBoutique";
 
 
 function App() {
@@ -23,7 +29,7 @@ function App() {
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    isLoggedIn(setIsAuthorized);      
+    isLoggedIn(setIsAuthorized);
   }, []);
 
   return (
@@ -74,6 +80,12 @@ function App() {
                       </AdLayout>
                     }
                   />
+                  <Route path="/admin/boutique" element={<AdLayout> <AdminBoutique/> </AdLayout>} />
+                  <Route path="/admin/boutique/orders" element={<AdLayout> <Orders/> </AdLayout>} />
+                  <Route path="/admin/boutique/orders/:id" element={<AdLayout> <OrderDetail/> </AdLayout>} />
+                  <Route path="/admin/boutique/categories" element={<AdLayout> <Categories/> </AdLayout>} />
+                  <Route path="/admin/boutique/categories/:id" element={<AdLayout> <CategoryEdit/> </AdLayout>} />
+
                 </>
               )}
             </>
@@ -90,6 +102,7 @@ function App() {
             <Route path="/boutique" element={<Boutique />} />
             <Route path="/boutique/:id" element={<ProduitDetail />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/commandes" element={<Commandes />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </>

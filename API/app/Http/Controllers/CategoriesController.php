@@ -9,7 +9,12 @@ class CategoriesController extends Controller
 {
     public function index()
     {
-        $categories = Categories::all();
+        $categories = Categories::with('products')
+            ->withCount('products')
+            ->get();
+        if ($categories->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'No categories found'], 404);
+        }
         return response()->json(['success' => true, 'data' => $categories]);
     }
 
