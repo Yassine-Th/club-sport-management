@@ -18,6 +18,12 @@ import DetailNews from "./app/User/News/Details";
 import Players from "./app/Admin/Players/Players";
 import PlayerCreate from "./app/Admin/Players/Create";
 import EditPlayer from "./app/Admin/Players/edit";
+import TeamDetail from "./app/Admin/MyClub/Myclub";
+import MyclubAdd from "./app/Admin/MyClub/Create";
+import MyclubEdit from "./app/Admin/MyClub/edit";
+import TrophyForm from "./app/Admin/MyClub/Trophy/Create";
+import Trophy from "./app/Admin/MyClub/Trophy/trophy";
+import TrophyEdit from "./app/Admin/MyClub/Trophy/edit";
 
 function App() {
   const user_role = getUserRole();
@@ -45,6 +51,12 @@ function App() {
                   <Route path="/admin/players" element={<AdLayout><Players /></AdLayout>} />
                   <Route path="/admin/create-player" element={<AdLayout><PlayerCreate /></AdLayout>} />
                   <Route path="/admin/edit-player/:id" element={<AdLayout><EditPlayer /></AdLayout>} />
+                  <Route path="/admin/my_club" element={<AdLayout><TeamDetail /></AdLayout>} />
+                  <Route path="/admin/create-myclub" element={<AdLayout><MyclubAdd /></AdLayout>} />
+                  <Route path="/admin/edit-myclub/:id" element={<AdLayout><MyclubEdit /></AdLayout>} />
+                  <Route path="/admin/titres" element={<AdLayout><Trophy /></AdLayout>} />
+                  <Route path="/admin/create-titres" element={<AdLayout><TrophyForm /></AdLayout>} />
+                  <Route path="/admin/edit-titres/:id" element={<AdLayout><TrophyEdit /></AdLayout>} />
                 </>
               )}
             </>

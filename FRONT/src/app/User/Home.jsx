@@ -6,10 +6,14 @@ import Header from "./Header";
 import { useState,useEffect } from "react";
 import axios from "axios";
 import instance from "../../helpers/axios";
+import {Loader2} from 'lucide-react'
 
 const Home = () => {
   const [lastNews, setLastNews] = useState([]);
   const [lastPlayers, setLastPlayers] = useState([]);
+  const [lodingnews, setLodingnews] = useState(true)
+  const [lodingplayers, setLodingplayers] = useState(true)
+
 
   useEffect(() => {
     instance.get("/latest-news")
@@ -19,7 +23,9 @@ const Home = () => {
       })
       .catch((error) => {
         console.error("Error fetching last news:", error);
-      });
+      }) .finally(() => {
+        setLodingnews(false)
+      })
   }, []);
 
    useEffect(() => {
@@ -30,7 +36,10 @@ const Home = () => {
       })
       .catch((error) => {
         console.error("Error fetching last news:", error);
-      });
+      }) .finally(() => {
+          setLodingplayers(false)
+      })
+      
   }, []);
 
   return (
@@ -73,6 +82,17 @@ const Home = () => {
 
       {/* Dernières actualités */}
       <section className="py-16 bg-gray-50">
+        {
+          lodingnews && (
+             <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-10 w-10 text-red-500 animate-spin" />
+          <p className="text-lg font-semibold text-gray-700">Chargement des actualités...</p>
+        </div>
+      </div>
+          )
+        }
+     
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="font-title text-3xl text-gray-800 mb-2">
@@ -84,7 +104,7 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {lastNews.map((item) => (
               <div
-                key={item}
+                key={item.id}
                 className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:-translate-y-1"
               >
                 <div className="h-48 bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-center overflow-hidden rounded-md">
@@ -247,6 +267,16 @@ const Home = () => {
             </h2>
             <div className="h-1 w-20 bg-gradient-to-r from-red-500 to-red-700 mx-auto"></div>
           </div>
+          {
+          lodingplayers && (
+             <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-10 w-10 text-red-500 animate-spin" />
+          <p className="text-lg font-semibold text-gray-700">Chargement des playears...</p>
+        </div>
+      </div>
+          )
+        }
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
   {lastPlayers.map((item) => (

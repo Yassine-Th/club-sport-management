@@ -157,7 +157,7 @@ export default function PlayerForm() {
                 <option value="midfielder">Milieu de terrain</option>
                 <option value="forward">Attaquant</option>
               </select>
-              {error?.name && (
+              {error?.position && (
                 <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path

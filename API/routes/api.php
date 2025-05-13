@@ -14,8 +14,10 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ClothesController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MyClubController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TrophyController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserNewsController;
 
@@ -91,6 +93,24 @@ Route::put('/player/update/{id}', [PlayerController::class, 'update']);
 
 
 Route::get('/latest-players', [HomeController::class, 'index_players']);
+
+
+Route::get('/myclub', [MyClubController::class, 'index']);
+Route::post('/myclub-create', [MyClubController::class, 'store']);
+Route::get('/myclub-edit/{id}', [MyClubController::class, 'edit']);
+Route::put('/myclub/update/{id}', [MyClubController::class, 'update']);
+
+
+Route::get('/trophy', [TrophyController::class, 'index']);
+Route::post('/trophy-create', [TrophyController::class, 'store']);
+Route::get('/trophy-edit/{id}', [TrophyController::class, 'edit']);
+Route::put('/trophy/update/{id}', [TrophyController::class, 'update']);
+Route::delete('/trophy-delete/{id}', [TrophyController::class, 'destroy']);
+
+
+
+
+
 
 
 

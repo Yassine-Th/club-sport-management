@@ -12,8 +12,13 @@ class MyClub extends Model
     protected $fillable = [
         'name',
         'logo',
+        'city',
         'founded',
+        'stadium_name',
+        'stadium_capacity',
+        'president',
         'coach_name',
+        'description',
     ];
     /*public function matches()
     {

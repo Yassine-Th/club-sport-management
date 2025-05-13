@@ -13,7 +13,10 @@ class Trophy extends Model
         //'my_club_id',
         'title',
         'year',
+        'times_won',
         'competition',
+        'description',
+        'photo'
     ];
 
     /*public function club()

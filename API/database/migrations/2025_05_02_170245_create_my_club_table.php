@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('my_club', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('logo')->nullable();
-            $table->string('city')->nullable();
-            $table->year('founded')->nullable();
-            $table->string('stadium_name')->nullable();
-            $table->integer('stadium_capacity')->nullable();
-            $table->string('president')->nullable();
-            $table->string('coach_name')->nullable();
-            $table->text('description')->nullable();
+            $table->string('logo');
+            $table->string('city');
+            $table->year('founded');
+            $table->string('stadium_name');
+            $table->integer('stadium_capacity');
+            $table->string('president');
+            $table->string('coach_name');
+            $table->text('description');
             $table->timestamps();
         });
     }

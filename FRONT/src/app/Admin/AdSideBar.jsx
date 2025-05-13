@@ -6,7 +6,8 @@ import {
   IconNews,
   IconShirt,
   IconTicket,
-  IconSettings,
+  IconShield,
+  IconTrophy 
 } from "@tabler/icons-react";
 import { Navigate } from "react-router-dom";
 import { getUserInfo, getUserRole } from "../../helpers/access_token";
@@ -24,6 +25,8 @@ export default function AdSideBar() {
   // Updated navigation data with football club related items
   const nav_data = [
     { link: "/admin", label: "Dashboard", icon: IconDashboard },
+    { link: "/admin/my_club", label: "My Club", icon: IconShield  },
+    { link: "/admin/titres", label: "Trophy", icon: IconTrophy  },
     { link: "/admin/players", label: "Players", icon: IconUsersGroup },
     { link: "/admin/fixtures", label: "Fixtures", icon: IconCalendarEvent },
     { link: "/admin/news", label: "News", icon: IconNews },

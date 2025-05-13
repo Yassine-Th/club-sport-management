@@ -16,7 +16,10 @@ return new class extends Migration
             //$table->foreignId('my_club_id')->constrained('my_club');
             $table->string('title');
             $table->integer('year');
-            $table->string('competition')->nullable();
+            $table->integer('times_won')->default(1); // 🏆 عدد مرات الفوز
+            $table->string('competition');
+            $table->text('description');
+            $table->string('photo');
             $table->timestamps();
         });
     }
