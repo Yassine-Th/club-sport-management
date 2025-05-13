@@ -17,7 +17,7 @@ class CategoriesFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'        => $this->faker->word(),
+            'name'        => "Cadeaux et Accessoires",
             'description' => $this->faker->sentence(),
             // randomly decide which categories support sizes (e.g. "Clothes")
         ];

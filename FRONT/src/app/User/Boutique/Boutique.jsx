@@ -1,8 +1,17 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../Header";
 import instance from "../../../helpers/axios";
-import { Filter, ShoppingBag, ShoppingCart, Sliders } from "lucide-react";
+import {
+  Filter,
+  ShoppingBag,
+  Sliders,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Eye,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { AddToCartButton, CartSidebar } from "./Cart";
 
 const Boutique = () => {
   const [products, setProducts] = useState([]);
@@ -12,7 +21,12 @@ const Boutique = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedGender, setSelectedGender] = useState("all");
   const [priceRange, setPriceRange] = useState({ min: 0, max: 100 });
+  const [maxLimit, setMaxLimit] = useState(100);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(9);
 
   useEffect(() => {
     instance
@@ -42,11 +56,12 @@ const Boutique = () => {
         ].filter(Boolean);
         setGenders(uniqueGenders);
 
-        // Find max price for range
-        const maxPrice = Math.max(
-          ...productsData.map((product) => Number.parseFloat(product.price))
+        // Determine the absolute max price
+        const absoluteMax = Math.ceil(
+          Math.max(...productsData.map((p) => Number.parseFloat(p.price)))
         );
-        setPriceRange({ min: 0, max: Math.ceil(maxPrice) });
+        setMaxLimit(absoluteMax);
+        setPriceRange({ min: 0, max: absoluteMax });
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
@@ -55,12 +70,14 @@ const Boutique = () => {
 
   useEffect(() => {
     filterProducts();
+    // Reset to first page when filters change
+    setCurrentPage(1);
   }, [selectedCategory, selectedGender, priceRange, products]);
 
   const filterProducts = () => {
     let filtered = [...products];
 
-    // Filter by category
+    // Category filter
     if (selectedCategory !== "all") {
       filtered = filtered.filter(
         (product) =>
@@ -68,7 +85,7 @@ const Boutique = () => {
       );
     }
 
-    // Filter by gender
+    // Gender filter
     if (selectedGender !== "all") {
       filtered = filtered.filter(
         (product) =>
@@ -76,7 +93,7 @@ const Boutique = () => {
       );
     }
 
-    // Filter by price
+    // Price filter
     filtered = filtered.filter((product) => {
       const price = Number.parseFloat(product.price);
       return price >= priceRange.min && price <= priceRange.max;
@@ -86,236 +103,413 @@ const Boutique = () => {
   };
 
   const handlePriceChange = (e) => {
-    setPriceRange({
+    const updatedRange = {
       ...priceRange,
-      [e.target.name]: Number.parseInt(e.target.value),
-    });
+      [e.target.name]: Number.parseFloat(e.target.value),
+    };
+
+    if (updatedRange.min > updatedRange.max) {
+      updatedRange.min = updatedRange.max;
+    }
+
+    setPriceRange(updatedRange);
   };
 
   const toggleFilters = () => {
     setShowFilters(!showFilters);
   };
 
+  // Get current products for pagination
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const nextPage = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-800 to-red-600">
+    <div className="min-h-screen bg-red-700">
       <Header />
-      {/* Store Section */}
-      <section className="py-8 px-4">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Mobile Filter Toggle */}
-            <button
-              className="md:hidden flex items-center justify-center gap-2 bg-white text-red-700 px-4 py-2 rounded-lg shadow-md mb-4"
-              onClick={toggleFilters}
-            >
-              <Sliders className="w-5 h-5" />
-              {showFilters ? "Masquer les filtres" : "Afficher les filtres"}
-            </button>
+      <CartSidebar />
 
-            {/* Filters Sidebar */}
-            <div
-              className={`${
-                showFilters ? "block" : "hidden"
-              } md:block w-full md:w-64 bg-white rounded-lg shadow-lg p-4`}
-            >
-              <div className="mb-6">
-                <h3 className="font-title text-xl text-gray-800 mb-3 flex items-center">
-                  <Filter className="w-5 h-5 mr-2" />
-                  Filtres
-                </h3>
-                <div className="h-1 w-12 bg-gradient-to-r from-red-500 to-red-700 mb-4"></div>
+      {/* Professional Filter Header - Football Club Store Style */}
+      <div className="bg-white shadow-md border-t-red-600 mt-3">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-8">
+              <h2 className="font-title text-xl text-red-600 font-bold">
+                BOUTIQUE OFFICIELLE
+              </h2>
 
-                {/* Category Filter */}
-                <div className="mb-6">
-                  <h4 className="font-section text-lg mb-2">Catégories</h4>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={selectedCategory === "all"}
-                        onChange={() => setSelectedCategory("all")}
-                        className="mr-2 accent-red-600"
-                      />
+              {/* Category Dropdown */}
+              <div className="relative group">
+                <button className="flex items-center space-x-2 text-gray-800 hover:text-red-600 font-medium py-2 transition-colors">
+                  <span>Catégories</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div className="absolute left-0 top-full mt-1 bg-white shadow-xl rounded-md w-48 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
+                  <div className="p-2">
+                    <button
+                      onClick={() => setSelectedCategory("all")}
+                      className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-colors ${
+                        selectedCategory === "all"
+                          ? "bg-red-600 text-white"
+                          : "hover:bg-gray-100"
+                      }`}
+                    >
                       Toutes les catégories
-                    </label>
+                    </button>
                     {categories.map((category, index) => (
-                      <label key={index} className="flex items-center">
-                        <input
-                          type="radio"
-                          name="category"
-                          checked={selectedCategory === category}
-                          onChange={() => setSelectedCategory(category)}
-                          className="mr-2 accent-red-600"
-                        />
+                      <button
+                        key={index}
+                        onClick={() => setSelectedCategory(category)}
+                        className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-colors ${
+                          selectedCategory === category
+                            ? "bg-red-600 text-white"
+                            : "hover:bg-gray-100"
+                        }`}
+                      >
                         {category.charAt(0).toUpperCase() + category.slice(1)}
-                      </label>
+                      </button>
                     ))}
                   </div>
                 </div>
+              </div>
 
-                {/* Gender Filter */}
-                {genders.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="font-section text-lg mb-2">Genre</h4>
-                    <div className="space-y-2">
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="gender"
-                          checked={selectedGender === "all"}
-                          onChange={() => setSelectedGender("all")}
-                          className="mr-2 accent-red-600"
-                        />
+              {/* Gender Dropdown */}
+              {genders.length > 0 && (
+                <div className="relative group">
+                  <button className="flex items-center space-x-2 text-gray-800 hover:text-red-600 font-medium py-2 transition-colors">
+                    <span>Pour qui</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                  <div className="absolute left-0 top-full mt-1 bg-white shadow-xl rounded-md w-48 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
+                    <div className="p-2">
+                      <button
+                        onClick={() => setSelectedGender("all")}
+                        className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-colors ${
+                          selectedGender === "all"
+                            ? "bg-red-600 text-white"
+                            : "hover:bg-gray-100"
+                        }`}
+                      >
                         Tous
-                      </label>
+                      </button>
                       {genders.map((gender, index) => (
-                        <label key={index} className="flex items-center">
-                          <input
-                            type="radio"
-                            name="gender"
-                            checked={selectedGender === gender}
-                            onChange={() => setSelectedGender(gender)}
-                            className="mr-2 accent-red-600"
-                          />
-                          {gender === "men"
+                        <button
+                          key={index}
+                          onClick={() => setSelectedGender(gender)}
+                          className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-colors ${
+                            selectedGender === gender
+                              ? "bg-red-600 text-white"
+                              : "hover:bg-gray-100"
+                          }`}
+                        >
+                          {gender === "homme"
                             ? "Homme"
-                            : gender === "women"
+                            : gender === "femme"
                             ? "Femme"
+                            : gender === "enfant"
+                            ? "Enfant"
                             : "Unisexe"}
-                        </label>
+                        </button>
                       ))}
                     </div>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Price Range Filter */}
-                <div className="mb-6">
-                  <h4 className="font-section text-lg mb-2">Prix</h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm text-gray-600">
-                        Min: {priceRange.min}€
-                      </label>
-                      <input
-                        type="range"
-                        name="min"
-                        min="0"
-                        max={priceRange.max}
-                        value={priceRange.min}
-                        onChange={handlePriceChange}
-                        className="w-full accent-red-600"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-600">
-                        Max: {priceRange.max}€
-                      </label>
-                      <input
-                        type="range"
-                        name="max"
-                        min="0"
-                        max={priceRange.max}
-                        value={priceRange.max}
-                        onChange={handlePriceChange}
-                        className="w-full accent-red-600"
-                      />
-                    </div>
+              {/* Additional filter options could go here */}
+              <div className="relative group">
+                <button className="flex items-center space-x-2 text-gray-800 hover:text-red-600 font-medium py-2 transition-colors">
+                  <span>Collections</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div className="absolute left-0 top-full mt-1 bg-white shadow-xl rounded-md w-48 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
+                  <div className="p-2">
+                    <button className="block w-full text-left px-4 py-2 rounded text-sm hover:bg-gray-100 transition-colors">
+                      Domicile
+                    </button>
+                    <button className="block w-full text-left px-4 py-2 rounded text-sm hover:bg-gray-100 transition-colors">
+                      Extérieur
+                    </button>
+                    <button className="block w-full text-left px-4 py-2 rounded text-sm hover:bg-gray-100 transition-colors">
+                      Third
+                    </button>
+                    <button className="block w-full text-left px-4 py-2 rounded text-sm hover:bg-gray-100 transition-colors">
+                      Training
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Products Grid */}
-            <div className="flex-1">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="font-title text-2xl text-white">Nos Produits</h2>
-                <div className="text-white font-section">
-                  {filteredProducts.length} produit
-                  {filteredProducts.length !== 1 ? "s" : ""} trouvé
-                  {filteredProducts.length !== 1 ? "s" : ""}
-                </div>
-              </div>
-
-              {filteredProducts.length === 0 ? (
-                <div className="bg-white bg-opacity-90 rounded-lg p-8 text-center">
-                  <ShoppingBag className="w-12 h-12 mx-auto text-red-600 mb-4" />
-                  <h3 className="font-title text-xl mb-2">
-                    Aucun produit trouvé
-                  </h3>
-                  <p className="text-gray-600">
-                    Essayez de modifier vos filtres pour voir plus de produits.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="bg-white rounded-lg overflow-hidden shadow-md transition-all hover:shadow-lg"
-                    >
-                      <div className="h-56 bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
-                        {product.image ? (
-                          <img
-                            src={product.image || "/placeholder.svg"}
-                            alt={product.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span className="font-title text-white text-xl">
-                            PRODUIT
-                          </span>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-title text-lg">{product.name}</h3>
-                          {product.clothes && (
-                            <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                              {product.clothes.gender === "men"
-                                ? "Homme"
-                                : product.clothes.gender === "women"
-                                ? "Femme"
-                                : "Unisexe"}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                          {product.description}
-                        </p>
-                        <div className="flex justify-between items-center">
-                          <span className="font-section text-red-600 font-bold">
-                            {Number.parseFloat(product.price).toFixed(2)}€
-                          </span>
-                          <button className="flex items-center text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors">
-                            <ShoppingCart className="w-4 h-4 mr-1" />
-                            ACHETER
-                          </button>
-                        </div>
-                        {product.clothes && product.clothes.sizes && (
-                          <div className="mt-3 pt-3 border-t border-gray-100">
-                            <p className="text-xs text-gray-500 mb-1">
-                              Tailles disponibles:
-                            </p>
-                            <div className="flex flex-wrap gap-1">
-                              {product.clothes.sizes.map((size) => (
-                                <span
-                                  key={size.id}
-                                  className="text-xs bg-gray-100 px-2 py-1 rounded"
-                                >
-                                  {size.label}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+            {/* Products Counter */}
+            <div className="hidden md:block">
+              <span className="bg-red-700 text-white px-4 py-1 rounded-full text-sm font-medium">
+                {filteredProducts.length} produit
+                {filteredProducts.length !== 1 ? "s" : ""}
+              </span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <section className="py-6 px-4 max-w-7xl mx-auto">
+        <div className="w-full">
+          {/* Page Header */}
+          {/* <div className="mb-8 text-center">
+            <h1 className="font-title text-4xl text-white mb-2">
+              Collection Officielle
+            </h1>
+            <div className="h-1 w-24 bg-white mx-auto"></div>
+          </div> */}
+
+          {/* Products Results Summary */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="font-title text-2xl text-white">Nos Produits</h2>
+            {/* Mobile Products Counter */}
+            <div className="md:hidden text-white font-section bg-red-700 bg-opacity-40 px-4 py-2 rounded-full">
+              {filteredProducts.length} produit
+              {filteredProducts.length !== 1 ? "s" : ""}
+            </div>
+          </div>
+
+          {/* Products Display */}
+          {filteredProducts.length === 0 ? (
+            <div className="bg-white bg-opacity-90 rounded-xl p-8 text-center shadow-lg">
+              <ShoppingBag className="w-16 h-16 mx-auto text-red-600 mb-4" />
+              <h3 className="font-title text-2xl mb-2">Aucun produit trouvé</h3>
+              <p className="text-gray-600 max-w-md mx-auto">
+                Essayez de modifier vos filtres pour voir plus de produits.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Products Grid - More products per row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {currentProducts && currentProducts.length > 0 ? (
+                  currentProducts.map((product) => (
+                    <div
+                      key={product.id}
+                      className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                    >
+                      <Link
+                        to={`/boutique/${product.id}`}
+                        className="block relative group"
+                      >
+                        <div className="h-56 relative overflow-hidden">
+                          {product.image ? (
+                            <img
+                              src={product.image || "/placeholder.svg"}
+                              alt={product.name || "Produit"}
+                              className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "/placeholder.svg";
+                              }}
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
+                              <span className="font-title text-white text-xl">
+                                PRODUIT
+                              </span>
+                            </div>
+                          )}
+
+                        </div>
+
+                        {/* Category/Gender Badge */}
+                        {product.clothes && product.clothes.gender && (
+                          <span className="absolute top-2 right-2 text-xs bg-red-600 text-white px-2 py-1 rounded-sm font-medium">
+                            {product.clothes.gender === "homme"
+                              ? "Homme"
+                              : product.clothes.gender === "femme"
+                              ? "Femme"
+                              : product.clothes.gender === "enfant"
+                              ? "Enfant"
+                              : "Unisexe"}
+                          </span>
+                        )}
+                      </Link>
+
+                      <div className="p-3">
+                        <Link to={`/boutique/${product.id}`} className="block">
+                          <h3 className="font-title text-sm font-medium truncate hover:text-red-600 transition-colors">
+                            {product.name || "Produit"}
+                          </h3>
+                          <p className="text-gray-600 text-xs mt-1 mb-2 line-clamp-2 h-8">
+                            {product.description || ""}
+                          </p>
+                        </Link>
+
+                        <div className="flex flex-col items-start">
+                          <span className="font-section text-lg text-red-600 font-bold mb-2">
+                            {product.price
+                              ? Number.parseFloat(product.price).toFixed(2)
+                              : "0.00"}{" "}
+                            DH
+                          </span>
+
+                          {product.clothes ? (
+                            <Link
+                              to={`/boutique/${product.id}`}
+                              className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-red-700 transition-colors"
+                            >
+                              Voir les tailles
+                            </Link>
+                          ) : (
+                            <AddToCartButton
+                              product={product}
+                              quantity={1}
+                              className="bg-red-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-red-700 transition-colors"
+                            />
+                          )}
+                        </div>
+
+                        {product.clothes &&
+                          product.clothes.sizes &&
+                          product.clothes.sizes.length > 0 && (
+                            <div className="mt-2 pt-2 border-t border-gray-100">
+                              <div className="flex flex-wrap gap-1">
+                                {product.clothes.sizes.map((size, index) => (
+                                  <span
+                                    key={size.id || size.label || index}
+                                    className="text-xs bg-gray-100 px-2 py-0.5 rounded"
+                                  >
+                                    {size.label || size}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-5 text-center py-8 text-white">
+                    <p>Aucun produit trouvé</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Improved Pagination */}
+              {filteredProducts.length > productsPerPage && (
+                <div className="mt-12 flex justify-center">
+                  <div className="flex items-center bg-white rounded-full shadow-lg overflow-hidden">
+                    <button
+                      onClick={prevPage}
+                      disabled={currentPage === 1}
+                      className={`p-3 ${
+                        currentPage === 1
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-red-600 hover:bg-red-50"
+                      } transition-colors`}
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+
+                    {/* Page Numbers */}
+                    <div className="flex">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter((num) => {
+                          return (
+                            num === 1 ||
+                            num === totalPages ||
+                            num === currentPage ||
+                            num === currentPage - 1 ||
+                            num === currentPage + 1
+                          );
+                        })
+                        .map((number, index, array) => (
+                          <React.Fragment key={number}>
+                            {index > 0 && array[index - 1] !== number - 1 && (
+                              <span className="px-3 py-2 text-gray-500">
+                                ...
+                              </span>
+                            )}
+                            <button
+                              onClick={() => paginate(number)}
+                              className={`w-10 h-10 flex items-center justify-center ${
+                                currentPage === number
+                                  ? "bg-red-600 text-white"
+                                  : "text-red-600 hover:bg-red-50"
+                              } transition-colors`}
+                              aria-label={`Page ${number}`}
+                              aria-current={
+                                currentPage === number ? "page" : undefined
+                              }
+                            >
+                              {number}
+                            </button>
+                          </React.Fragment>
+                        ))}
+                    </div>
+
+                    <button
+                      onClick={nextPage}
+                      disabled={currentPage === totalPages}
+                      className={`p-3 ${
+                        currentPage === totalPages
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-red-600 hover:bg-red-50"
+                      } transition-colors`}
+                      aria-label="Next page"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </section>
     </div>

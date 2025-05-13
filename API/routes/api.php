@@ -11,13 +11,16 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\NewsController;
-use App\Http\Controllers\ClothesController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MyClubController;
+use App\Http\Controllers\TrophyController;
+use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\ClothesController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\TrophyController;
+use App\Http\Controllers\SizeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserNewsController;
 
@@ -63,8 +66,14 @@ Route::apiResource('clothes', ClothesController::class)->only(['index', 'show'])
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Route::apiResource('products', ProductController::class);
+    Route::apiResource('produits', ProductController::class);
+    Route::apiResource("categories", CategoriesController::class);
+    Route::apiResource('sizes',SizeController::class);
     Route::apiResource('players', PlayerController::class);
+        Route::put('orders/{order}/status', [OrderController::class, 'updateStatus']);
+
+    Route::apiResource(('orders'), OrderController::class);
+    Route::get('commandes/{id}', [OrderController::class, 'UserOrders']);
 });
 
 Route::get('/news', [NewsController::class, 'index']);

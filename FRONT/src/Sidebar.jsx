@@ -1,12 +1,16 @@
-import React from "react"; 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { UnstyledButton, Group, Text, Tooltip, Avatar } from "@mantine/core";
+import { UnstyledButton, Text, Tooltip } from "@mantine/core";
 import { useHotkeys } from "@mantine/hooks";
-import { IconChevronRight, IconChevronLeft } from "@tabler/icons-react";
+import {
+  IconChevronRight,
+  IconChevronLeft,
+  IconChevronDown,
+} from "@tabler/icons-react";
 
 function Sidebar({ navData, user }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [openItem, setOpenItem] = useState(null);
   const location = useLocation();
 
   const activeLabel = navData.find((i) => i.link === location.pathname)?.label;
@@ -24,43 +28,84 @@ function Sidebar({ navData, user }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const links = navData.map((item) => (
-    <NavLink
-      to={item.link}
-      key={item.label}
-      className={({ isActive }) =>
-        `no-underline w-full block mb-1 ${
-          isActive ? "text-white" : "text-gray-300 hover:text-white"
-        }`
-      }
-      end
-    >
-      {collapsed ? (
-        <Tooltip label={item.label} position="right" withArrow>
-          <div
-            className={`flex justify-center py-3 rounded-md transition-all duration-200 ${
-              activeLabel === item.label ? "bg-red-700 text-white" : ""
-            }`}
-          >
-            <item.icon size="1.5rem" stroke={1.5} />
-          </div>
-        </Tooltip>
-      ) : (
-        <UnstyledButton
-          className={`!w-full !rounded-md !px-4 !py-3 !transition-all !duration-200 !flex !items-center !gap-3 ${
-            activeLabel === item.label
-              ? "!bg-red-700 !text-white !font-medium"
-              : "!text-gray-300 hover:!bg-red-900 hover:!text-white"
-          }`}
+  const links = navData.map((item) => {
+    const isActive = activeLabel === item.label;
+    const hasChildren =
+      Array.isArray(item.children) && item.children.length > 0;
+    const isOpen = openItem === item.label;
+
+    return (
+      <div
+        key={item.label}
+        className="relative w-full mb-1"
+        onMouseEnter={() => hasChildren && setOpenItem(item.label)}
+        onMouseLeave={() => hasChildren && setOpenItem(null)}
+      >
+        <NavLink
+          to={item.link}
+          className={({ isActive: isNavActive }) =>
+            `no-underline w-full block ${
+              isNavActive ? "text-white" : "text-gray-300 hover:text-white"
+            }`
+          }
+          end
         >
-          <item.icon size="1.2rem" stroke={1.5} />
-          <Text size="sm" fw={500} className="tracking-wide">
-            {item.label}
-          </Text>
-        </UnstyledButton>
-      )}
-    </NavLink>
-  ));
+          {collapsed ? (
+            <Tooltip label={item.label} position="right" withArrow>
+              <div
+                className={`flex justify-center py-3 rounded-md transition-all duration-200 ${
+                  isActive ? "bg-red-700 text-white" : ""
+                }`}
+              >
+                <item.icon size="1.5rem" stroke={1.5} />
+              </div>
+            </Tooltip>
+          ) : (
+            <UnstyledButton
+              className={`!w-full !rounded-md !px-4 !py-3 !transition-all !duration-200 !flex !items-center !gap-3 ${
+                isActive
+                  ? "!bg-red-700 !text-white !font-medium"
+                  : "!text-gray-300 hover:!bg-red-900 hover:!text-white"
+              }`}
+            >
+              <item.icon size="1.2rem" stroke={1.5} />
+              <Text size="sm" fw={500} className="tracking-wide">
+                {item.label}
+              </Text>
+              {hasChildren && (
+                <IconChevronDown
+                  size="1rem"
+                  className={`ml-auto transition-transform ${
+                    isOpen ? "rotate-180" : "rotate-0"
+                  }`}
+                />
+              )}
+            </UnstyledButton>
+          )}
+        </NavLink>
+
+        {/* Submenu: display below parent */}
+        {hasChildren && isOpen && (
+          <div className="absolute left-0 top-full mt-1 w-full bg-red-900 text-white rounded shadow-lg z-20">
+            {item.children.map((child) => (
+              <NavLink
+                to={child.link}
+                key={child.label}
+                className={({ isActive: isChildActive }) =>
+                  `block px-4 py-2 no-underline ${
+                    isChildActive ? "bg-red-700" : "hover:bg-red-800"
+                  }`
+                }
+                end
+              >
+                {child.label}
+              </NavLink>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  });
 
   return (
     <div
@@ -107,9 +152,6 @@ function Sidebar({ navData, user }) {
         </UnstyledButton>
       </div>
 
-      {/* User Role Badge */}
-      
-
       {/* Nav links */}
       <div
         className={`flex-grow overflow-y-auto px-2 ${
@@ -118,16 +160,16 @@ function Sidebar({ navData, user }) {
       >
         {links}
       </div>
+
+      {/* User Role Badge */}
       <div className={`px-4 mb-4 ${collapsed ? "flex justify-center" : ""}`}>
         {!collapsed ? (
           <div className="bg-red-800/50 rounded-md p-2 flex items-center gap-2">
             <div className="h-6 w-6 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
               {
-                {
-                  admin: "AD",
-                  Journalist: "JR",
-                  store_manager: "STM",
-                }[user?.role || "NN"]
+                { admin: "AD", Journalist: "JR", store_manager: "STM" }[
+                  user?.role || "NN"
+                ]
               }
             </div>
             <Text size="xs" className="text-gray-200">
@@ -143,39 +185,13 @@ function Sidebar({ navData, user }) {
         ) : (
           <div className="h-6 w-6 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
             {
-              {
-                admin: "AD",
-                Journalist: "JR",
-                store_manager: "STM",
-              }[user?.role || "NN"]
+              { admin: "AD", Journalist: "JR", store_manager: "STM" }[
+                user?.role || "NN"
+              ]
             }
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      {/* <div className="border-t border-red-800 p-4 mt-auto bg-red-950/50">
-        <Group position={collapsed ? "center" : "apart"}>
-          <Group>
-            <Avatar
-              size={36}
-              radius="xl"
-              src={user?.avatar}
-              className="border-2 border-red-700"
-            />
-            {!collapsed && (
-              <div>
-                <Text size="sm" fw={600}>
-                  {user?.name || "User Name"}
-                </Text>
-                <Text size="xs" className="text-gray-400">
-                  {user?.email || "user@example.com"}
-                </Text>
-              </div>
-            )}
-          </Group>
-        </Group>
-      </div> */}
     </div>
   );
 }

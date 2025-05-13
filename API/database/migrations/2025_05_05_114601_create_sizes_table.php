@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('sizes', function (Blueprint $table) {
             $table->id();
-            $table->enum("label", ["Small", "Medium", "Large", "Extra Large"])->nullable(); // e.g. "Small", "Medium"
+            $table->enum("label", ["Small", "Medium", "Large", "Extra-Large"])->nullable(); // e.g. "Small", "Medium"
             $table->timestamps();
         });
     }

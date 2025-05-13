@@ -17,6 +17,10 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products');
             $table->integer('quantity');
             $table->decimal('price', 10, 2);
+            $table->foreignId('size_id')
+                ->nullable()
+                ->constrained('sizes')
+                ->nullOnDelete();
             $table->timestamps();
         });
     }

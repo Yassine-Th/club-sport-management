@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Categories;
 use App\Models\Clothes;
+use App\Models\ClothesSize;
 use App\Models\Club;
 use App\Models\tabler;
 use App\Models\Product;
@@ -32,12 +33,30 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Seed sizes and categories
-        Size::factory()->count(6)->create();
-        Categories::factory()->count(5)->create();
+        Size::insert([
+            ['label' => 'Small'],
+            ['label' => 'Medium'],
+            ['label' => 'Large'],
+            ['label' => 'Extra-Large'],
+        ]);
+        Categories::factory()->count(1)->create();
 
         // Seed products & clothes
-        Product::factory(10)->create();
-        Clothes::factory(5)->create();
+        Product::factory(5)->create();
+        Clothes::factory(10)->create()->each(function ($clothes) {
+            if ($clothes->sizes()->count() === 0) {
+                $availableSizes = Size::inRandomOrder()
+                    ->limit(rand(2, 5))
+                    ->pluck('id');
+
+                foreach ($availableSizes as $sizeId) {
+                    $clothes->sizes()->attach($sizeId, [
+                        'stock' => rand(1, 50),
+                    ]);
+                }
+            }
+        });
+    
         MyClub::factory(1)->create();
         Club::factory(5)->create();
         // Seed tabler
