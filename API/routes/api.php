@@ -70,7 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource("categories", CategoriesController::class);
     Route::apiResource('sizes',SizeController::class);
     Route::apiResource('players', PlayerController::class);
-        Route::put('orders/{order}/status', [OrderController::class, 'updateStatus']);
+    Route::put('orders/{order}/status', [OrderController::class, 'updateStatus']);
 
     Route::apiResource(('orders'), OrderController::class);
     Route::get('commandes/{id}', [OrderController::class, 'UserOrders']);
