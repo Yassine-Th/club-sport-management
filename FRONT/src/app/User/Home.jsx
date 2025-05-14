@@ -87,6 +87,18 @@ const Home = () => {
                   communauté de fans passionnés.
                 </p>
               </div>
+
+              <div className="flex justify-center">
+                <div className="w-64 h-64 bg-red-600 rounded-full flex items-center justify-center p-2">
+                  <div className="w-full h-full rounded-full bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-center">
+                    <img
+                      src={logo || "/placeholder.svg"}
+                      alt="Club Logo"
+                      className="w-[100%] rounded-full "
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
