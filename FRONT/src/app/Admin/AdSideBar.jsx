@@ -22,24 +22,31 @@ export default function AdSideBar() {
   }
 
   const nav_data = [
-    { link: "/admin", label: "Dashboard", icon: IconDashboard },
-    { link: "/admin/my_club", label: "My Club", icon: IconShield  },
-    { link: "/admin/titres", label: "Trophy", icon: IconTrophy  },
-    { link: "/admin/players", label: "Players", icon: IconUsersGroup },
-    { link: "/admin/team", label: "Team", icon: IconUsersGroup },
+    { link: "/admin", label: "Tableau de bord", icon: IconDashboard },
+    {
+      link: "/admin/my_club",
+      label: "Mon Club",
+      icon: IconShield,
+      children: [
+        { link: "/admin/players", label: "Joueurs", icon: IconUsersGroup },
+        { link: "/admin/titres", label: "Trophées", icon: IconTrophy },
+      ],
+    },
+    { link: "/admin/team", label: "Autres Équipes", icon: IconUsersGroup },
+    { link: "/admin/fixtures", label: "Calendrier", icon: IconCalendarEvent },
+
     {
       link: "/admin/boutique",
       label: "Boutique",
       icon: IconShirt,
       children: [
-        { link: "/admin/boutique/produits", label: "produits" },
-        { link: "/admin/boutique/categories", label: "Categories" },
-        { link: "/admin/boutique/orders", label: "Orders" },
+        { link: "/admin/boutique/produits", label: "Produits" },
+        { link: "/admin/boutique/categories", label: "Catégories" },
+        { link: "/admin/boutique/orders", label: "Commandes" },
       ],
     },
-    { link: "/admin/fixtures", label: "Fixtures", icon: IconCalendarEvent },
-    { link: "/admin/news", label: "News", icon: IconNews },
-    { link: "/admin/tickets", label: "Tickets", icon: IconTicket },
+    { link: "/admin/tickets", label: "Billets", icon: IconTicket },
+    { link: "/admin/news", label: "Actualités", icon: IconNews },
   ];
 
   return <Sidebar navData={nav_data} user={user_info} />;

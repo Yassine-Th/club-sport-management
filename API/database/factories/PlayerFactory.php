@@ -18,7 +18,7 @@ class PlayerFactory extends Factory
         return [
             'my_club_id' => MyClub::inRandomOrder()->first()->id,
             'name' => $this->faker->name(),
-            'position' => $this->faker->randomElement(['Forward', 'Midfielder', 'Defender', 'Goalkeeper']),
+            'position' => $this->faker->randomElement(["Gardien", "Défenseur", "Milieu", "Attaquant"]),
             'number' => $this->faker->numberBetween(1, 99),
             "foot" => $this->faker->randomElement(['Left', 'Right']),
             'height' => $this->faker->numberBetween(150, 200), // Height in cm

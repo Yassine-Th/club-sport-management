@@ -18,10 +18,10 @@ const Boutique = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [genders, setGenders] = useState([]);
+  const [types, setTypes] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedGender, setSelectedGender] = useState("all");
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 100 });
-  const [maxLimit, setMaxLimit] = useState(100);
+  const [selectedType, setSelectedType] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
 
   // Pagination states
@@ -56,12 +56,15 @@ const Boutique = () => {
         ].filter(Boolean);
         setGenders(uniqueGenders);
 
-        // Determine the absolute max price
-        const absoluteMax = Math.ceil(
-          Math.max(...productsData.map((p) => Number.parseFloat(p.price)))
-        );
-        setMaxLimit(absoluteMax);
-        setPriceRange({ min: 0, max: absoluteMax });
+        // Extract unique types
+        const uniqueTypes = [
+          ...new Set(
+            productsData
+              .filter((product) => product.clothes)
+              .map((product) => product.clothes.type)
+          ),
+        ].filter(Boolean);
+        setTypes(uniqueTypes);
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
@@ -72,7 +75,7 @@ const Boutique = () => {
     filterProducts();
     // Reset to first page when filters change
     setCurrentPage(1);
-  }, [selectedCategory, selectedGender, priceRange, products]);
+  }, [selectedCategory, selectedGender, selectedType, products]);
 
   const filterProducts = () => {
     let filtered = [...products];
@@ -93,33 +96,21 @@ const Boutique = () => {
       );
     }
 
-    // Price filter
-    filtered = filtered.filter((product) => {
-      const price = Number.parseFloat(product.price);
-      return price >= priceRange.min && price <= priceRange.max;
-    });
-
-    setFilteredProducts(filtered);
-  };
-
-  const handlePriceChange = (e) => {
-    const updatedRange = {
-      ...priceRange,
-      [e.target.name]: Number.parseFloat(e.target.value),
-    };
-
-    if (updatedRange.min > updatedRange.max) {
-      updatedRange.min = updatedRange.max;
+    // Type filter
+    if (selectedType !== "all") {
+      filtered = filtered.filter(
+        (product) => product.clothes && product.clothes.type === selectedType
+      );
     }
 
-    setPriceRange(updatedRange);
+    setFilteredProducts(filtered);
   };
 
   const toggleFilters = () => {
     setShowFilters(!showFilters);
   };
 
-  // Get current products for pagination
+  // Pagination helpers
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredProducts.slice(
@@ -128,7 +119,6 @@ const Boutique = () => {
   );
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const nextPage = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
@@ -139,7 +129,6 @@ const Boutique = () => {
       <Header />
       <CartSidebar />
 
-      {/* Professional Filter Header - Football Club Store Style */}
       <div className="bg-white shadow-md border-t-red-600 mt-3">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -252,42 +241,55 @@ const Boutique = () => {
                 </div>
               )}
 
-              {/* Additional filter options could go here */}
-              <div className="relative group">
-                <button className="flex items-center space-x-2 text-gray-800 hover:text-red-600 font-medium py-2 transition-colors">
-                  <span>Collections</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
-                <div className="absolute left-0 top-full mt-1 bg-white shadow-xl rounded-md w-48 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
-                  <div className="p-2">
-                    <button className="block w-full text-left px-4 py-2 rounded text-sm hover:bg-gray-100 transition-colors">
-                      Domicile
-                    </button>
-                    <button className="block w-full text-left px-4 py-2 rounded text-sm hover:bg-gray-100 transition-colors">
-                      Extérieur
-                    </button>
-                    <button className="block w-full text-left px-4 py-2 rounded text-sm hover:bg-gray-100 transition-colors">
-                      Third
-                    </button>
-                    <button className="block w-full text-left px-4 py-2 rounded text-sm hover:bg-gray-100 transition-colors">
-                      Training
-                    </button>
+              {/* Type Dropdown */}
+              {types.length > 0 && (
+                <div className="relative group">
+                  <button className="flex items-center space-x-2 text-gray-800 hover:text-red-600 font-medium py-2 transition-colors">
+                    <span>Type</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                  <div className="absolute left-0 top-full mt-1 bg-white shadow-xl rounded-md w-48 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
+                    <div className="p-2">
+                      <button
+                        onClick={() => setSelectedType("all")}
+                        className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-colors ${
+                          selectedType === "all"
+                            ? "bg-red-600 text-white"
+                            : "hover:bg-gray-100"
+                        }`}
+                      >
+                        Tous les types
+                      </button>
+                      {types.map((type, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedType(type)}
+                          className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-colors ${
+                            selectedType === type
+                              ? "bg-red-600 text-white"
+                              : "hover:bg-gray-100"
+                          }`}
+                        >
+                          {type.charAt(0).toUpperCase() + type.slice(1)}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Products Counter */}
@@ -303,25 +305,14 @@ const Boutique = () => {
 
       <section className="py-6 px-4 max-w-7xl mx-auto">
         <div className="w-full">
-          {/* Page Header */}
-          {/* <div className="mb-8 text-center">
-            <h1 className="font-title text-4xl text-white mb-2">
-              Collection Officielle
-            </h1>
-            <div className="h-1 w-24 bg-white mx-auto"></div>
-          </div> */}
-
-          {/* Products Results Summary */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="font-title text-2xl text-white">Nos Produits</h2>
-            {/* Mobile Products Counter */}
             <div className="md:hidden text-white font-section bg-red-700 bg-opacity-40 px-4 py-2 rounded-full">
               {filteredProducts.length} produit
               {filteredProducts.length !== 1 ? "s" : ""}
             </div>
           </div>
 
-          {/* Products Display */}
           {filteredProducts.length === 0 ? (
             <div className="bg-white bg-opacity-90 rounded-xl p-8 text-center shadow-lg">
               <ShoppingBag className="w-16 h-16 mx-auto text-red-600 mb-4" />
@@ -332,115 +323,114 @@ const Boutique = () => {
             </div>
           ) : (
             <>
-              {/* Products Grid - More products per row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {currentProducts && currentProducts.length > 0 ? (
-                  currentProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                    >
-                      <Link
-                        to={`/boutique/${product.id}`}
-                        className="block relative group"
-                      >
-                        <div className="h-56 relative overflow-hidden">
-                          {product.image ? (
-                            <img
-                              src={product.image || "/placeholder.svg"}
-                              alt={product.name || "Produit"}
-                              className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = "/placeholder.svg";
-                              }}
-                            />
-                          ) : (
-                            <div className="h-full w-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
-                              <span className="font-title text-white text-xl">
-                                PRODUIT
-                              </span>
-                            </div>
-                          )}
-
-                        </div>
-
-                        {/* Category/Gender Badge */}
-                        {product.clothes && product.clothes.gender && (
-                          <span className="absolute top-2 right-2 text-xs bg-red-600 text-white px-2 py-1 rounded-sm font-medium">
-                            {product.clothes.gender === "homme"
-                              ? "Homme"
-                              : product.clothes.gender === "femme"
-                              ? "Femme"
-                              : product.clothes.gender === "enfant"
-                              ? "Enfant"
-                              : "Unisexe"}
-                          </span>
+            {
+              /* Products Grid - More products per row */
+            }
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {currentProducts && currentProducts.length > 0 ? (
+                currentProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                  >
+                    <Link to={`/boutique/${product.id}`} className="block relative group">
+                      <div className="h-56 relative overflow-hidden">
+                        {product.image ? (
+                          <img
+                            src={product.image || "/placeholder.svg"}
+                            alt={product.name || "Produit"}
+                            className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/placeholder.svg";
+                            }}
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
+                            <span className="font-title text-white text-xl">PRODUIT</span>
+                          </div>
                         )}
-                      </Link>
-
-                      <div className="p-3">
-                        <Link to={`/boutique/${product.id}`} className="block">
-                          <h3 className="font-title text-sm font-medium truncate hover:text-red-600 transition-colors">
-                            {product.name || "Produit"}
-                          </h3>
-                          <p className="text-gray-600 text-xs mt-1 mb-2 line-clamp-2 h-8">
-                            {product.description || ""}
-                          </p>
-                        </Link>
-
-                        <div className="flex flex-col items-start">
-                          <span className="font-section text-lg text-red-600 font-bold mb-2">
-                            {product.price
-                              ? Number.parseFloat(product.price).toFixed(2)
-                              : "0.00"}{" "}
-                            DH
-                          </span>
-
-                          {product.clothes ? (
-                            <Link
-                              to={`/boutique/${product.id}`}
-                              className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-red-700 transition-colors"
-                            >
-                              Voir les tailles
-                            </Link>
-                          ) : (
-                            <AddToCartButton
-                              product={product}
-                              quantity={1}
-                              className="bg-red-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-red-700 transition-colors"
-                            />
-                          )}
-                        </div>
-
-                        {product.clothes &&
-                          product.clothes.sizes &&
-                          product.clothes.sizes.length > 0 && (
-                            <div className="mt-2 pt-2 border-t border-gray-100">
-                              <div className="flex flex-wrap gap-1">
-                                {product.clothes.sizes.map((size, index) => (
-                                  <span
-                                    key={size.id || size.label || index}
-                                    className="text-xs bg-gray-100 px-2 py-0.5 rounded"
-                                  >
-                                    {size.label || size}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
                       </div>
+            
+                      {/* Category/Gender Badge */}
+                      {product.clothes && product.clothes.gender && (
+                        <span className="absolute top-2 right-2 text-xs bg-red-600 text-white px-2 py-1 rounded-sm font-medium">
+                          {product.clothes.gender === "homme"
+                            ? "Homme"
+                            : product.clothes.gender === "femme"
+                            ? "Femme"
+                            : product.clothes.gender === "enfant"
+                            ? "Enfant"
+                            : "Unisexe"}
+                        </span>
+                      )}
+                    </Link>
+            
+                    <div className="p-3">
+                      <Link to={`/boutique/${product.id}`} className="block">
+                        <h3 className="font-title text-sm font-medium truncate hover:text-red-600 transition-colors">
+                          {product.name || "Produit"}
+                        </h3>
+                        <p className="text-gray-600 text-xs mt-1 mb-2 line-clamp-2 h-8">
+                          {product.description || ""}
+                        </p>
+                      </Link>
+            
+                      <div className="flex flex-col items-start">
+                        <span className="font-section text-lg text-red-600 font-bold mb-2">
+                          {product.price
+                            ? Number.parseFloat(product.price).toFixed(2)
+                            : "0.00"}{" "}
+                          DH
+                        </span>
+            
+                        {product.clothes ? (
+                          <Link
+                            to={`/boutique/${product.id}`}
+                            className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-red-700 transition-colors"
+                          >
+                            Voir les tailles
+                          </Link>
+                        ) : (
+                          <AddToCartButton
+                            product={product}
+                            quantity={1}
+                            className="bg-red-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-red-700 transition-colors"
+                          />
+                        )}
+                      </div>
+            
+                      {product.clothes &&
+                        product.clothes.sizes &&
+                        product.clothes.sizes.length > 0 && (
+                          <div className="mt-2 pt-2 border-t border-gray-100">
+                            <div className="flex flex-wrap gap-1">
+                              {product.clothes.sizes.map((size, index) => (
+                                <span
+                                  key={size.id || size.label || index}
+                                  className="text-xs bg-gray-100 px-2 py-0.5 rounded"
+                                >
+                                  {size.label || size}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                     </div>
-                  ))
-                ) : (
-                  <div className="col-span-5 text-center py-8 text-white">
-                    <p>Aucun produit trouvé</p>
                   </div>
-                )}
-              </div>
-
-              {/* Improved Pagination */}
-              {filteredProducts.length > productsPerPage && (
+                ))
+              ) : (
+                <div className="col-span-5 text-center py-8 text-white">
+                  <p>Aucun produit trouvé</p>
+                </div>
+              )}
+            </div>;
+            
+            {
+              /* Improved Pagination */
+            }
+            {
+              filteredProducts.length > productsPerPage && (
                 <div className="mt-12 flex justify-center">
                   <div className="flex items-center bg-white rounded-full shadow-lg overflow-hidden">
                     <button
@@ -455,7 +445,7 @@ const Boutique = () => {
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
-
+            
                     {/* Page Numbers */}
                     <div className="flex">
                       {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -471,9 +461,7 @@ const Boutique = () => {
                         .map((number, index, array) => (
                           <React.Fragment key={number}>
                             {index > 0 && array[index - 1] !== number - 1 && (
-                              <span className="px-3 py-2 text-gray-500">
-                                ...
-                              </span>
+                              <span className="px-3 py-2 text-gray-500">...</span>
                             )}
                             <button
                               onClick={() => paginate(number)}
@@ -483,16 +471,14 @@ const Boutique = () => {
                                   : "text-red-600 hover:bg-red-50"
                               } transition-colors`}
                               aria-label={`Page ${number}`}
-                              aria-current={
-                                currentPage === number ? "page" : undefined
-                              }
+                              aria-current={currentPage === number ? "page" : undefined}
                             >
                               {number}
                             </button>
                           </React.Fragment>
                         ))}
                     </div>
-
+            
                     <button
                       onClick={nextPage}
                       disabled={currentPage === totalPages}
@@ -507,8 +493,7 @@ const Boutique = () => {
                     </button>
                   </div>
                 </div>
-              )}
-            </>
+              )}</>
           )}
         </div>
       </section>
@@ -517,3 +502,4 @@ const Boutique = () => {
 };
 
 export default Boutique;
+

@@ -117,7 +117,7 @@ const Produits = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 ">
       <div className="flex justify-between items-center mb-6">
         <Text fw={700} size="xl" className="text-red-900">
           Gestion des Produits
@@ -230,7 +230,7 @@ const Produits = () => {
                     {produit.category?.name || "N/A"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {Number.parseFloat(produit.price).toFixed(2)} €
+                    {Number.parseFloat(produit.price).toFixed(2)} DH
                   </td>
                   <td
                     className={`px-6 py-4 whitespace-nowrap ${

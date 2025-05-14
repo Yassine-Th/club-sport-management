@@ -115,11 +115,11 @@ function Sidebar({ navData, user }) {
       {/* Header with Logo */}
       <div
         className={`flex flex-col items-center justify-center p-4 mb-2 border-b border-red-800 ${
-          collapsed ? "py-3" : "py-4"
+          collapsed ? "py-3" : "py-3"
         }`}
       >
         {!collapsed ? (
-          <div className="flex flex-col items-center">
+          <div className="flex items-center">
             <img
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/z7UKOJyj_400x400.jpg-FaTwQMgv7594yqhjFNixF4tBplhmUG.jpeg"
               alt="Club Logo"
@@ -128,7 +128,7 @@ function Sidebar({ navData, user }) {
             <Text
               fw={700}
               size="md"
-              className="text-white tracking-wide uppercase"
+              className="text-white tracking-wide uppercase ml-2.5"
             >
               HUSA Club
             </Text>
@@ -140,16 +140,7 @@ function Sidebar({ navData, user }) {
             className="h-8 w-8"
           />
         )}
-        <UnstyledButton
-          onClick={() => setCollapsed((c) => !c)}
-          className="!absolute !-right-3 !top-12 !h-6 !w-6 !rounded-full !bg-red-600 border !border-red-800 flex items-center justify-center shadow-md hover:!bg-red-700 transition-colors"
-        >
-          {collapsed ? (
-            <IconChevronRight size="0.8rem" />
-          ) : (
-            <IconChevronLeft size="0.8rem" />
-          )}
-        </UnstyledButton>
+
       </div>
 
       {/* Nav links */}

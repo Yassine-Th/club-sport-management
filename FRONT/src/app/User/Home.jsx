@@ -69,12 +69,9 @@ const Home = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-red-800 to-red-600">
+      <div className=" bg-gradient-to-br from-red-800 to-red-600">
         <section className="relative overflow-hidden">
-          {/* Fond diagonal rouge */}
-          <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-800 skew-y-3 transform origin-top-right -translate-y-24 z-0"></div>
-
-          <div className="container mx-auto px-4 py-20 relative z-10">
+          <div className="container mx-auto px-4 py-15 relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="text-white">
                 <h1 className="font-title text-4xl md:text-5xl lg:text-6xl mb-4">

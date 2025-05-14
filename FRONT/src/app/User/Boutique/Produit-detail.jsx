@@ -387,39 +387,7 @@ const ProduitDetail = () => {
           </div>
         </div>
 
-        {/* Related Products */}
-        <div className="mt-12">
-          <h2 className="font-title text-2xl text-white mb-6">
-            Produits similaires
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((item) => (
-              <div
-                key={item}
-                className="bg-white rounded-lg overflow-hidden shadow-md transition-all hover:shadow-lg"
-              >
-                <div className="h-48 bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
-                  <span className="font-title text-white text-xl">PRODUIT</span>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-title text-lg mb-2">Produit similaire</h3>
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                    Description du produit similaire...
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="font-section text-red-600 font-bold">
-                      99.00 DH
-                    </span>
-                    <button className="flex items-center text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors">
-                      <ShoppingCart className="w-4 h-4 mr-1" />
-                      ACHETER
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        
       </div>
     </div>
   );
