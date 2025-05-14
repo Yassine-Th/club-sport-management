@@ -4,10 +4,15 @@ import { useState, useEffect } from "react";
 import Footer from "./Footer";
 import logo from "../../assets/logo.png";
 import Header from "./Header";
-import { useState,useEffect } from "react";
 import axios from "axios";
 import instance from "../../helpers/axios";
 import {Loader2} from 'lucide-react'
+import { ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 const Home = () => {
   const [lastNews, setLastNews] = useState([]);
@@ -42,13 +47,7 @@ const Home = () => {
       })
       
   }, []);
-import instance from "../../helpers/axios";
-import { ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+
 
   const [products, setProducts] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
