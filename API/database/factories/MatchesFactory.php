@@ -19,7 +19,7 @@ class MatchesFactory extends Factory
     public function definition()
     {
         return [
-            //'my_club_id' => MyClub::inRandomOrder()->first()->id,
+            'my_club_id' => MyClub::inRandomOrder()->first()->id,
             'opponent_club_id' => Club::inRandomOrder()->first()->id,
             'match_date' => $this->faker->dateTimeBetween('-1 year', '+1 year'),
             'my_club_goals' => $this->faker->numberBetween(0, 5),

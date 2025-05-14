@@ -25,11 +25,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        MyClub::factory(1)->create();
+
         // Seed users
         $this->call([
             UserSeeder::class,
             NewsSeeder::class,
-            PlayersSeeder::class
         ]);
 
         // Seed sizes and categories
@@ -57,7 +58,6 @@ class DatabaseSeeder extends Seeder
             }
         });
     
-        MyClub::factory(1)->create();
         Club::factory(5)->create();
         // Seed tabler
         Matches::factory(5)->create()->each(function ($match) {
