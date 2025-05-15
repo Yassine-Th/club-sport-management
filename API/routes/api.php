@@ -17,6 +17,8 @@ use App\Http\Controllers\MyClubController;
 use App\Http\Controllers\TrophyController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ClothesController;
+use App\Http\Controllers\ClubController;
+use App\Http\Controllers\MatchsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProductController;
@@ -115,6 +117,25 @@ Route::post('/trophy-create', [TrophyController::class, 'store']);
 Route::get('/trophy-edit/{id}', [TrophyController::class, 'edit']);
 Route::put('/trophy/update/{id}', [TrophyController::class, 'update']);
 Route::delete('/trophy-delete/{id}', [TrophyController::class, 'destroy']);
+
+
+
+Route::get('/clubs', [ClubController::class, 'index']);
+Route::post('/clubs-create', [ClubController::class, 'store']);
+Route::get('/clubs-edit/{id}', [ClubController::class, 'edit']);
+Route::put('/clubs/update/{id}', [ClubController::class, 'update']);
+Route::delete('/clubs-delete/{id}', [ClubController::class, 'destroy']);
+
+
+Route::get('/matches', [MatchsController::class, 'index']);
+Route::get('/matches/{id}', [MatchsController::class, 'show']);
+Route::post('/matches-create', [MatchsController::class, 'store']);
+Route::get('/matches-edit/{id}', [MatchsController::class, 'edit']);
+Route::put('/matches/update/{id}', [MatchsController::class, 'update']);
+Route::delete('/matches-delete/{id}', [MatchsController::class, 'destroy']);
+
+
+
 
 
 

@@ -23,10 +23,19 @@ export default function AdSideBar() {
 
   const nav_data = [
     { link: "/admin", label: "Dashboard", icon: IconDashboard },
-    { link: "/admin/my_club", label: "My Club", icon: IconShield  },
-    { link: "/admin/titres", label: "Trophy", icon: IconTrophy  },
-    { link: "/admin/players", label: "Players", icon: IconUsersGroup },
-    { link: "/admin/team", label: "Team", icon: IconUsersGroup },
+   
+    {
+      link: "/admin/my_club",
+      label: "my_club",
+      icon: IconShield,
+      children: [
+        { link: "/admin/my_club/titres", label: "Trophy" },
+        { link: "/admin/my_club/players", label: "Players" },
+        { link: "/admin/my_club/matches", label: "Matches" },
+      ],
+    },
+    { link: "/admin/clubs", label: "Clubs", icon: IconUsersGroup },
+    { link: "/admin/news", label: "News", icon: IconNews },
     {
       link: "/admin/boutique",
       label: "Boutique",
@@ -38,7 +47,6 @@ export default function AdSideBar() {
       ],
     },
     { link: "/admin/fixtures", label: "Fixtures", icon: IconCalendarEvent },
-    { link: "/admin/news", label: "News", icon: IconNews },
     { link: "/admin/tickets", label: "Tickets", icon: IconTicket },
   ];
 

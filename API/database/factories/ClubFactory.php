@@ -18,7 +18,7 @@ class ClubFactory extends Factory
     {
         return [
             'name' => $this->faker->company(), // Generate a random club name
-            'logo' => $this->faker->imageUrl(100, 100, 'sports', true, 'club'), // Generate a random logo URL
+            'logo' => 'images/club.jpg', // Generate a random logo URL
             'founded' => $this->faker->year(), // Generate a random founding year
             'coach_name' => $this->faker->name(), // Generate a random coach name
         ];
