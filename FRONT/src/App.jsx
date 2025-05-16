@@ -42,6 +42,13 @@ import BillesList from "./app/Admin/Billets/Billes-list";
 import EditBillet from "./app/Admin/Billets/EditBillet";
 import CreateTicket from "./app/Admin/Billets/CreateBillet";
 import CreateBillet from "./app/Admin/Billets/CreateBillet";
+import Clubs from "./app/Admin/clubs/Clubs";
+import ClubsForm from "./app/Admin/clubs/Create";
+import ClubsEdit from "./app/Admin/clubs/edit";
+import MatchForm from "./app/Admin/matches/Create";
+import Matches from "./app/Admin/matches/matches";
+import ShowMatch from "./app/Admin/matches/show";
+import MatchEdit from "./app/Admin/matches/edit";
 
 
 function App() {
@@ -67,15 +74,22 @@ function App() {
                   <Route path="/admin/news" element={<AdLayout><News /></AdLayout>} />
                   <Route path="/admin/create-new" element={<AdLayout><CreateNew /></AdLayout>} />
                   <Route path="/admin/edit-new/:id" element={<AdLayout><EditNew /></AdLayout>} />
-                  <Route path="/admin/players" element={<AdLayout><Players /></AdLayout>} />
+                  <Route path="/admin/my_club/players" element={<AdLayout><Players /></AdLayout>} />
                   <Route path="/admin/create-player" element={<AdLayout><PlayerCreate /></AdLayout>} />
                   <Route path="/admin/edit-player/:id" element={<AdLayout><EditPlayer /></AdLayout>} />
                   <Route path="/admin/my_club" element={<AdLayout><TeamDetail /></AdLayout>} />
                   <Route path="/admin/create-myclub" element={<AdLayout><MyclubAdd /></AdLayout>} />
                   <Route path="/admin/edit-myclub/:id" element={<AdLayout><MyclubEdit /></AdLayout>} />
-                  <Route path="/admin/titres" element={<AdLayout><Trophy /></AdLayout>} />
+                  <Route path="/admin/my_club/titres" element={<AdLayout><Trophy /></AdLayout>} />
                   <Route path="/admin/create-titres" element={<AdLayout><TrophyForm /></AdLayout>} />
                   <Route path="/admin/edit-titres/:id" element={<AdLayout><TrophyEdit /></AdLayout>} />
+                  <Route path="/admin/clubs" element={<AdLayout><Clubs /></AdLayout>} />
+                  <Route path="/admin/create-club" element={<AdLayout><ClubsForm /></AdLayout>} />
+                  <Route path="/admin/edit-club/:id" element={<AdLayout><ClubsEdit /></AdLayout>} />
+                  <Route path="/admin/my_club/matches" element={<AdLayout><Matches /></AdLayout>} />
+                  <Route path="/admin/create-match" element={<AdLayout><MatchForm /></AdLayout>} />
+                  <Route path="/admin/match/:id" element={<AdLayout><ShowMatch /></AdLayout>} />
+                  <Route path="/admin/edit-match/:id" element={<AdLayout><MatchEdit /></AdLayout>} />
                    <Route
                     path="/admin/boutique/produits/ajouter"
                     element={

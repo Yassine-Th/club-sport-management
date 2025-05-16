@@ -156,6 +156,14 @@ const Home = () => {
               </div>
             ))}
           </div>
+          <div className="text-center mt-10">
+            <Link
+              to="/news"
+              className="inline-block bg-red-600 text-white px-6 py-3 rounded-lg font-title hover:bg-red-700 transition-colors"
+            >
+              TOUS LES ACTUALITÉS
+            </Link>
+          </div>
         </div>
       </section>
 

@@ -1,21 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaTrash, FaEdit, FaTrophy, FaExclamationCircle } from "react-icons/fa";
-import { PlusCircle } from "lucide-react";
+import { FaTrophy } from "react-icons/fa";
+import { IconPlus, IconEdit, IconTrash, IconX } from "@tabler/icons-react";
+import { Tooltip, UnstyledButton, Loader, Text } from "@mantine/core";
 import instance from "../../../../helpers/axios";
+import DeleteConfirmation from "../../../../helpers/DeleteConfirmation";
 
 const Trophy = () => {
   const [trophy, setTrophy] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+   const [selectedProduit, setSelectedProduit] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     const getTrophy = async () => {
       setLoading(true);
+      setError(null);
       try {
         const response = await instance.get("/trophy");
         setTrophy(response.data.trophy);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching trophies:", error);
+        setError("Impossible de charger les titres.");
       } finally {
         setLoading(false);
       }
@@ -23,104 +30,134 @@ const Trophy = () => {
     getTrophy();
   }, []);
 
- const handelDelet = async (id) => {
-  if (!window.confirm("هل أنت متأكد أنك تريد حذف هذا اللقب؟")) return;
-
-  try {
-    await instance.delete(`/trophy-delete/${id}`);
-    setTrophy(prev => prev.filter(item => item.id !== id));
-  } catch (error) {
-    console.error("خطأ أثناء حذف اللقب:", error);
-    alert("حدث خطأ أثناء حذف اللقب. حاول مرة أخرى.");
-  }
-};
+  const handleDelete = async (id) => {
+    try {
+      await instance.delete(`/trophy-delete/${selectedProduit.id}`);
+      setTrophy(trophy.filter((p) => p.id !== selectedProduit.id));
+    } catch (error) {
+      console.error("Error deleting trophy:", error);
+      setError("Erreur lors de la suppression du titre.");
+    } finally{
+      setIsDeleteModalOpen(false)
+    }
+  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-lg font-medium text-gray-600">
-        <span className="animate-spin h-8 w-8 border-4 border-red-500 border-t-transparent rounded-full"></span>
-        <span className="ml-4">Chargement en cours...</span>
+      <div className="flex items-center justify-center h-64">
+        <Loader color="red" size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <FaTrophy className="text-red-500" /> Liste des Titres
-        </h2>
-        <Link
-          to="/admin/create-titres"
-          className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm shadow transition"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Ajouter
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="flex justify-between items-center mb-6">
+        <Text fw={700} size="xl" className="text-red-900">
+          Gestion des Titres
+        </Text>
+        <Link to="/admin/create-titres">
+          <UnstyledButton className="!bg-red-700 !text-white !px-4 !py-2 !rounded-md !flex !items-center !gap-2 hover:!bg-red-800 !transition-colors">
+            <IconPlus size="1rem" />
+            <span>Ajouter un titre</span>
+          </UnstyledButton>
         </Link>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto text-sm border border-gray-100">
-          <thead className="bg-gray-100">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
+          <span>{error}</span>
+          <IconX
+            size="1rem"
+            onClick={() => setError(null)}
+            className="cursor-pointer"
+          />
+        </div>
+      )}
+
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-red-900 text-white">
             <tr>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase">ID</th>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Titre</th>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Compétition</th>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Fois Gagnées</th>
-              <th className="px-3 py-2 text-center text-xs font-semibold text-gray-600 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                Image
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                Titre
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                Compétition
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                Fois Gagnées
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {trophy.length > 0 ? (
+            {trophy.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                  Aucun titre trouvé
+                </td>
+              </tr>
+            ) : (
               trophy.map((item) => (
-                <tr key={item.id} className="hover:bg-red-50 transition-colors">
-                  <td className="px-3 py-2 font-medium text-gray-800">{item.id}</td>
-                  <td className="px-3 py-2 text-gray-700">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-                      {item.title || "—"}
-                    </span>
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-700 max-w-[120px] truncate">
+                        <img
+                          src={`http://localhost:8000/storage/${item.photo}`}
+                          alt={item.title}
+                          className="h-10 w-10 object-cover rounded-full"
+                        />
+                      </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.title || "—"}
                   </td>
-                  <td className="px-3 py-2 text-gray-700 max-w-[120px] truncate">{item.competition}</td>
-                  <td className="px-3 py-2 text-gray-700">
-                    <span className="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-semibold">
-                      {item.times_won || "—"}
-                    </span>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item.competition || "—"}
                   </td>
-                  <td className="px-3 py-2">
-                    <div className="flex justify-center gap-4">
-                      <Link
-                        to={`/admin/edit-titres/${item.id}`}
-                        className="text-blue-600 hover:text-blue-800"
-                        title="Modifier"
-                      >
-                        <FaEdit size={16} />
-                      </Link>
-                      <button
-                        onClick={() => 
-                          handelDelet(item.id)
-                        }
-                        className="text-red-600 hover:text-red-800"
-                        title="Supprimer"
-                      >
-                        <FaTrash size={16} />
-                      </button>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item.times_won || "—"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <div className="flex justify-end gap-2">
+                      <Tooltip label="Modifier">
+                        <Link to={`/admin/edit-titres/${item.id}`}>
+                          <UnstyledButton className="!text-yellow-600 hover:!text-yellow-800">
+                            <IconEdit size="1.2rem" />
+                          </UnstyledButton>
+                        </Link>
+                      </Tooltip>
+                      <Tooltip label="Supprimer">
+                        <UnstyledButton
+                          onClick={() => {
+                             setSelectedProduit(item);
+                            setIsDeleteModalOpen(true);
+                          }}
+                          className="!text-red-600 hover:!text-red-800"
+                        >
+                          <IconTrash size="1.2rem" />
+                        </UnstyledButton>
+                      </Tooltip>
                     </div>
                   </td>
                 </tr>
               ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <FaExclamationCircle className="text-gray-400 text-3xl mb-2" />
-                    <p className="text-sm">Aucun titre trouvé pour le moment.</p>
-                  </div>
-                </td>
-              </tr>
             )}
           </tbody>
         </table>
       </div>
+      {isDeleteModalOpen && selectedProduit && (
+              <DeleteConfirmation
+                title="Confirmer la suppression"
+                message={`Êtes-vous sûr de vouloir supprimer Titre « ${selectedProduit.title} » ?`}
+                onConfirm={handleDelete}
+                onCancel={() => setIsDeleteModalOpen(false)}
+              />
+            )}
     </div>
   );
 };

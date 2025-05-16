@@ -73,7 +73,7 @@ class NewsController extends Controller
         'title' => 'required|string|max:255',
         'content' => 'required|string',
         'category' => 'required|string|in:match,transfer,club,other',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'image' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
     $news = News::find($id);

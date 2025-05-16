@@ -15,7 +15,13 @@ class Matches extends Model
         'my_club_id',
         'opponent_club_id',
         'match_date',
+        'match_location',
+        'my_club_goals',
+        'opponent_club_goals',
         'is_home',
+        'journée', 
+        'aller_retour',
+        'status'
     ];
 
 

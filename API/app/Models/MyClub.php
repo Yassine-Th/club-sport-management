@@ -20,11 +20,11 @@ class MyClub extends Model
         'coach_name',
         'description',
     ];
-    /*public function matches()
+    public function matches()
     {
         return $this->hasMany(Matches::class, 'my_club_id');
     }
-    public function players()
+   /* public function players()
     {
         return $this->hasMany(Player::class, 'my_club_id');
     }*/

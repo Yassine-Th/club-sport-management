@@ -1,12 +1,16 @@
-import React from "react"
-import { useState } from "react"
-import { getUserInfo } from "../../../helpers/access_token"
-import instance from "../../../helpers/axios"
-import {FaImage,FaHeading,FaThLarge,FaInfoCircle} from "react-icons/fa"
+import React from "react";
+import { useState } from "react";
+import { getUserInfo } from "../../../helpers/access_token";
+import instance from "../../../helpers/axios";
+import { Link } from "react-router-dom";
+import { FaImage, FaHeading, FaThLarge, FaInfoCircle } from "react-icons/fa";
+import {
+  IconArrowLeft,
+} from "@tabler/icons-react";
 
 const CreateNew = () => {
-  const user = getUserInfo()
-  const user_id = user.id
+  const user = getUserInfo();
+  const user_id = user.id;
 
   const [formData, setFormData] = useState({
     author_id: user_id,
@@ -14,68 +18,67 @@ const CreateNew = () => {
     content: "",
     category: "",
     image: null,
-  })
-  const [error, setError] = useState({})
-  const [success, setSuccess] = useState(null)
-  const [loading, setLoading] = useState(false)
+  });
+  const [error, setError] = useState({});
+  const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, image: e.target.files[0] })
-  }
+    setFormData({ ...formData, image: e.target.files[0] });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    const formDataToSend = new FormData()
-    formDataToSend.append("author_id", formData.author_id)
-    formDataToSend.append("title", formData.title)
-    formDataToSend.append("content", formData.content)
-    formDataToSend.append("category", formData.category)
-    formDataToSend.append("image", formData.image)
+    e.preventDefault();
+    setLoading(true);
+    const formDataToSend = new FormData();
+    formDataToSend.append("author_id", formData.author_id);
+    formDataToSend.append("title", formData.title);
+    formDataToSend.append("content", formData.content);
+    formDataToSend.append("category", formData.category);
+    formDataToSend.append("image", formData.image);
     try {
       const response = await instance.post("/news-create", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
-      })
-      setSuccess(response.data.message)
+      });
+      setSuccess(response.data.message);
       setInterval(() => {
-        setSuccess("")
-      }, 3000)
-      setError(null)
+        setSuccess("");
+      }, 3000);
+      setError(null);
       setFormData({
         author_id: user_id,
         title: "",
         content: "",
         category: "",
         image: null,
-      })
-      // Reset file input manually
-      document.getElementById("imgInput").value = ""
+      });
+      document.getElementById("imgInput").value = "";
     } catch (error) {
       if (error.response && error.response.status === 422) {
-        setError(error.response.data.errors)
-        console.error("Erreur de validation:", error.response.data)
+        setError(error.response.data.errors);
+        console.error("Erreur de validation:", error.response.data);
       }
-      console.error("Erreur lors de la création de l'actualité:", error)
+      console.error("Erreur lors de la création de l'actualité:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-12">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl overflow-hidden">
-        <div className="bg-gradient-to-r from-red-600 to-red-700 py-6 px-8">
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <span className="text-4xl">📰</span> Créer une nouvelle actualité
-          </h1>
-          <p className="text-blue-100 mt-2">Partagez les dernières nouvelles avec vos lecteurs</p>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="mb-6">
+         <div className="flex items-center gap-4 mb-6">
+          <Link to="/admin/news" className="text-red-700 hover:text-red-900">
+              <IconArrowLeft size="1.2rem"  />
+          </Link>
+          <h1 className="text-xl font-bold text-red-900">Ajouter un News</h1>
         </div>
 
-        <div className="p-8">
+        <div className="bg-white rounded-lg shadow p-6">
           {success && (
             <div
               className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md flex items-center"
@@ -97,39 +100,125 @@ const CreateNew = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-6">
-            {/* Titre */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Title */}
             <div>
               <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                <FaHeading  className="mr-2 text-red-500" />
+                <FaHeading className="mr-2 text-red-500" />
                 Titre
               </label>
               <input
                 type="text"
                 name="title"
-                value={formData.title}
+                value={formData?.title}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                className={`w-full px-3 py-2 border ${
+                  error?.title ? "border-red-500" : "border-gray-300"
+                } rounded-md`}
                 placeholder="Titre de l'actualité"
               />
-              {error?.title && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.title[0]}
-                </div>
-              )}
+              {success && (
+            <div
+              className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md flex items-center"
+              role="alert"
+            >
+              <svg
+                className="h-5 w-5 mr-2 text-green-500"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>{success}</span>
+            </div>
+          )}{success && (
+            <div
+              className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md flex items-center"
+              role="alert"
+            >
+              <svg
+                className="h-5 w-5 mr-2 text-green-500"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>{success}</span>
+            </div>
+          )}{success && (
+            <div
+              className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md flex items-center"
+              role="alert"
+            >
+              <svg
+                className="h-5 w-5 mr-2 text-green-500"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>{success}</span>
+            </div>
+          )}{success && (
+            <div
+              className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md flex items-center"
+              role="alert"
+            >
+              <svg
+                className="h-5 w-5 mr-2 text-green-500"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>{success}</span>
+            </div>
+          )}{success && (
+            <div
+              className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md flex items-center"
+              role="alert"
+            >
+              <svg
+                className="h-5 w-5 mr-2 text-green-500"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>{success}</span>
+            </div>
+          )}
             </div>
 
-            {/* Contenu */}
+            {/* Content */}
             <div>
               <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                <FaInfoCircle  className="mr-2 text-red-500" />
+                <FaInfoCircle className="mr-2 text-red-500" />
                 Contenu
               </label>
               <textarea
@@ -137,59 +226,38 @@ const CreateNew = () => {
                 value={formData.content}
                 onChange={handleChange}
                 rows={5}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                className={`w-full px-3 py-2 border ${
+                  error?.content ? "border-red-500" : "border-gray-300"
+                } rounded-md`}
                 placeholder="Décris l'actualité..."
               ></textarea>
               {error?.content && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.content[0]}
-                </div>
+                <p className="text-red-600 text-sm">{error.content[0]}</p>
               )}
             </div>
 
-            {/* Catégorie */}
+            {/* Category */}
             <div>
               <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                <FaThLarge  className="mr-2 text-red-500" />
+                <FaThLarge className="mr-2 text-red-500" />
                 Catégorie
               </label>
-              <div className="relative">
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full bg-white px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
-                >
-                  <option value="">Choisir une catégorie</option>
-                  <option value="match">Match</option>
-                  <option value="transfer">Transfert</option>
-                  <option value="club">Club</option>
-                  <option value="other">Autre</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                  </svg>
-                </div>
-              </div>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 border ${
+                  error?.category ? "border-red-500" : "border-gray-300"
+                } rounded-md`}
+              >
+                <option value="">Choisir une catégorie</option>
+                <option value="match">Match</option>
+                <option value="transfer">Transfert</option>
+                <option value="club">Club</option>
+                <option value="other">Autre</option>
+              </select>
               {error?.category && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.category[0]}
-                </div>
+                <p className="text-red-600 text-sm">{error.category[0]}</p>
               )}
             </div>
 
@@ -232,71 +300,28 @@ const CreateNew = () => {
                 <p className="mt-2 text-sm text-gray-600">Fichier sélectionné: {formData.image.name}</p>
               )}
               {error?.image && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.image[0]}
-                </div>
+                <p className="text-red-600 text-sm">{error.image[0]}</p>
               )}
             </div>
 
-            {/* Bouton Submit */}
-            <div className="pt-4">
+            {/* Submit Button */}
+            <div className="flex justify-end gap-3 pt-4 border-t">
+               <Link to="/admin/news" className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400">
+                  Annuler
+               </Link>
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full flex items-center justify-center gap-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-medium py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md ${
-                  loading ? "opacity-70 cursor-not-allowed" : ""
-                }`}
+                className="bg-red-700 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-red-800 disabled:opacity-50"
               >
-                {loading ? (
-                  <>
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Création en cours...
-                  </>
-                ) : (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Créer l'actualité
-                  </>
-                )}
+                {loading ? "Création en cours..." : "Créer l'actualité"}
               </button>
             </div>
           </form>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CreateNew
+export default CreateNew;
