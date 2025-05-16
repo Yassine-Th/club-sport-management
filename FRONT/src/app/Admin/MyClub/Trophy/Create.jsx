@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import {
   FaMedal,
   FaCalendarAlt,
@@ -323,7 +322,7 @@ export default function TrophyForm() {
                       onChange={handlePhotoChange}
                       accept="image/*"
                     />
-                  </label>
+                  </svg>
                   <p className="pl-1">ou glisser-déposer</p>
                 </div>
                 <p className="text-xs text-gray-500">
@@ -358,9 +357,9 @@ export default function TrophyForm() {
           <div className="pt-4">
             <button
               type="submit"
-              disabled={loding}
+              disabled={loading}
               className={`w-full flex items-center justify-center gap-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-medium py-3 px-4 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-md ${
-                loding ? "opacity-70 cursor-not-allowed" : ""
+                loading ? "opacity-70 cursor-not-allowed" : ""
               }`}
             >
               {loading ? (
