@@ -293,8 +293,8 @@ export default function TrophyEdit() {
                   />
                 </label>
               )}
-              {error.image && (
-                <p className="text-red-600 text-sm mt-1">{error.photo[0]}</p>
+              {error?.image && (
+                <p className="text-red-600 text-sm mt-1">{error?.photo[0]}</p>
               )}
             </div>
           </div>
