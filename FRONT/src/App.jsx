@@ -37,6 +37,11 @@ import Categories from "./app/Admin/Boutique/Categorie/Categories";
 import CategoryEdit from "./app/Admin/Boutique/Categorie/CategoryEdit";
 import AdminBoutique from "./app/Admin/Boutique/AdBoutique";
 import Produits from "./app/Admin/Boutique/Produits/Produits-List";
+import Billie from "./app/User/BILLETTERIE/Billie";
+import BillesList from "./app/Admin/Billets/Billes-list";
+import EditBillet from "./app/Admin/Billets/EditBillet";
+import CreateTicket from "./app/Admin/Billets/CreateBillet";
+import CreateBillet from "./app/Admin/Billets/CreateBillet";
 
 
 function App() {
@@ -112,6 +117,10 @@ function App() {
                   <Route path="/admin/boutique/orders/:id" element={<AdLayout> <OrderDetail/> </AdLayout>} />
                   <Route path="/admin/boutique/categories" element={<AdLayout> <Categories/> </AdLayout>} />
                   <Route path="/admin/boutique/categories/:id" element={<AdLayout> <CategoryEdit/> </AdLayout>} />
+                  
+                  <Route path="/admin/tickets" element={<AdLayout><BillesList /></AdLayout>} />
+                  <Route path="/admin/edit-ticket/:id" element={<AdLayout><EditBillet /></AdLayout>} />
+                  <Route path="/admin/create-ticket" element={<AdLayout><CreateBillet /></AdLayout>} />
 
                 </>
               )}

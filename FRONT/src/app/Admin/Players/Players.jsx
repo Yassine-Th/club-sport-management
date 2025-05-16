@@ -233,13 +233,6 @@ const Players = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex justify-end gap-2">
-                      <Tooltip label="Voir détails">
-                        <Link to={`/admin/player/${player.id}`}>
-                          <UnstyledButton className="!text-blue-600 hover:!text-blue-800">
-                            <IconEye size="1.2rem" />
-                          </UnstyledButton>
-                        </Link>
-                      </Tooltip>
                       <Tooltip label="Modifier">
                         <Link to={`/admin/edit-player/${player.id}`}>
                           <UnstyledButton className="!text-yellow-600 hover:!text-yellow-800">

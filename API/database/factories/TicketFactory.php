@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Matches;
+use App\Models\ticketCategories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,11 @@ class TicketFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'type' => 'match',
+            'matches_id' => $match = Matches::inRandomOrder()->first()?->id,
+            'date' => $match ? Matches::find($match)->date : null,
+            'description' => $this->faker->sentence(),
+            'status' => $this->faker->randomElement(['available', 'sold out']),
         ];
     }
 }

@@ -21,7 +21,7 @@ class MatchesFactory extends Factory
         return [
             'my_club_id' => MyClub::inRandomOrder()->first()->id,
             'opponent_club_id' => Club::inRandomOrder()->first()->id,
-            'match_date' => $this->faker->dateTimeBetween('-1 year', '+1 year'),
+            'match_date' => $this->faker->dateTimeBetween('first day of January this year', 'last day of December this year'),
             'my_club_goals' => $this->faker->numberBetween(0, 5),
             'opponent_club_goals' => $this->faker->numberBetween(0, 5),
             'is_home' => $this->faker->boolean(),

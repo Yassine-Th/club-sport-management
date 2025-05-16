@@ -17,12 +17,16 @@ use App\Http\Controllers\MyClubController;
 use App\Http\Controllers\TrophyController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ClothesController;
+use App\Http\Controllers\MatchsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SizeController;
+use App\Http\Controllers\TicketCategoryController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserNewsController;
+use App\Models\ticketCategories;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
     ->middleware('guest')
@@ -74,6 +78,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource(('orders'), OrderController::class);
     Route::get('commandes/{id}', [OrderController::class, 'UserOrders']);
+
+    Route::apiResource('tickets', TicketController::class);
+    Route::apiResource('ticket-categories', TicketCategoryController::class);
+    Route::apiResource('matches', MatchsController::class);
+    Route::get('upcomming-matches', [MatchsController::class, 'UpCommingMatches']);
+    Route::get("show-matches", [MatchsController::class, 'showEditMatches']);
 });
 
 Route::get('/news', [NewsController::class, 'index']);

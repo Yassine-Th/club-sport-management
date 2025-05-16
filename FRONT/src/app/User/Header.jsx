@@ -78,6 +78,9 @@ function Header() {
             <Link to="/" className="text-red-700 hover:text-red-200">
               ACCUEIL
             </Link>
+            <Link to="/news" className="text-red-700 hover:text-red-200">
+              ACTUALITÉS
+            </Link>
             <Link to="/equipe" className="text-red-700 hover:text-red-200">
               ÉQUIPE
             </Link>
@@ -85,7 +88,7 @@ function Header() {
               MATCHS
             </Link>
             <Link to="/news" className="text-red-700 hover:text-red-200">
-              ACTUALITÉS
+              BILLETTERIE
             </Link>
             <Link to="/boutique" className="text-red-700 hover:text-red-200">
               BOUTIQUE
