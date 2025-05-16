@@ -20,7 +20,7 @@ class NewsFactory extends Factory
             'author_id' => \App\Models\User::factory()->create()->id,
             'title' => $this->faker->sentence(),
             'content' => $this->faker->paragraph(),
-            'image' => 'images/husa.png',
+            'image' => 'images/husa.jpg',
             'category' => $this->faker->randomElement(['match', 'transfer', 'club', 'other']),
             'created_at' => now(),
             'updated_at' => now(),

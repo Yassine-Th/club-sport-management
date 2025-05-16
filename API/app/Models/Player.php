@@ -10,7 +10,7 @@ class Player extends Model
     use HasFactory;
 
     protected $fillable = [
-        //'my_club_id',
+        'my_club_id',
         'name',
         'position',
         'number',

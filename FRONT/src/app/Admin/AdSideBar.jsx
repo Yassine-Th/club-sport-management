@@ -41,13 +41,14 @@ export default function AdSideBar() {
       label: "Boutique",
       icon: IconShirt,
       children: [
-        { link: "/admin/boutique/produits", label: "produits" },
-        { link: "/admin/boutique/categories", label: "Categories" },
-        { link: "/admin/boutique/orders", label: "Orders" },
+        { link: "/admin/boutique/produits", label: "Produits" },
+        { link: "/admin/boutique/categories", label: "Catégories" },
+        { link: "/admin/boutique/orders", label: "Commandes" },
       ],
     },
     { link: "/admin/fixtures", label: "Fixtures", icon: IconCalendarEvent },
     { link: "/admin/tickets", label: "Tickets", icon: IconTicket },
+    { link: "/admin/news", label: "Actualités", icon: IconNews },
   ];
 
   return <Sidebar navData={nav_data} user={user_info} />;

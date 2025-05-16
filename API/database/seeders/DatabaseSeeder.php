@@ -15,7 +15,6 @@ use App\Models\MyClub;
 use App\Models\Player;
 use App\Models\MyPlayerMatchStat;
 use App\Models\PlayerMatchGoal;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -25,14 +24,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed users
+        // 1) Create my club and opponent clubs
+        $myClub    = MyClub::factory()->create();
+        $opponents = Club::factory(5)->create();
+
+        // 2) Seed users and news
         $this->call([
             UserSeeder::class,
             NewsSeeder::class,
-            PlayersSeeder::class
         ]);
 
-        // Seed sizes and categories
+        // 3) Seed sizes and categories
         Size::insert([
             ['label' => 'Small'],
             ['label' => 'Medium'],
@@ -41,7 +43,7 @@ class DatabaseSeeder extends Seeder
         ]);
         Categories::factory()->count(1)->create();
 
-        // Seed products & clothes
+        // 4) Seed products & clothes
         Product::factory(5)->create();
         Clothes::factory(10)->create()->each(function ($clothes) {
             if ($clothes->sizes()->count() === 0) {
@@ -56,26 +58,66 @@ class DatabaseSeeder extends Seeder
                 }
             }
         });
-    
-        MyClub::factory(1)->create();
-        Club::factory(5)->create();
-        // Seed tabler
-        Matches::factory(5)->create()->each(function ($match) {
-            // Seed players for each match
-            Player::factory(11)->create(['my_club_id' => $match->my_club_id])->each(function ($player) use ($match) {
-                // Seed player match stats
-                MyPlayerMatchStat::factory()->create([
-                    'match_id' => $match->id,
+
+        // 5) Seed a squad of 20 players for my club
+        $squad = Player::factory(20)
+            ->create(['my_club_id' => $myClub->id]);
+
+        // 6) Create matches and logical stats/goals
+        $matches = Matches::factory(10)
+            ->state(function () use ($myClub, $opponents) {
+                return [
+                    'my_club_id'       => $myClub->id,
+                    'opponent_club_id' => $opponents->random()->id,
+                    'match_date'       => now()->subDays(rand(0, 365)),
+                    'is_home'          => (bool) rand(0, 1),
+                ];
+            })
+            ->create();
+
+        foreach ($matches as $match) {
+            // a) select 11 random starters
+            $starters = $squad->random(11);
+
+            // b) create a stat record for each starter
+            $stats = $starters->map(function ($player) use ($match) {
+                return MyPlayerMatchStat::factory()->create([
+                    'matches_id'  => $match->id,
                     'player_id' => $player->id,
                 ]);
             });
 
-            // Seed goals for the match
-            MyPlayerMatchStat::all()->each(function ($stat) {
-                PlayerMatchGoal::factory()->count(2)->create([
-                    'player_match_stat_id' => $stat->id,
-                ]);
-            });
-        });
+            // c) decide total goals (0-5)
+            $totalGoals = rand(0, 5);
+            if ($totalGoals > 0) {
+                $distinctCount = min($totalGoals, $stats->count());
+                $scorerStats   = $stats->random($distinctCount);
+                $remaining     = $totalGoals;
+
+                foreach ($scorerStats as $stat) {
+                    $goals = 1;
+                    $remaining--;
+                    if ($remaining > 0 && rand(0, 1)) {
+                        $goals++;
+                        $remaining--;
+                    }
+                    PlayerMatchGoal::factory($goals)
+                        ->create(['player_match_stat_id' => $stat->id]);
+                    if ($remaining <= 0) {
+                        break;
+                    }
+                }
+            }
+
+            // d) update match goal totals
+            $matchGoals = $match->playerStats()
+                ->withCount('goals')
+                ->get()
+                ->sum('goals_count');
+
+            $match->my_club_goals       = $matchGoals;
+            $match->opponent_club_goals = rand(0, 5);
+            $match->save();
+        }
     }
 }

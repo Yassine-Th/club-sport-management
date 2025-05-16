@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('players', function (Blueprint $table) {
             $table->id();
-            //$table->foreignId('my_club_id')->constrained('my_club');
+            $table->foreignId('my_club_id')->constrained('my_club');
             $table->string('name');
-            $table->enum('position', ['goalkeeper', 'defender', 'midfielder', 'forward']);
+            $table->enum('position', ["Gardien","Défenseur","Milieu","Attaquant"]);
             $table->date('birth_date')->nullable();
             $table->integer('number')->nullable();
             $table->string('height')->nullable();

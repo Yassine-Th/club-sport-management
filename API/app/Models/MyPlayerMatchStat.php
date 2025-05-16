@@ -10,7 +10,7 @@ class MyPlayerMatchStat extends Model
     use HasFactory;
 
     protected $fillable = [
-        'match_id',
+        'matches_id',
         'player_id',
         'goals_count',
         'assists_count',

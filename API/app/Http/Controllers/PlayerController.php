@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MyClub;
 use App\Models\Player;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -37,9 +38,9 @@ class PlayerController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'position' => 'required|string|in:goalkeeper,defender,midfielder,forward',
+            'position' => 'required|string|in:Gardien,Défenseur,Milieu,Attaquant',
             'birth_date' => 'required|date|before:today',
-            'number' => 'required|integer|min:1|max:99|unique:players,number',
+            'number' => 'required|integer|min:1|max:99',
             'height' => 'required|numeric|min:100|max:250',
             'weight' => 'required|numeric|min:40|max:150',
             'foot' => 'required|string|in:right,left,both',
@@ -48,6 +49,7 @@ class PlayerController extends Controller
         ]);
 
         Player::create([
+            'my_club_id' => MyClub::inRandomOrder()->first()->id,
             'name' => $validatedData['name'],
             'position' => $validatedData['position'],
             'birth_date' => $validatedData['birth_date'],
@@ -78,7 +80,7 @@ public function update(Request $request, $id)
 {
     $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'position' => 'required|string|in:goalkeeper,defender,midfielder,forward',
+            'position' => 'required|string|in:Gardien,Défenseur,Milieu,Attaquant',
             'birth_date' => 'required|date|before:today',
             'number' => 'required|integer|min:1|max:99|unique:players,number,' . $id,
             'height' => 'required|numeric|min:100|max:250',
@@ -108,9 +110,9 @@ public function update(Request $request, $id)
 
 
     if ($request->hasFile('photo')) {
-       if ($player->photo && Storage::disk('public')->exists($player->photo)) {
-            Storage::disk('public')->delete($player->photo);
-        }
+    //    if ($player->photo && Storage::disk('public')->exists($player->photo)) {
+    //         Storage::disk('public')->delete($player->photo);
+    //     }
         // رفع الصورة الجديدة
         $player->photo =  $request->hasFile('photo') ? $request->file('photo')->store('images', 'public') : null;
 

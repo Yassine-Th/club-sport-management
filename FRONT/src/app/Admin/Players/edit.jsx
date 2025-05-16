@@ -1,532 +1,551 @@
-import React from "react"
-import { useState,useEffect } from "react"
-import { useParams } from "react-router-dom"
+import React from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import {
-  FaUser,
-  FaRunning,
-  FaCalendarAlt,
-  FaRulerVertical,
-  FaWeight,
-  FaFlagCheckered,
-  FaImage,
-  FaFootballBall,
-  FaHashtag,
-} from "react-icons/fa"
-import instance from "../../../helpers/axios"
+  IconUpload,
+  IconX,
+  IconArrowLeft,
+  IconDeviceFloppy,
+  IconAlertCircle,
+} from "@tabler/icons-react";
+import instance from "../../../helpers/axios";
 
-export default function EditPlayer() {
-    const [error, setError] = useState({})
-    const [success, setSuccess] = useState('')
-    const [loding, setLoding] = useState(false)
-    const [fetchLoading, setFetchLoading] = useState(true)
-  const [player, setPlayer] = useState({
+const EditPlayer = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEdit = Boolean(id);
+
+  const [loading, setLoading] = useState(isEdit);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState("");
+
+  const [formData, setFormData] = useState({
     name: "",
     position: "",
     birth_date: "",
     number: "",
     height: "",
     weight: "",
-    foot: "",
+    foot: "right",
     nationality: "",
     photo: null,
-  })
-  const {id} = useParams();
+  });
+  const [imagePreview, setImagePreview] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [player, setPlayer] = useState(null);
 
   useEffect(() => {
-    const getplayer = async () => {
-        try{
-            setFetchLoading(true)
-            const response = await instance.get(`/player-edit/${id}`)
-            setPlayer(response.data.player)
-        } catch (error){
-            console.error("Erreur lors du chargement :", error)
-        } finally{
-            setFetchLoading(false)
-        }
-    }
-    getplayer();
+    if (isEdit) fetchPlayer();
+  }, [id]);
 
-  },[id])
+  const fetchPlayer = async () => {
+    try {
+      setLoading(true);
+      const res = await instance.get(`/player-edit/${id}`);
+      const playerData = res.data.player;
+      setPlayer(playerData);
+
+      setFormData({
+        name: playerData.name || "",
+        position: playerData.position || "",
+        birth_date: playerData.birth_date || "",
+        number: playerData.number?.toString() || "",
+        height: playerData.height?.toString() || "",
+        weight: playerData.weight?.toString() || "",
+        foot: playerData.foot?.toLowerCase() || "right",
+        nationality: playerData.nationality || "",
+        photo: null,
+      });
+
+      // Set image preview if photo exists
+      
+    } catch (err) {
+      console.error(err);
+      setError("Impossible de charger le joueur.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setPlayer((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value, type, checked, files } = e.target;
+    if (type === "checkbox") {
+      setFormData((f) => ({ ...f, [name]: checked }));
+    } else if (name === "photo" && files?.[0]) {
+      const file = files[0];
+      setFormData((f) => ({ ...f, photo: file }));
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setFormData((f) => ({ ...f, [name]: value }));
+    }
+    if (errors[name]) setErrors((e) => ({ ...e, [name]: null }));
+  };
 
-  const handlePhotoChange = (e) => {
-    setPlayer((prev) => ({ ...prev, photo: e.target.files[0] }))
-  }
+  const validate = () => {
+    const errs = {};
+    if (!formData.name.trim()) errs.name = "Nom requis";
+    if (!formData.position) errs.position = "Position requise";
+    if (!formData.birth_date) errs.birth_date = "Date de naissance requise";
+    if (
+      !formData.number ||
+      isNaN(formData.number) ||
+      Number(formData.number) <= 0
+    )
+      errs.number = "Numéro invalide";
+    if (
+      !formData.height ||
+      isNaN(formData.height) ||
+      Number(formData.height) <= 0
+    )
+      errs.height = "Taille invalide";
+    if (
+      !formData.weight ||
+      isNaN(formData.weight) ||
+      Number(formData.weight) <= 0
+    )
+      errs.weight = "Poids invalide";
+    if (!formData.foot) errs.foot = "Pied préféré requis";
+    if (!formData.nationality.trim()) errs.nationality = "Nationalité requise";
+    if (!isEdit && !formData.photo && !imagePreview)
+      errs.photo = "Photo requise";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoding(true)
-    const formData = new FormData()
-    formData.append('name', player.name);
-    formData.append('position', player.position);
-    formData.append('birth_date', player.birth_date);
-    formData.append('number', player.number);
-    formData.append('height', player.height);
-    formData.append('weight', player.weight);
-    formData.append('foot', player.foot);
-    formData.append('nationality', player.nationality);
-
-    if (player.photo instanceof File) {
-      formData.append("photo", player.photo)
-    }
-
-    formData.append("_method", "PUT") 
+    e.preventDefault();
+    if (!validate()) return;
+    setSubmitting(true);
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("position", formData.position);
+    data.append("birth_date", formData.birth_date);
+    data.append("number", formData.number);
+    data.append("height", formData.height);
+    data.append("weight", formData.weight);
+    data.append("foot", formData.foot);
+    data.append("nationality", formData.nationality);
+    if (formData.photo) data.append("photo", formData.photo);
+    if (isEdit) data.append("_method", "PUT");
 
     try {
-    const response = await instance.post(`/player/update/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    setSuccess("Le joueur a été modifié avec succès !");
-  } catch (err) {
-    if (err.response && err.response.status === 422) {
-      setError(err.response.data.errors);
-    } else {
-      console.error("Erreur de modification :", err);
+      const url = isEdit ? `/player/update/${id}` : "/player/store";
+      await instance.post(url, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setSuccess(
+        "Le joueur a été " + (isEdit ? "modifié" : "ajouté") + " avec succès !"
+      );
+      if (!isEdit) {
+        // Reset form after successful creation
+        setFormData({
+          name: "",
+          position: "",
+          birth_date: "",
+          number: "",
+          height: "",
+          weight: "",
+          foot: "right",
+          nationality: "",
+          photo: null,
+        });
+        setImagePreview(null);
+      } else {
+        // Refresh player data after update
+        fetchPlayer();
+      }
+      window.scrollTo(0, 0);
+    } catch (err) {
+      console.error(err);
+      if (err.response && err.response.status === 422) {
+        setErrors(err.response.data.errors);
+      } else {
+        setError(
+          `Erreur lors de ${isEdit ? "mise à jour" : "ajout"} du joueur`
+        );
+      }
+    } finally {
+      setSubmitting(false);
     }
-  } finally{
-    setLoding(false)
-  }
-  } 
+  };
 
-
-  if (fetchLoading)
+  if (loading)
     return (
-      <div className="min-h-[400px] flex justify-center items-center">
-        <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Chargement de l'actualité...</p>
-        </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
       </div>
-    )
-
-  if (!player)
-    return (
-      <div className="min-h-[400px] flex justify-center items-center">
-        <div className="text-center p-6 bg-red-50 rounded-lg border border-red-200 max-w-md">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-12 w-12 mx-auto text-red-500 mb-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <h3 className="text-lg font-semibold text-gray-800">Actualité non trouvée</h3>
-          <p className="mt-2 text-gray-600">Impossible de charger les détails de cette actualité.</p>
-        </div>
-      </div>
-    )
+    );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl w-full mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
-        <div className="text-center mb-8 bg-red-600 py-4 rounded-t-lg -mt-6 -mx-6 px-6">
-          <h2 className="text-3xl font-extrabold text-white">Modifier un Joueur</h2>
-          <p className="mt-2 text-sm text-white text-opacity-90">
-            Remplissez le formulaire pour Modifier un nouveau joueur à l'équipe
-          </p>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="flex items-center gap-4 mb-6">
+        <Link to={"/admin/players"}>
+          <IconArrowLeft
+            size="1.2rem"
+            className="text-red-700 hover:text-red-900"
+          />
+        </Link>
+        <h1 className="text-xl font-bold text-red-900">
+          {isEdit ? "Modifier" : "Ajouter"} un joueur
+        </h1>
+      </div>
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center">
+          <IconAlertCircle className="mr-2" />
+          <span>{error}</span>
         </div>
+      )}
 
-         {success && (
-            <div
-              className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md flex items-center"
-              role="alert"
-            >
-              <svg
-                className="h-5 w-5 mr-2 text-green-500"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span>{success}</span>
-            </div>
-          )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-              <FaUser className="mr-2 text-red-500" />
-              Nom
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={player.name}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
-              placeholder="Nom du joueur"
+      {success && (
+        <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md flex items-center">
+          <svg
+            className="h-5 w-5 mr-2 text-green-500"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clipRule="evenodd"
             />
-             {error?.name && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.name[0]}
-                </div>
-              )}
-          </div>
+          </svg>
+          <span>{success}</span>
+        </div>
+      )}
 
-          <div className="grid grid-cols-2 gap-4">
+      {isEdit && player && (
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="md:w-1/3">
+              <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                <img
+                  src={`http://localhost:8000/storage/${player.photo}`}
+                  alt={player.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+            <div className="md:w-2/3 space-y-4">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {player.name}
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Position</p>
+                  <p className="font-medium">{player.position}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Numéro</p>
+                  <p className="font-medium">{player.number}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Date de naissance</p>
+                  <p className="font-medium">{player.birth_date}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Nationalité</p>
+                  <p className="font-medium">{player.nationality}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Taille</p>
+                  <p className="font-medium">{player.height} cm</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Poids</p>
+                  <p className="font-medium">{player.weight} kg</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Pied préféré</p>
+                  <p className="font-medium">{player.foot}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-lg shadow p-6 space-y-6"
+      >
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Left */}
+          <div className="space-y-4">
             <div>
-              <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                <FaRunning className="mr-2 text-red-500" />
-                Position
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nom du joueur*
+              </label>
+              <input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 border ${
+                  errors.name ? "border-red-500" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500`}
+              />
+              {errors.name && (
+                <p className="text-red-600 text-sm mt-1">{errors.name}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Position*
               </label>
               <select
                 name="position"
-                value={player.position}
+                value={formData.position}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className={`w-full px-3 py-2 border ${
+                  errors.position ? "border-red-500" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500`}
               >
+                
                 <option value="">Sélectionner une position</option>
-                <option value="goalkeeper">Gardien de but</option>
-                <option value="defender">Défenseur</option>
-                <option value="midfielder">Milieu de terrain</option>
-                <option value="forward">Attaquant</option>
+                <option value="Gardien">Gardien de but</option>
+                <option value="Défenseur">Défenseur</option>
+                <option value="Milieu">Milieu de terrain</option>
+                <option value="Attaquant">Attaquant</option>
               </select>
-              {error?.name && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.name[0]}
-                </div>
+              {errors.position && (
+                <p className="text-red-600 text-sm mt-1">{errors.position}</p>
               )}
             </div>
 
             <div>
-              <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                <FaCalendarAlt className="mr-2 text-red-500" />
-                Date de naissance
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date de naissance*
               </label>
               <input
                 type="date"
                 name="birth_date"
-                value={player.birth_date}
+                value={formData.birth_date}
                 onChange={handleChange}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className={`w-full px-3 py-2 border ${
+                  errors.birth_date ? "border-red-500" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500`}
               />
-              {error?.birth_date && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.birth_date[0]}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-              <FaHashtag className="mr-2 text-red-500" />
-              Numéro
-            </label>
-            <input
-              type="number"
-              name="number"
-              value={player.number}
-              onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
-              placeholder="Numéro du joueur"
-            />
-            {error?.number && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.number[0]}
-                </div>
-              )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                <FaRulerVertical className="mr-2 text-red-500" />
-                Taille (cm)
-              </label>
-              <input
-                type="number"
-                name="height"
-                value={player.height}
-                onChange={handleChange}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
-                placeholder="Taille en cm"
-              />
-              {error?.height && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.height[0]}
-                </div>
+              {errors.birth_date && (
+                <p className="text-red-600 text-sm mt-1">{errors.birth_date}</p>
               )}
             </div>
 
             <div>
-              <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                <FaWeight className="mr-2 text-red-500" />
-                Poids (kg)
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Numéro*
               </label>
               <input
                 type="number"
-                name="weight"
-                value={player.weight}
+                name="number"
+                value={formData.number}
                 onChange={handleChange}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
-                placeholder="Poids en kg"
+                className={`w-full px-3 py-2 border ${
+                  errors.number ? "border-red-500" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500`}
               />
-              {error?.weight && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.weight[0]}
-                </div>
+              {errors.number && (
+                <p className="text-red-600 text-sm mt-1">{errors.number}</p>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-           <div>
-                <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                    <FaFootballBall className="mr-2 text-red-500" />
-                    Pied préféré
+          {/* Right */}
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Taille (cm)*
                 </label>
-                <div className="mt-1 space-y-2">
-                    <div className="flex items-center">
-                    <input
-                        id="foot-left"
-                        name="foot"
-                        type="radio"
-                        value="left" 
-                        checked={player.foot === "left" || false} 
-                        onChange={handleChange}
-                        className="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300"
-                    />
-                    <label htmlFor="foot-left" className="ml-2 block text-sm text-gray-700">
-                        Gauche
-                    </label>
-                    </div>
-                    <div className="flex items-center">
-                    <input
-                        id="foot-right"
-                        name="foot"
-                        type="radio"
-                        value="right"
-                        checked={player.foot === "right" || false}
-                        onChange={handleChange}
-                        className="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300"
-                    />
-                    <label htmlFor="foot-right" className="ml-2 block text-sm text-gray-700">
-                        Droit
-                    </label>
-                    </div>
-                    <div className="flex items-center">
-                    <input
-                        id="foot-both"
-                        name="foot"
-                        type="radio"
-                        value="both"
-                        checked={player.foot === "both" || false}
-                        onChange={handleChange}
-                        className="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300"
-                    />
-                    <label htmlFor="foot-both" className="ml-2 block text-sm text-gray-700">
-                        Les deux
-                    </label>
-                    </div>
-                    {error?.foot && (
-                    <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                            fillRule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                            clipRule="evenodd"
-                        />
-                        </svg>
-                        {error.foot[0]}
-                    </div>
-                    )}
-                </div>
-                </div>
+                <input
+                  type="number"
+                  name="height"
+                  value={formData.height}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border ${
+                    errors.height ? "border-red-500" : "border-gray-300"
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500`}
+                />
+                {errors.height && (
+                  <p className="text-red-600 text-sm mt-1">{errors.height}</p>
+                )}
+              </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Poids (kg)*
+                </label>
+                <input
+                  type="number"
+                  name="weight"
+                  value={formData.weight}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border ${
+                    errors.weight ? "border-red-500" : "border-gray-300"
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500`}
+                />
+                {errors.weight && (
+                  <p className="text-red-600 text-sm mt-1">{errors.weight}</p>
+                )}
+              </div>
+            </div>
 
             <div>
-              <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                <FaFlagCheckered className="mr-2 text-red-500" />
-                Nationalité
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Pied préféré*
+              </label>
+              <div className="mt-1 space-y-2">
+                <div className="flex items-center">
+                  <input
+                    id="foot-left"
+                    name="foot"
+                    type="radio"
+                    value="left"
+                    checked={formData.foot === "left"}
+                    onChange={handleChange}
+                    className="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300"
+                  />
+                  <label
+                    htmlFor="foot-left"
+                    className="ml-2 block text-sm text-gray-700"
+                  >
+                    Gauche
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    id="foot-right"
+                    name="foot"
+                    type="radio"
+                    value="right"
+                    checked={formData.foot === "right"}
+                    onChange={handleChange}
+                    className="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300"
+                  />
+                  <label
+                    htmlFor="foot-right"
+                    className="ml-2 block text-sm text-gray-700"
+                  >
+                    Droit
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    id="foot-both"
+                    name="foot"
+                    type="radio"
+                    value="both"
+                    checked={formData.foot === "both"}
+                    onChange={handleChange}
+                    className="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300"
+                  />
+                  <label
+                    htmlFor="foot-both"
+                    className="ml-2 block text-sm text-gray-700"
+                  >
+                    Les deux
+                  </label>
+                </div>
+              </div>
+              {errors.foot && (
+                <p className="text-red-600 text-sm mt-1">{errors.foot}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nationalité*
               </label>
               <input
                 type="text"
                 name="nationality"
-                value={player.nationality}
+                value={formData.nationality}
                 onChange={handleChange}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
-                placeholder="Nationalité du joueur"
+                className={`w-full px-3 py-2 border ${
+                  errors.nationality ? "border-red-500" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500`}
               />
-              {error?.nationality && (
-                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error.nationality[0]}
-                </div>
+              {errors.nationality && (
+                <p className="text-red-600 text-sm mt-1">
+                  {errors.nationality}
+                </p>
               )}
             </div>
-          </div>
 
-           {/* New image upload */}
-               <div>
-                         <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                           <FaImage className="mr-2 text-red-500" />
-                           Image
-                         </label>
-                         <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-red-400 transition-colors duration-200">
-                           <div className="space-y-1 text-center">
-                             <svg
-                               className="mx-auto h-12 w-12 text-gray-400"
-                               stroke="currentColor"
-                               fill="none"
-                               viewBox="0 0 48 48"
-                               aria-hidden="true"
-                             >
-                               <path
-                                 d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                 strokeWidth="2"
-                                 strokeLinecap="round"
-                                 strokeLinejoin="round"
-                               />
-                             </svg>
-                             <div className="flex text-sm text-gray-600">
-                               <label
-                                 htmlFor="photo"
-                                 className="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none"
-                               >
-                                 <span>Télécharger un fichier</span>
-                                 <input
-                                   id="photo"
-                                   name="photo"
-                                   type="file"
-                                   className="sr-only"
-                                   onChange={handlePhotoChange}
-                                   accept="image/*"
-                                 />
-                               </label>
-                               <p className="pl-1">ou glisser-déposer</p>
-                             </div>
-                             <p className="text-xs text-gray-500">PNG, JPG, GIF jusqu'à 10MB</p>
-                           </div>
-                         </div>
-                         {player.photo && <p className="mt-2 text-sm text-gray-600">Fichier sélectionné: {player.photo.name}</p>}
-                         {error?.photo && (
-                             <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                 <path
-                                   fillRule="evenodd"
-                                   d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                   clipRule="evenodd"
-                                 />
-                               </svg>
-                               {error.photo[0]}
-                             </div>
-                           )}
-                       </div>
-          <div className="pt-4">
-              <button
-                type="submit"
-                disabled={loding}
-                className={`w-full flex items-center justify-center gap-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-medium py-3 px-4 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-md ${
-                  loding ? "opacity-70 cursor-not-allowed" : ""
-                }`}
-              >
-                {loding ? (
-                  <>
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Photo{!isEdit && "*"}
+              </label>
+              <div className="bg-gray-50 p-4 rounded-md">
+                {imagePreview ? (
+                  <div className="relative mb-4">
+                    <img
+                      src={imagePreview || "/placeholder.svg"}
+                      alt="Preview"
+                      className="w-full h-48 object-cover rounded-md"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImagePreview(null);
+                        setFormData((f) => ({ ...f, photo: null }));
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1"
                     >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Mettre à jour le joueur...
-                  </>
+                      <IconX size="0.8rem" />
+                    </button>
+                  </div>
                 ) : (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                     Mettre à jour l'actualité
-                  </>
+                  <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-gray-300 border-dashed rounded-md cursor-pointer hover:bg-gray-50">
+                    <IconUpload size="1.5rem" className="text-gray-400" />
+                    <span className="text-xs text-gray-500 mt-1">
+                      Cliquer pour uploader
+                    </span>
+                    <input
+                      type="file"
+                      name="photo"
+                      accept="image/*"
+                      onChange={handleChange}
+                      className="hidden"
+                    />
+                  </label>
                 )}
-              </button>
+                {errors.photo && (
+                  <p className="text-red-600 text-sm mt-1">{errors.photo}</p>
+                )}
+              </div>
             </div>
-        </form>
-      </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Link to={"/admin/players"}>
+            <button
+              type="button"
+              className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400"
+            >
+              Annuler
+            </button>
+          </Link>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="bg-red-700 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-red-800 disabled:opacity-50"
+          >
+            {submitting ? (
+              <div className="loader ease-linear rounded-full border-4 border-t-4 border-white h-5 w-5"></div>
+            ) : (
+              <IconDeviceFloppy size="1rem" />
+            )}
+            <span>{isEdit ? "Enregistrer" : "Ajouter"}</span>
+          </button>
+        </div>
+      </form>
     </div>
-  )
-}
+  );
+};
+
+export default EditPlayer;

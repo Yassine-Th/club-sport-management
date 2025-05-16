@@ -62,7 +62,7 @@ function Header() {
 
       {/* Main Navigation */}
       <nav className="bg-gradient-to-r from-white to-white shadow-md text-white">
-        <div className="container mx-auto flex justify-between items-center py-4 px-4">
+        <div className="container mx-auto flex justify-between items-center py-2 px-4">
           {/* Logo */}
           <div className="flex items-center">
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3">
