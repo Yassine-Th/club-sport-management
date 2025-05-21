@@ -13,16 +13,21 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { FaPlaneDeparture, FaHome, FaQuestionCircle } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 const Home = () => {
   const [lastNews, setLastNews] = useState([]);
   const [lastPlayers, setLastPlayers] = useState([]);
   const [lodingnews, setLodingnews] = useState(true)
   const [lodingplayers, setLodingplayers] = useState(true)
+  const [lodingmatche, setLodingmatche] = useState(true)
+  const [matche, setMatches] = useState({})
 
 
   useEffect(() => {
-    instance.get("/latest-news")
+    instance.get("/home")
       .then((response) => {
         setLastNews(response.data.latestNews);
         console.log("Last news:", response.data.message);
@@ -35,7 +40,7 @@ const Home = () => {
   }, []);
 
    useEffect(() => {
-    instance.get("/latest-players")
+    instance.get("/home")
       .then((response) => {
         setLastPlayers(response.data.latestPlayers);
         console.log("Last news:", response.data.message);
@@ -44,6 +49,21 @@ const Home = () => {
         console.error("Error fetching last news:", error);
       }) .finally(() => {
           setLodingplayers(false)
+      })
+      
+  }, []);
+
+   useEffect(() => {
+    instance.get("/home")
+      .then((response) => {
+        setMatches(response.data.nextMatch);
+        console.log(response.data.nextMatch)
+        console.log("next matche get success");
+      })
+      .catch((error) => {
+        console.error("Error fetching last news:", error);
+      }) .finally(() => {
+          setLodingmatche(false)
       })
       
   }, []);
@@ -103,58 +123,76 @@ const Home = () => {
 
       {/* Dernières actualités */}
       <section className="py-16 bg-gray-50">
-        {lodingnews && (
-          <div className="flex items-center justify-center h-screen bg-gray-50">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="h-10 w-10 text-red-500 animate-spin" />
-              <p className="text-lg font-semibold text-gray-700">
-                Chargement des actualités...
-              </p>
-            </div>
-          </div>
-        )}
-
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="font-title text-3xl text-gray-800 mb-2">
+            <motion.h2
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="font-title text-3xl text-gray-800 mb-2"
+            >
               DERNIÈRES ACTUALITÉS
-            </h2>
+            </motion.h2>
+            <AnimatePresence>
+              {lodingnews && (
+                <motion.div
+                  key="loader-news"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="flex items-center justify-center h-[50vh]"
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="h-10 w-10 text-red-500 animate-spin" />
+                    <p className="text-lg font-semibold text-gray-600">
+                      Chargement des Actaliter...
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <div className="h-1 w-20 bg-gradient-to-r from-red-500 to-red-700 mx-auto"></div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {lastNews.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:-translate-y-1"
-              >
-                <div className="h-48 bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-center overflow-hidden rounded-md">
-                  <img
-                    src={`http://localhost:8000/storage/${item.image}`}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-6">
-                  <div className="font-section text-xs text-red-600 mb-2">
-                    {item.date}
+            <AnimatePresence>
+              {lastNews.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 40 }}
+                  transition={{ delay: i * 0.08, duration: 0.5 }}
+                  className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:-translate-y-1"
+                >
+                  <div className="h-48 bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-center overflow-hidden rounded-md">
+                    <img
+                      src={`http://localhost:8000/storage/${item.image}`}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <h3 className="font-title text-xl mb-2">{item.title}</h3>
-                  <p className="text-gray-600 mb-4 line-clamp-2">
-                    {item.content}
-                  </p>
-                  <div className="font-section text-xs text-red-600 mb-2">
-                    {item.category}
+                  <div className="p-6">
+                    <div className="font-section text-xs text-red-600 mb-2">
+                      {item.date}
+                    </div>
+                    <h3 className="font-title text-xl mb-2">{item.title}</h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2">
+                      {item.content}
+                    </p>
+                    <div className="font-section text-xs text-red-600 mb-2">
+                      {item.category}
+                    </div>
+                    <Link
+                      to={`/news/${item.id}`}
+                      className="font-section text-red-600 hover:text-red-700"
+                    >
+                      LIRE PLUS →
+                    </Link>
                   </div>
-                  <Link
-                    to={`/news/${item.id}`}
-                    className="font-section text-red-600 hover:text-red-700"
-                  >
-                    LIRE PLUS →
-                  </Link>
-                </div>
-              </div>
-            ))}
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
           <div className="text-center mt-10">
             <Link
@@ -166,7 +204,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
       {/* Boutique section with Swiper */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
@@ -306,36 +343,89 @@ const Home = () => {
             <div className="h-1 w-20 bg-gradient-to-r from-red-500 to-red-700 mx-auto"></div>
           </div>
           {lodingplayers && (
-            <div className="flex items-center justify-center h-screen bg-gray-50">
-              <div className="flex flex-col items-center gap-3">
-                <Loader2 className="h-10 w-10 text-red-500 animate-spin" />
-                <p className="text-lg font-semibold text-gray-700">
-                  Chargement des playears...
-                </p>
-              </div>
+         <div className="flex items-center justify-center h-[50vh]">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="h-10 w-10 text-red-500 animate-spin" />
+              <p className="text-lg font-semibold text-gray-600">
+                Chargement des Joueurs...
+              </p>
             </div>
-          )}
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {lastPlayers.map((item) => (
-              <div key={item.id} className="text-center">
-                <div className="w-full aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden relative">
-                  <img
-                    src={`http://localhost:8000/storage/${item.photo}`}
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="font-section text-lg">{item.name}</h3>
-                <p className="text-red-600 font-player text-sm">
-                  {item.position}
-                </p>
-              </div>
-            ))}
           </div>
+        )}
+
+
+       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+  {lastPlayers.map((item) => (
+    <Link to={`/players/${item.id}`} key={item.id}>
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -50 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        whileHover={{
+          scale: 1.05,
+          y: -5,
+          boxShadow: "0px 15px 25px rgba(0,0,0,0.2)",
+        }}
+        className="relative rounded-2xl shadow-lg overflow-hidden text-center p-4 select-none"
+      >
+        {/* توهج داخلي من الجوانب */}
+        <div className="absolute inset-0 z-0 pointer-events-none rounded-2xl">
+          <div
+            className="w-full h-full rounded-2xl"
+            style={{
+              background: `
+                radial-gradient(farthest-side at bottom left, rgba(255, 0, 0, 0.2), transparent 70%),
+                radial-gradient(farthest-side at bottom right, rgba(255, 0, 0, 0.2), transparent 70%)
+              `,
+              mixBlendMode: "screen",
+            }}
+          ></div>
+        </div>
+
+        <motion.img
+          src={`http://localhost:8000/storage/${item.photo}`}
+          alt={item.name}
+          className="w-full aspect-square object-cover rounded-2xl mb-3 pointer-events-none relative z-10"
+          draggable="false"
+          initial={{ scale: 1 }}
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.3 }}
+        />
+
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-red/60 to-transparent rounded-b-2xl z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        ></motion.div>
+
+        <motion.div
+                 className="mt-10 relative flex items-start justify-start gap-2 mb-1 z-10"
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.4 }}
+               >
+                 <span className="sm:text-[65px] font-extrabold text-[red] leading-none drop-shadow-[0_0_15px_rgba(108,99,255,0.2)]">
+                   <span className="align-top text-2xl text-[red] mr-1">▼</span>
+                   {item.number}
+                 </span>
+                 <div className="text-left">
+                   <h3 className="font-semibold text-3xl text-black drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]">
+                     {item?.name?.split(' ').slice(-1)[0]}
+                   </h3>
+                   <p className="text-lg text-black/80 font-extrabold drop-shadow-[0_0_4px_rgba(255,255,255,0.6)]">
+                     {item?.position}
+                   </p>
+                 </div>
+               </motion.div>
+      </motion.div>
+    </Link>
+  ))}
+</div>
           <div className="text-center mt-10">
             <Link
-              to="/boutique"
+              to="/players"
               className="inline-block bg-red-600 text-white px-6 py-3 rounded-lg font-title hover:bg-red-700 transition-colors"
             >
               TOUS LES JOUEURS
@@ -345,55 +435,123 @@ const Home = () => {
       </section>
 
       {/* Prochain match */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="font-title text-3xl text-gray-800 mb-2">
-              PROCHAIN MATCH
+     <section className="py-16 bg-gray-50 ">
+      <div className="text-center mb-10">
+           <h2 className="font-title text-3xl text-gray-800 mb-2">
+              Next Matche 
             </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-red-500 to-red-700 mx-auto"></div>
+            <div className="h-1 w-20 bg-gradient-to-r from-red-500 to-red-700 mx-auto"></div>      </div>
+
+     {lodingmatche ? (
+         <div className="flex items-center justify-center h-[50vh]">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="h-10 w-10 text-red-500 animate-spin" />
+              <p className="text-lg font-semibold text-gray-600">
+                Chargement des Actaliter...
+              </p>
+            </div>
           </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6 max-w-3xl mx-auto">
+     )
+        : matche ? (
+        <div className="flex items-center justify-center px-4">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-4xl">
             <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="text-center mb-4 md:mb-0">
-                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="font-title text-xl">HUSA</span>
+              {/* Club 1 */}
+              <div className="text-center mb-6 md:mb-0">
+                <div className="w-24 h-24 bg-gray-200 rounded-full overflow-hidden mx-auto mb-2 border border-gray-300">
+                  {matche.myclub?.logo && (
+                    <img
+                      src={`http://localhost:8000/storage/${matche.myclub?.logo}`}
+                      alt="Logo My Club"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
-                <h3 className="font-section text-lg">CLUB HUSA</h3>
+                <h3 className="font-semibold text-lg text-gray-800">
+                  {matche.myclub?.name}
+                </h3>
               </div>
 
-              <div className="text-center mb-4 md:mb-0">
-                <div className="bg-red-50 rounded-lg px-6 py-3 mb-2">
-                  <div className="font-title text-2xl text-red-700">
-                    15 MAI 2023
+              {/* Match Info */}
+              <div className="text-center mb-6 md:mb-0">
+                <div className="text-center mb-4">
+                  <h1 className="text-2xl font-bold text-red-700">
+                    {matche.journée ? `Journée ${matche.journée}` : "Journée non définie"}
+                  </h1>
+                </div>
+                <div className="bg-red-100 rounded-lg px-6 py-3 mb-2">
+                  <div className="text-xl font-bold text-red-700">
+                    {matche.match_date || "Date Non défini"}
                   </div>
-                  <div className="font-section text-gray-600">20:00</div>
                 </div>
-                <div className="font-section text-sm text-gray-500">
-                  NOM DU STADE, VILLE
+                <div className="text-sm text-gray-600">
+                  {matche.match_location || "Lieu non défini"}
                 </div>
+
+                {/* is_home */}
+                <div className="mt-1 text-sm text-gray-700 flex items-center justify-center gap-1">
+                  Terrain du match :
+                  <span className="font-semibold flex items-center gap-1">
+                    {matche.is_home === 0 || matche.is_home === "0" ? (
+                      <>
+                        <FaPlaneDeparture className="text-red-600 text-2xl" />{" "}
+                        À l'extérieur
+                      </>
+                    ) : matche.is_home === 1 || matche.is_home === "1" ? (
+                      <>
+                        <FaHome className="text-red-600 text-2xl" /> À domicile
+                      </>
+                    ) : (
+                      <>
+                        <FaQuestionCircle className="text-red-500 text-2xl" />{" "}
+                        Non défini
+                      </>
+                    )}
+                  </span>
+                </div>
+
+                {/* aller_retour */}
+                {matche.aller_retour && (
+                  <div className="mt-1 text-sm text-gray-700">
+                    Type :{" "}
+                    <span className="font-medium">{matche.aller_retour}</span>
+                  </div>
+                )}
               </div>
 
+              {/* Club 2 */}
               <div className="text-center">
-                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="font-title text-xl">RCA</span>
+                <div className="w-24 h-24 bg-gray-200 rounded-full overflow-hidden mx-auto mb-2 border border-gray-300">
+                  {matche.opponent?.logo && (
+                    <img
+                      src={`http://localhost:8000/storage/${matche.opponent?.logo}`}
+                      alt="Logo Opponent"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
-                <h3 className="font-section text-lg">RAJA CLUB</h3>
+                <h3 className="font-semibold text-lg text-gray-800">
+                  {matche.opponent?.name}
+                </h3>
               </div>
             </div>
-
-            <div className="mt-6 text-center">
+            
+            <div className="mt-8 text-center">
               <Link
-                to="/tickets"
-                className="inline-block bg-gradient-to-r from-red-600 to-red-800 text-white px-6 py-3 rounded-lg font-title hover:shadow-lg transition-all"
+                to="/matches"
+                className="inline-block bg-gradient-to-r from-red-600 to-red-800 text-white px-6 py-3 rounded-full font-semibold hover:shadow-md transition duration-300"
               >
-                ACHETER DES BILLETS
+               VIOR TOUT LES MATCHES
               </Link>
             </div>
           </div>
         </div>
-      </section>
+      ) : (
+        <div className="text-center text-gray-600 text-xl">
+          Il n'y a pas de match à venir actuellement.
+        </div>
+      )}
+    </section>
 
       <Footer />
     </>

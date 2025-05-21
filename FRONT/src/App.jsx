@@ -44,8 +44,11 @@ import MatchForm from "./app/Admin/matches/Create";
 import Matches from "./app/Admin/matches/matches";
 import ShowMatch from "./app/Admin/matches/show";
 import MatchEdit from "./app/Admin/matches/edit";
-
-
+import MatchesUser from "./app/User/Matches/matches";
+import CreateStatistique from "./app/Admin/matches/statistique/Create";
+import PlayersByPost from "./app/User/Equipe/Equipe";
+import PlayerShow from "./app/User/Equipe/shwo";
+import ShowMatchUser from "./app/User/Matches/show";
 function App() {
   const user_role = getUserRole();
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -85,6 +88,7 @@ function App() {
                   <Route path="/admin/create-match" element={<AdLayout><MatchForm /></AdLayout>} />
                   <Route path="/admin/match/:id" element={<AdLayout><ShowMatch /></AdLayout>} />
                   <Route path="/admin/edit-match/:id" element={<AdLayout><MatchEdit /></AdLayout>} />
+                  <Route path="/admin/matche/statistique/:id" element={<AdLayout><CreateStatistique /></AdLayout>} />
                    <Route
                     path="/admin/boutique/produits/ajouter"
                     element={
@@ -145,8 +149,10 @@ function App() {
             <Route path="/boutique/:id" element={<ProduitDetail />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/commandes" element={<Commandes />} />
-
-
+            <Route path="/matches" element={<MatchesUser />} />
+            <Route path="/players" element={<PlayersByPost />} />
+            <Route path="/players/:id" element={<PlayerShow />} />
+            <Route path="/matches/:id" element={<ShowMatchUser />} />
 
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

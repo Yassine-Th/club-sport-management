@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('my_club_id')->constrained('my_club');
             $table->string('name');
-            $table->enum('position', ["Gardien","Défenseur","Milieu","Attaquant"]);
+            $table->enum('position', ["Gardien","Défenseur","Milieu","Attaquant","Staff"]);
             $table->date('birth_date')->nullable();
             $table->integer('number')->nullable();
             $table->string('height')->nullable();

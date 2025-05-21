@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('matches_id')->constrained('matches')->onDelete('cascade');
             $table->foreignId('player_id')->constrained('players')->onDelete('cascade');
-            $table->unsignedInteger('goals_count')->default(0);
-            $table->unsignedInteger('assists_count')->default(0);
-            $table->unsignedInteger('yellow_cards')->default(0);
-            $table->unsignedInteger('red_cards')->default(0);
+            $table->unsignedInteger('goals_count')->default(0)->nullable();
+            $table->unsignedInteger('assists_count')->default(0)->nullable();
+            $table->unsignedInteger('yellow_cards')->default(0)->nullable();
+            $table->unsignedInteger('red_cards')->default(0)->nullable();
             $table->timestamps();
             $table->unique(['matches_id', 'player_id']);
         });

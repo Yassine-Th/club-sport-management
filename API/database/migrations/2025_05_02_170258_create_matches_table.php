@@ -20,7 +20,7 @@ return new class extends Migration
             $table->boolean('is_home')->default(true)->nullable();
             $table->unsignedBigInteger('my_club_goals')->nullable();
             $table->unsignedBigInteger('opponent_club_goals')->nullable();
-            $table->integer('journée')->nullable();
+            $table->integer('journée')->nullable()->unique();
             $table->enum('aller_retour', ['aller', 'retour'])->default('aller')->nullable();
             $table->enum('status', ['venir', 'terminée', 'reportée'])->default('venir')->nullable();           
             $table->timestamps();

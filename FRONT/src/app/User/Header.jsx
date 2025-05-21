@@ -78,10 +78,10 @@ function Header() {
             <Link to="/" className="text-red-700 hover:text-red-200">
               ACCUEIL
             </Link>
-            <Link to="/equipe" className="text-red-700 hover:text-red-200">
+            <Link to="/players" className="text-red-700 hover:text-red-200">
               ÉQUIPE
             </Link>
-            <Link to="/matchs" className="text-red-700 hover:text-red-200">
+            <Link to="/matches" className="text-red-700 hover:text-red-200">
               MATCHS
             </Link>
             <Link to="/news" className="text-red-700 hover:text-red-200">

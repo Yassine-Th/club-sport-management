@@ -39,7 +39,7 @@ class MyPlayerMatchStat extends Model
     {
         return $this->hasMany(
             PlayerMatchGoal::class,
-            'assist_player_stat_id'
+            'assist_player_id',
         );
     }
 }

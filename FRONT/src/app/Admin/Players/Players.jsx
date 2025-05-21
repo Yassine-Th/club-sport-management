@@ -165,17 +165,6 @@ const Players = () => {
           </select>
         </div>
       </div>
-
-      <div className="flex justify-end mb-4">
-        <UnstyledButton
-          onClick={fetchPlayers}
-          className="!text-red-600 !flex !items-center !gap-1 hover:!text-red-800"
-        >
-          <IconRefresh size="1rem" />
-          <span>Actualiser</span>
-        </UnstyledButton>
-      </div>
-
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-red-900 text-white">
@@ -233,13 +222,6 @@ const Players = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex justify-end gap-2">
-                      <Tooltip label="Voir détails">
-                        <Link to={`/admin/player/${player.id}`}>
-                          <UnstyledButton className="!text-blue-600 hover:!text-blue-800">
-                            <IconEye size="1.2rem" />
-                          </UnstyledButton>
-                        </Link>
-                      </Tooltip>
                       <Tooltip label="Modifier">
                         <Link to={`/admin/edit-player/${player.id}`}>
                           <UnstyledButton className="!text-yellow-600 hover:!text-yellow-800">
