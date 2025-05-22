@@ -17,7 +17,9 @@ return new class extends Migration
             $table->unsignedBigInteger('matches_id')->nullable();
             $table->dateTime('date')->nullable();
             $table->string("description")->nullable();
-            $table->enum('status', ['available', 'sold out'])->default('available');
+            $table->string("status")->default("available");
+            $table->string("image")->nullable();
+            $table->string("location")->nullable();
             $table->timestamps();
 
             $table->foreign('matches_id')->references('id')->on('matches')->nullOnDelete();

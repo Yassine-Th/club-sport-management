@@ -17,6 +17,7 @@ use App\Models\MyPlayerMatchStat;
 use App\Models\PlayerMatchGoal;
 use App\Models\Ticket;
 use App\Models\ticketCategories;
+use App\Models\Trophy;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
@@ -29,6 +30,9 @@ class DatabaseSeeder extends Seeder
     {
         // 1) Create my club and opponent clubs
         $myClub    = MyClub::factory()->create();
+        Trophy::factory()->count(6)->husaTrophies()->create([
+                    'my_club_id' => $myClub->id
+        ]);
         $opponents = Club::factory(5)->create();
 
         // 2) Seed users and news

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react"; // Added useRef
 import { NavLink, useLocation } from "react-router-dom";
 import { UnstyledButton, Text, Tooltip } from "@mantine/core";
 import { useHotkeys } from "@mantine/hooks";
@@ -12,24 +12,50 @@ function Sidebar({ navData, user }) {
   const [collapsed, setCollapsed] = useState(false);
   const [openItem, setOpenItem] = useState(null);
   const location = useLocation();
+  const submenuTimeoutRef = useRef(null); // Ref to store submenu timeout ID
 
   const activeLabel = navData.find((i) => i.link === location.pathname)?.label;
 
-  // Toggle collapse on Ctrl+B
   useHotkeys([["mod+B", () => setCollapsed((c) => !c)]], []);
 
-  // Auto-collapse on small screens
+  // Auto-collapse on small screens (original logic preserved)
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (window.innerWidth < 768) {
+  //       setCollapsed(true);
+  //     }
+  //   };
+  //   window.addEventListener("resize", handleResize);
+  //   handleResize(); // Initial check
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
+
+  // Handlers for submenu visibility with timeout
+  const handleSubmenuMouseEnter = (itemLabel) => {
+    if (submenuTimeoutRef.current) {
+      clearTimeout(submenuTimeoutRef.current);
+      submenuTimeoutRef.current = null;
+    }
+    setOpenItem(itemLabel);
+  };
+
+  const handleSubmenuMouseLeave = () => {
+    submenuTimeoutRef.current = setTimeout(() => {
+      setOpenItem(null);
+    }, 200); // Adjust delay as needed (e.g., 200-300ms)
+  };
+
+  // Cleanup timeout on component unmount
   useEffect(() => {
-    const handleResize = () => {
-      window.innerWidth < 768 && setCollapsed(true);
+    return () => {
+      if (submenuTimeoutRef.current) {
+        clearTimeout(submenuTimeoutRef.current);
+      }
     };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const links = navData.map((item) => {
-    const isActive = activeLabel === item.label;
+    const isActive = activeLabel === item.label; // For custom active styling of the parent
     const hasChildren =
       Array.isArray(item.children) && item.children.length > 0;
     const isOpen = openItem === item.label;
@@ -38,23 +64,36 @@ function Sidebar({ navData, user }) {
       <div
         key={item.label}
         className="relative w-full mb-1"
-        onMouseEnter={() => hasChildren && setOpenItem(item.label)}
-        onMouseLeave={() => hasChildren && setOpenItem(null)}
+        onMouseEnter={() => {
+          if (hasChildren) {
+            handleSubmenuMouseEnter(item.label);
+          }
+        }}
+        onMouseLeave={() => {
+          if (hasChildren) {
+            handleSubmenuMouseLeave();
+          }
+        }}
       >
         <NavLink
           to={item.link}
-          className={({ isActive: isNavActive }) =>
+          className={(
+            { isActive: isNavActive } // isNavActive from NavLink
+          ) =>
             `no-underline w-full block ${
-              isNavActive ? "text-white" : "text-gray-300 hover:text-white"
+              // Use isNavActive for NavLink's own active state, isActive for custom parent highlight
+              isNavActive && !hasChildren // Only color if it's a direct link and not a parent of an open submenu
+                ? "text-white"
+                : "text-gray-300 hover:text-white"
             }`
           }
-          end
+          end // Important for NavLink to not stay active for child routes
         >
           {collapsed ? (
             <Tooltip label={item.label} position="right" withArrow>
               <div
                 className={`flex justify-center py-3 rounded-md transition-all duration-200 ${
-                  isActive ? "bg-red-700 text-white" : ""
+                  isActive ? "bg-red-700 text-white" : "" // Custom active style
                 }`}
               >
                 <item.icon size="1.5rem" stroke={1.5} />
@@ -63,10 +102,10 @@ function Sidebar({ navData, user }) {
           ) : (
             <UnstyledButton
               className={`!w-full !rounded-md !px-4 !py-3 !transition-all !duration-200 !flex !items-center !gap-3 ${
-                isActive
+                isActive && !isOpen // Highlight if active AND its submenu isn't open (or no submenu)
                   ? "!bg-red-700 !text-white !font-medium"
                   : "!text-gray-300 hover:!bg-red-900 hover:!text-white"
-              }`}
+              } ${isOpen ? "!bg-red-900 !text-white" : ""}`} // Keep parent highlighted if submenu is open
             >
               <item.icon size="1.2rem" stroke={1.5} />
               <Text size="sm" fw={500} className="tracking-wide">
@@ -85,18 +124,27 @@ function Sidebar({ navData, user }) {
         </NavLink>
 
         {/* Submenu: display below parent */}
-        {hasChildren && isOpen && (
-          <div className="absolute left-0 top-full mt-1 w-full bg-red-900 text-white rounded shadow-lg z-20">
+        {/* Conditionally render submenu only if not collapsed, or adjust styling for collapsed state */}
+        {hasChildren && isOpen && !collapsed && (
+          <div
+            className="absolute left-0 top-full mt-1 w-full bg-red-900 text-white rounded shadow-lg z-20"
+            onMouseEnter={() => handleSubmenuMouseEnter(item.label)} // Keep submenu open
+            onMouseLeave={handleSubmenuMouseLeave} // Allow closing if mouse leaves submenu
+          >
             {item.children.map((child) => (
               <NavLink
                 to={child.link}
                 key={child.label}
                 className={({ isActive: isChildActive }) =>
-                  `block px-4 py-2 no-underline ${
-                    isChildActive ? "bg-red-700" : "hover:bg-red-800"
+                  `block px-4 py-2 no-underline text-sm ${
+                    // Added text-sm for consistency
+                    isChildActive
+                      ? "bg-red-700 text-white font-medium"
+                      : "text-gray-200 hover:bg-red-800 hover:text-white"
                   }`
                 }
                 end
+                onClick={() => setOpenItem(null)} // Optional: close submenu on child click
               >
                 {child.label}
               </NavLink>
@@ -115,7 +163,7 @@ function Sidebar({ navData, user }) {
       {/* Header with Logo */}
       <div
         className={`flex flex-col items-center justify-center p-4 mb-2 border-b border-red-800 ${
-          collapsed ? "py-3" : "py-3"
+          collapsed ? "py-3" : "py-3" // No change if p-4 is desired for both
         }`}
       >
         {!collapsed ? (
@@ -123,7 +171,7 @@ function Sidebar({ navData, user }) {
             <img
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/z7UKOJyj_400x400.jpg-FaTwQMgv7594yqhjFNixF4tBplhmUG.jpeg"
               alt="Club Logo"
-              className="h-12 w-12 mb-2"
+              className="h-12 w-12" // Removed mb-2, spacing handled by flex gap or parent padding
             />
             <Text
               fw={700}
@@ -140,7 +188,6 @@ function Sidebar({ navData, user }) {
             className="h-8 w-8"
           />
         )}
-
       </div>
 
       {/* Nav links */}
@@ -169,18 +216,32 @@ function Sidebar({ navData, user }) {
                   admin: "Administrator",
                   Journalist: "Journalist",
                   store_manager: "Store Manager",
-                }[user?.role || "User"]
+                  default: "User", // Added a default case
+                }[user?.role || "default"]
               }
             </Text>
           </div>
         ) : (
-          <div className="h-6 w-6 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
-            {
-              { admin: "AD", Journalist: "JR", store_manager: "STM" }[
-                user?.role || "NN"
-              ]
+          <Tooltip
+            label={
+              {
+                admin: "Administrator",
+                Journalist: "Journalist",
+                store_manager: "Store Manager",
+                default: "User",
+              }[user?.role || "default"]
             }
-          </div>
+            position="right"
+            withArrow
+          >
+            <div className="h-6 w-6 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs cursor-default">
+              {
+                { admin: "AD", Journalist: "JR", store_manager: "STM" }[
+                  user?.role || "NN"
+                ]
+              }
+            </div>
+          </Tooltip>
         )}
       </div>
     </div>

@@ -14,7 +14,7 @@ class Ticket extends Model
     use HasFactory;
 
     protected $fillable = [
-        'type', 'matches_id', 'date', 'description', 'status'
+        'type', 'matches_id', 'date', 'description', 'status', 'image', 'location',
     ];
 
     // If this ticket is for a particular match

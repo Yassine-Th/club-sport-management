@@ -37,7 +37,6 @@ import Categories from "./app/Admin/Boutique/Categorie/Categories";
 import CategoryEdit from "./app/Admin/Boutique/Categorie/CategoryEdit";
 import AdminBoutique from "./app/Admin/Boutique/AdBoutique";
 import Produits from "./app/Admin/Boutique/Produits/Produits-List";
-import Billie from "./app/User/BILLETTERIE/Billie";
 import BillesList from "./app/Admin/Billets/Billes-list";
 import EditBillet from "./app/Admin/Billets/EditBillet";
 import CreateTicket from "./app/Admin/Billets/CreateBillet";
@@ -49,6 +48,9 @@ import MatchForm from "./app/Admin/matches/Create";
 import Matches from "./app/Admin/matches/matches";
 import ShowMatch from "./app/Admin/matches/show";
 import MatchEdit from "./app/Admin/matches/edit";
+import Billies from "./app/User/BILLETTERIE/Billies";
+import BilliesDetail from "./app/User/BILLETTERIE/BilliesDetail";
+import Histoire from "./app/User/Histoire/Histoire";
 
 
 function App() {
@@ -66,31 +68,164 @@ function App() {
           {isAuthorized ? (
             <>
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
-              <Route path="*" element={<UnauthorizedPage />} />
+              {/* <Route path="*" element={<UnauthorizedPage />} /> */}
 
               {user_role === "admin" && (
                 <>
                   <Route path="/admin" element={<AdLayout></AdLayout>} />
-                  <Route path="/admin/news" element={<AdLayout><News /></AdLayout>} />
-                  <Route path="/admin/create-new" element={<AdLayout><CreateNew /></AdLayout>} />
-                  <Route path="/admin/edit-new/:id" element={<AdLayout><EditNew /></AdLayout>} />
-                  <Route path="/admin/my_club/players" element={<AdLayout><Players /></AdLayout>} />
-                  <Route path="/admin/create-player" element={<AdLayout><PlayerCreate /></AdLayout>} />
-                  <Route path="/admin/edit-player/:id" element={<AdLayout><EditPlayer /></AdLayout>} />
-                  <Route path="/admin/my_club" element={<AdLayout><TeamDetail /></AdLayout>} />
-                  <Route path="/admin/create-myclub" element={<AdLayout><MyclubAdd /></AdLayout>} />
-                  <Route path="/admin/edit-myclub/:id" element={<AdLayout><MyclubEdit /></AdLayout>} />
-                  <Route path="/admin/my_club/titres" element={<AdLayout><Trophy /></AdLayout>} />
-                  <Route path="/admin/create-titres" element={<AdLayout><TrophyForm /></AdLayout>} />
-                  <Route path="/admin/edit-titres/:id" element={<AdLayout><TrophyEdit /></AdLayout>} />
-                  <Route path="/admin/clubs" element={<AdLayout><Clubs /></AdLayout>} />
-                  <Route path="/admin/create-club" element={<AdLayout><ClubsForm /></AdLayout>} />
-                  <Route path="/admin/edit-club/:id" element={<AdLayout><ClubsEdit /></AdLayout>} />
-                  <Route path="/admin/my_club/matches" element={<AdLayout><Matches /></AdLayout>} />
-                  <Route path="/admin/create-match" element={<AdLayout><MatchForm /></AdLayout>} />
-                  <Route path="/admin/match/:id" element={<AdLayout><ShowMatch /></AdLayout>} />
-                  <Route path="/admin/edit-match/:id" element={<AdLayout><MatchEdit /></AdLayout>} />
-                   <Route
+                  <Route
+                    path="/admin/news"
+                    element={
+                      <AdLayout>
+                        <News />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/create-new"
+                    element={
+                      <AdLayout>
+                        <CreateNew />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/edit-new/:id"
+                    element={
+                      <AdLayout>
+                        <EditNew />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/my_club/players"
+                    element={
+                      <AdLayout>
+                        <Players />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/create-player"
+                    element={
+                      <AdLayout>
+                        <PlayerCreate />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/edit-player/:id"
+                    element={
+                      <AdLayout>
+                        <EditPlayer />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/my_club"
+                    element={
+                      <AdLayout>
+                        <TeamDetail />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/create-myclub"
+                    element={
+                      <AdLayout>
+                        <MyclubAdd />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/edit-myclub/:id"
+                    element={
+                      <AdLayout>
+                        <MyclubEdit />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/my_club/titres"
+                    element={
+                      <AdLayout>
+                        <Trophy />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/create-titres"
+                    element={
+                      <AdLayout>
+                        <TrophyForm />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/edit-titres/:id"
+                    element={
+                      <AdLayout>
+                        <TrophyEdit />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/clubs"
+                    element={
+                      <AdLayout>
+                        <Clubs />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/create-club"
+                    element={
+                      <AdLayout>
+                        <ClubsForm />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/edit-club/:id"
+                    element={
+                      <AdLayout>
+                        <ClubsEdit />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/my_club/matches"
+                    element={
+                      <AdLayout>
+                        <Matches />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/create-match"
+                    element={
+                      <AdLayout>
+                        <MatchForm />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/match/:id"
+                    element={
+                      <AdLayout>
+                        <ShowMatch />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/edit-match/:id"
+                    element={
+                      <AdLayout>
+                        <MatchEdit />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
                     path="/admin/boutique/produits/ajouter"
                     element={
                       <AdLayout>
@@ -126,16 +261,76 @@ function App() {
                       </AdLayout>
                     }
                   />
-                  <Route path="/admin/boutique" element={<AdLayout> <AdminBoutique/> </AdLayout>} />
-                  <Route path="/admin/boutique/orders" element={<AdLayout> <Orders/> </AdLayout>} />
-                  <Route path="/admin/boutique/orders/:id" element={<AdLayout> <OrderDetail/> </AdLayout>} />
-                  <Route path="/admin/boutique/categories" element={<AdLayout> <Categories/> </AdLayout>} />
-                  <Route path="/admin/boutique/categories/:id" element={<AdLayout> <CategoryEdit/> </AdLayout>} />
-                  
-                  <Route path="/admin/tickets" element={<AdLayout><BillesList /></AdLayout>} />
-                  <Route path="/admin/edit-ticket/:id" element={<AdLayout><EditBillet /></AdLayout>} />
-                  <Route path="/admin/create-ticket" element={<AdLayout><CreateBillet /></AdLayout>} />
+                  <Route
+                    path="/admin/boutique"
+                    element={
+                      <AdLayout>
+                        {" "}
+                        <AdminBoutique />{" "}
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/boutique/orders"
+                    element={
+                      <AdLayout>
+                        {" "}
+                        <Orders />{" "}
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/boutique/orders/:id"
+                    element={
+                      <AdLayout>
+                        {" "}
+                        <OrderDetail />{" "}
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/boutique/categories"
+                    element={
+                      <AdLayout>
+                        {" "}
+                        <Categories />{" "}
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/boutique/categories/:id"
+                    element={
+                      <AdLayout>
+                        {" "}
+                        <CategoryEdit />{" "}
+                      </AdLayout>
+                    }
+                  />
 
+                  <Route
+                    path="/admin/tickets"
+                    element={
+                      <AdLayout>
+                        <BillesList />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/edit-ticket/:id"
+                    element={
+                      <AdLayout>
+                        <EditBillet />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
+                    path="/admin/create-ticket"
+                    element={
+                      <AdLayout>
+                        <CreateBillet />
+                      </AdLayout>
+                    }
+                  />
                 </>
               )}
             </>
@@ -154,8 +349,9 @@ function App() {
             <Route path="/boutique/:id" element={<ProduitDetail />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/commandes" element={<Commandes />} />
-
-
+            <Route path="/billetterie" element={<Billies />} />
+            <Route path="/billies/:id" element={<BilliesDetail />} />
+            <Route path="/equipe/histoire" element={<Histoire />} />
 
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

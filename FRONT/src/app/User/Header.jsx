@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react"; // Added useRef
 import { Link } from "react-router-dom";
 import {
   Facebook,
@@ -6,21 +6,48 @@ import {
   Twitter,
   MessageCircle,
   Youtube,
+  ChevronDown,
 } from "lucide-react";
 import logo from "../../assets/logo.png"; // Adjust the path as necessary
 import { CartIcon } from "./Boutique/Cart";
 import { CartSidebar } from "./Boutique/Cart";
 import Logout from "../../Auth/Logout";
+
 function Header() {
   const user = JSON.parse(localStorage.getItem("user"));
-  const [auth,setAuth] = React.useState(false);
+  const [auth, setAuth] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownTimeoutRef = useRef(null); // Ref to store timeout ID
 
-   useEffect(() => {
-    if(user){
+  useEffect(() => {
+    if (user) {
       setAuth(true);
     }
-   })
-  
+  }, []); // Removed 'user' from dependency array as it's only checked on mount
+
+  const handleMouseEnter = () => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+      dropdownTimeoutRef.current = null;
+    }
+    setIsDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 200); // Adjust delay as needed (e.g., 200-300ms)
+  };
+
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeoutRef.current) {
+        clearTimeout(dropdownTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <header>
       {/* Top Bar */}
@@ -66,7 +93,8 @@ function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3">
-              <img src={logo || "/placeholder.svg"} alt="" />
+              <img src={logo || "/placeholder.svg"} alt="HUSA Logo" />{" "}
+              {/* Added alt text */}
             </div>
             <div className="text-2xl font-bold text-red-700 font-title">
               HUSA ⵃⵓⵙⴰ
@@ -81,11 +109,52 @@ function Header() {
             <Link to="/news" className="text-red-700 hover:text-red-200">
               ACTUALITÉS
             </Link>
-            <Link to="/equipe" className="text-red-700 hover:text-red-200">
-              ÉQUIPE
-            </Link>
-            <Link to="/matchs" className="text-red-700 hover:text-red-200">
-              MATCHS
+            {/* ÉQUIPE with dropdown */}
+            <div
+              className="inline-block relative group"
+              onMouseEnter={handleMouseEnter} // Applied new handler
+              onMouseLeave={handleMouseLeave} // Applied new handler
+            >
+              <div className="flex items-center text-red-700 hover:text-red-200 cursor-pointer">
+                <Link to="/equipe" className="mr-1">
+                  {" "}
+                  {/* Link is fine here, part of the trigger */}
+                  ÉQUIPE
+                </Link>
+                <ChevronDown
+                  size={18}
+                  className={`transition-transform duration-300 ${
+                    isDropdownOpen ? "rotate-180" : "rotate-0"
+                  }`}
+                />
+              </div>
+              <div
+                className={`absolute left-1/2 -translate-x-1/2 mt-2 z-20 min-w-[150px] flex-col bg-white shadow-lg rounded-md overflow-hidden border border-red-100 transition-opacity duration-200 ${
+                  isDropdownOpen ? "flex opacity-100" : "hidden opacity-0"
+                }`}
+                // onMouseEnter and onMouseLeave are on the parent div already,
+                // but adding them here ensures the menu itself is also part of the hoverable area
+                // for the timeout logic.
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <Link
+                  to="/equipe/players"
+                  className="px-4 py-2 text-red-700 hover:bg-red-50 hover:text-red-900 text-left border-b border-red-100 transition-colors duration-200"
+                >
+                  Joueurs
+                </Link>
+                <Link
+                  to="/equipe/histoire"
+                  className="px-4 py-2 text-red-700 hover:bg-red-50 hover:text-red-900 text-left transition-colors duration-200"
+                >
+                  Histoire
+                </Link>
+              </div>
+            </div>
+
+            <Link to="/matches" className="text-red-700 hover:text-red-200">
+              MATCHES
             </Link>
             <Link to="/billetterie" className="text-red-700 hover:text-red-200">
               BILLETTERIE

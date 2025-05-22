@@ -6,6 +6,7 @@ import {
   IconAlertCircle,
   IconTrash,
   IconPlus,
+  IconPhotoUp, // For image upload icon
 } from "@tabler/icons-react";
 import instance from "../../../helpers/axios";
 import DeleteConfirmation from "../../../helpers/DeleteConfirmation";
@@ -16,7 +17,6 @@ const EditBillet = () => {
   const isEdit = Boolean(id);
   const [isDeleteCatModalOpen, setIsDeleteCatModalOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
-  
 
   // Ticket form state
   const [loading, setLoading] = useState(isEdit);
@@ -26,13 +26,20 @@ const EditBillet = () => {
   const [matches, setMatches] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+
   const [formData, setFormData] = useState({
     type: "match",
     matches_id: "",
     date: "",
     description: "",
     status: "available",
+    image: "", // Stores URL of existing image
+    location: "",
   });
+  const [imageFile, setImageFile] = useState(null); // For new image File object
+  const [imagePreview, setImagePreview] = useState(null); // For new image preview URL
+  const [wantsToRemoveImage, setWantsToRemoveImage] = useState(false); // Flag to remove existing image
+
   const [errors, setErrors] = useState({});
 
   // Category modal state
@@ -41,16 +48,16 @@ const EditBillet = () => {
     id: null,
     category: "",
     gate: "",
-    price: 0,
-    stock: 0,
   });
   const [catErrors, setCatErrors] = useState({});
 
   useEffect(() => {
     fetchMatches();
     fetchCategories();
-    if (isEdit) fetchTicket();
-  }, [id]);
+    if (isEdit) {
+      fetchTicket();
+    }
+  }, [id, isEdit]); // Add isEdit to dependency array if its change should re-trigger
 
   const fetchTicket = async () => {
     try {
@@ -60,9 +67,11 @@ const EditBillet = () => {
       setFormData({
         type: t.type,
         matches_id: t.matches_id || "",
-        date: t.date ? new Date(t.date).toISOString().split("T")[0] : "",
+        date: t.date ? new Date(t.date).toISOString().slice(0, 16) : "",
         description: t.description,
         status: t.status,
+        image: t.image || "", // Load existing image URL
+        location: t.location || "",
       });
       setSelectedCategories(
         t.categories.map((c) => ({
@@ -73,19 +82,31 @@ const EditBillet = () => {
           stock: c.pivot.stock,
         }))
       );
+      // Reset file states when fetching/re-fetching
+      setImageFile(null);
+      setImagePreview(null);
+      setWantsToRemoveImage(false);
     } catch (e) {
       setError("Impossible de charger le billet.");
+      console.error("Fetch ticket error:", e);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteCategory = async (cat) => {
+  const handleDeleteCategoryFromDb = async (catId) => {
+    // Renamed to avoid confusion with local removal
     try {
-      await instance.delete(`/ticket-categories/${cat.id}`);
-      fetchCategories();
+      await instance.delete(`/ticket-categories/${catId}`);
+      fetchCategories(); // Refresh the main list of categories
+      // Also remove from selectedCategories if it was there
+      setSelectedCategories((prev) => prev.filter((sc) => sc.id !== catId));
+      setSuccess("Catégorie supprimée de la base de données avec succès.");
     } catch (e) {
       console.error(e);
+      setError(
+        "Erreur lors de la suppression de la catégorie de la base de données."
+      );
     }
   };
 
@@ -93,10 +114,8 @@ const EditBillet = () => {
     try {
       let res;
       if (isEdit) {
-        // Fetch all matches for editing (so the current match is always available)
         res = await instance.get("/show-matches");
       } else {
-        // Fetch only upcoming matches without tickets for creating
         res = await instance.get("/upcomming-matches");
       }
       setMatches(res.data);
@@ -124,11 +143,34 @@ const EditBillet = () => {
     setErrors((prev) => ({ ...prev, [name]: null }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setWantsToRemoveImage(false); // New file selected, so not "removing existing"
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setErrors((prev) => ({ ...prev, image: null })); // Clear previous image error (backend uses 'image' key)
+    } else {
+      // No file selected (e.g., user cancelled)
+      setImageFile(null);
+      setImagePreview(null);
+      // If they had previously marked an existing image for removal, this doesn't change that
+      // If they had an existing image and now unselect a new file, the existing image will still be shown unless `wantsToRemoveImage` is true
+    }
+  };
+
   const handleToggle = (cat) => {
     setSelectedCategories((prev) => {
       const exists = prev.find((c) => c.id === cat.id);
       if (exists) return prev.filter((c) => c.id !== cat.id);
-      return [...prev, { ...cat }];
+      return [
+        ...prev,
+        { ...cat, price: cat.price || 0, stock: cat.stock || 0 },
+      ];
     });
   };
 
@@ -144,8 +186,8 @@ const EditBillet = () => {
 
   // Category modal handlers
   const openCatModal = (cat = null) => {
-    if (cat) setCatForm({ ...cat });
-    else setCatForm({ id: null, category: "", gate: "", price: 0, stock: 0 });
+    if (cat) setCatForm({ id: cat.id, category: cat.category, gate: cat.gate });
+    else setCatForm({ id: null, category: "", gate: "" });
     setCatErrors({});
     setShowCatModal(true);
   };
@@ -153,24 +195,38 @@ const EditBillet = () => {
   const handleCatChange = (e) => {
     const { name, value } = e.target;
     setCatForm((f) => ({ ...f, [name]: value }));
+    setCatErrors((prev) => ({ ...prev, [name]: null }));
   };
 
   const saveCategory = async () => {
     const errs = {};
     if (!catForm.category.trim()) errs.category = "Nom requis";
     if (!catForm.gate.trim()) errs.gate = "Porte requise";
-    if (catForm.price < 0) errs.price = "Prix invalide";
-    if (catForm.stock < 0) errs.stock = "Stock invalide";
     if (Object.keys(errs).length) return setCatErrors(errs);
 
     try {
       if (catForm.id)
-        await instance.put(`/ticket-categories/${catForm.id}`, catForm);
-      else await instance.post("/ticket-categories", catForm);
+        await instance.put(`/ticket-categories/${catForm.id}`, {
+          category: catForm.category,
+          gate: catForm.gate,
+        });
+      else
+        await instance.post("/ticket-categories", {
+          category: catForm.category,
+          gate: catForm.gate,
+        });
       await fetchCategories();
       setShowCatModal(false);
+      setSuccess("Catégorie enregistrée avec succès.");
     } catch (e) {
-      console.error(e);
+      if (e.response?.status === 422 && e.response?.data?.errors) {
+        setCatErrors(e.response.data.errors);
+      } else {
+        console.error(e);
+        setCatErrors({
+          general: "Erreur lors de l'enregistrement de la catégorie.",
+        });
+      }
     }
   };
 
@@ -187,12 +243,13 @@ const EditBillet = () => {
       errs.categories = "Au moins une catégorie est requise";
 
     selectedCategories.forEach((cat, idx) => {
-      if (!cat.price || cat.price <= 0)
+      if (cat.price === "" || cat.price === null || parseFloat(cat.price) < 0)
         errs[`category_${idx}_price`] = "Prix invalide";
-      if (cat.stock < 0) errs[`category_${idx}_stock`] = "Stock invalide";
+      if (cat.stock === "" || cat.stock === null || parseInt(cat.stock, 10) < 0)
+        errs[`category_${idx}_stock`] = "Stock invalide";
     });
 
-    setErrors(errs);
+    setErrors(errs); // Also updates errors from previous backend submission
     return Object.keys(errs).length === 0;
   };
 
@@ -202,12 +259,46 @@ const EditBillet = () => {
     if (!validate()) return;
     setSubmitting(true);
     setError(null);
+    setSuccess("");
 
-    const payload = { ...formData, categories: selectedCategories };
+    const submissionData = new FormData();
+
+    submissionData.append("type", formData.type);
+    if (formData.type === "match") {
+      submissionData.append("matches_id", formData.matches_id);
+    } else if (formData.type === "event") {
+      submissionData.append("date", formData.date);
+    }
+    submissionData.append("description", formData.description);
+    submissionData.append("status", formData.status);
+    submissionData.append("location", formData.location || "");
+
+    selectedCategories.forEach((cat, index) => {
+      submissionData.append(`categories[${index}][id]`, cat.id);
+      submissionData.append(`categories[${index}][price]`, cat.price);
+      submissionData.append(`categories[${index}][stock]`, cat.stock);
+    });
+
+    if (imageFile) {
+      submissionData.append("image", imageFile);
+    } else if (isEdit && wantsToRemoveImage && formData.image) {
+      submissionData.append("remove_image", "1"); // Or true, depending on backend
+    }
+    // If no new imageFile and not wantsToRemoveImage, 'image' field is not appended for update.
+    // Backend should retain existing image if 'image' field is not present and 'remove_image' is not true.
 
     try {
-      if (isEdit) await instance.put(`/tickets/${id}`, payload);
-      else await instance.post("/tickets", payload);
+      let response;
+      if (isEdit) {
+        submissionData.append("_method", "PUT"); // Laravel specific for FormData PUT
+        response = await instance.post(`/tickets/${id}`, submissionData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      } else {
+        response = await instance.post("/tickets", submissionData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
 
       setSuccess(
         `Le billet a été ${isEdit ? "modifié" : "ajouté"} avec succès !`
@@ -220,25 +311,49 @@ const EditBillet = () => {
           date: "",
           description: "",
           status: "available",
+          image: "",
+          location: "",
         });
         setSelectedCategories([]);
+        setErrors({}); // Clear errors on successful creation
+      } else if (response.data) {
+        // For edit, update formData with new image URL from backend
+        const updatedTicket = response.data;
+        setFormData((prev) => ({
+          ...prev,
+          image: updatedTicket.image || "", // Update with new or cleared image URL
+        }));
       }
+
+      // Reset file states after successful submission for both edit and create
+      setImageFile(null);
+      setImagePreview(null);
+      setWantsToRemoveImage(false);
+      const fileInput = document.getElementById("imageFile");
+      if (fileInput) fileInput.value = null; // Clear file input visually
+
       window.scrollTo(0, 0);
     } catch (e) {
-      if (e.response?.status === 422) setErrors(e.response.data.errors);
-      else
+      if (e.response?.status === 422) {
+        setErrors(e.response.data.errors); // This will include 'image' key if backend validation fails
+        setError("Veuillez corriger les erreurs dans le formulaire.");
+      } else {
         setError(
-          `Erreur lors de ${isEdit ? "mise à jour" : "ajout"} du billet`
+          `Erreur lors de ${isEdit ? "la mise à jour" : "l'ajout"} du billet. ${
+            e.response?.data?.message || e.message
+          }`
         );
+        console.error("Submit error:", e.response || e);
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading)
+  if (loading && isEdit)
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
+        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 animate-spin"></div>
       </div>
     );
 
@@ -285,7 +400,7 @@ const EditBillet = () => {
         className="bg-white rounded-lg shadow p-6 space-y-6"
       >
         {/* === LEFT COLUMN === */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
           <div className="space-y-4">
             {/* Type */}
             <div>
@@ -350,8 +465,10 @@ const EditBillet = () => {
                   <option value="">Sélectionner un match</option>
                   {matches.map((m) => (
                     <option key={m.id} value={m.id}>
-                      {m.my_club_name === "Hassania Union Sport Agadir"? "HUSA" : m.my_club_name} vs{" "}
-                      {m.opponent_club_name || "Adversaire"} (
+                      {m.my_club_name === "Hassania Union Sport Agadir"
+                        ? "HUSA"
+                        : m.my_club_name}{" "}
+                      vs {m.opponent_club_name || "Adversaire"} (
                       {new Date(m.match_date).toLocaleDateString()})
                     </option>
                   ))}
@@ -391,7 +508,7 @@ const EditBillet = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                rows={4}
+                rows={3}
                 className={`w-full px-3 py-2 border ${
                   errors.description ? "border-red-500" : "border-gray-300"
                 } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500`}
@@ -401,6 +518,86 @@ const EditBillet = () => {
                   {errors.description}
                 </p>
               )}
+            </div>
+            {/* Location */}
+            <div>
+              <label
+                htmlFor="location"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Lieu / Stade (optionnel)
+              </label>
+              <input
+                type="text"
+                name="location"
+                id="location"
+                value={formData.location}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 border ${
+                  errors.location ? "border-red-500" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500`}
+                placeholder="Ex: Stade Adrar, Agadir"
+              />
+              {errors.location && (
+                <p className="text-red-600 text-sm mt-1">{errors.location}</p>
+              )}
+            </div>
+
+            {/* Image File Upload */}
+            <div>
+              <label
+                htmlFor="imageFile"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Image du billet (optionnel)
+              </label>
+              <input
+                type="file"
+                name="imageFile"
+                id="imageFile"
+                accept="image/png, image/jpeg, image/jpg, image/webp"
+                onChange={handleImageChange}
+                className={`w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 border ${
+                  errors.image ? "border-red-500" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500`}
+              />
+              {errors.image && (
+                <p className="text-red-600 text-sm mt-1">{errors.image}</p>
+              )}
+
+              {(imagePreview ||
+                (isEdit && formData.image && !wantsToRemoveImage)) && (
+                <div className="mt-2 p-2 border rounded-md">
+                  <p className="text-xs text-gray-600 mb-1">Aperçu :</p>
+                  <img
+                    src={imagePreview || formData.image}
+                    alt="Aperçu du billet"
+                    className="h-32 w-auto object-contain border rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview(null);
+                      if (isEdit && formData.image) setWantsToRemoveImage(true);
+                      const fileInput = document.getElementById("imageFile");
+                      if (fileInput) fileInput.value = null;
+                    }}
+                    className="mt-2 text-xs text-red-600 hover:text-red-800 flex items-center"
+                  >
+                    <IconTrash size="0.8rem" className="mr-1" /> Supprimer cette
+                    image
+                  </button>
+                </div>
+              )}
+              {wantsToRemoveImage &&
+                isEdit &&
+                formData.image &&
+                !imagePreview && (
+                  <p className="text-sm text-orange-600 mt-1">
+                    L'image existante sera supprimée lors de l'enregistrement.
+                  </p>
+                )}
             </div>
 
             {/* Status */}
@@ -443,12 +640,19 @@ const EditBillet = () => {
                     onClick={() => openCatModal()}
                     className="flex items-center gap-1 text-red-600 hover:text-red-800 text-sm"
                   >
-                    <IconPlus size="0.9rem" /> Nouvelle catégorie
+                    <IconPlus size="0.9rem" /> Nouvelle
                   </button>
                 </div>
                 {categories.length === 0 ? (
                   <p className="text-gray-500 text-sm">
-                    Aucune catégorie disponible
+                    Aucune catégorie.{" "}
+                    <button
+                      type="button"
+                      onClick={() => openCatModal()}
+                      className="text-red-600 hover:underline"
+                    >
+                      Créer?
+                    </button>
                   </p>
                 ) : (
                   categories.map((cat) => {
@@ -465,18 +669,31 @@ const EditBillet = () => {
                         <div className="flex items-center">
                           <input
                             type="checkbox"
+                            id={`cat-checkbox-${cat.id}`}
                             checked={isSel}
                             onChange={() => handleToggle(cat)}
                             className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
                           />
-                          <label className="ml-2 text-sm text-gray-700">
+                          <label
+                            htmlFor={`cat-checkbox-${cat.id}`}
+                            className="ml-2 text-sm text-gray-700"
+                          >
                             {cat.category}
                           </label>
                         </div>
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="font-medium text-gray-800">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500">
                             (Porte: {cat.gate})
                           </span>
+                          <button
+                            type="button"
+                            onClick={() => openCatModal(cat)}
+                            className="text-blue-500 hover:text-blue-700"
+                            title="Modifier"
+                          >
+                            <IconPhotoUp size="1rem" />
+                          </button>{" "}
+                          {/* Changed IconPencil to IconPhotoUp as example */}
                           <button
                             type="button"
                             onClick={() => {
@@ -484,7 +701,7 @@ const EditBillet = () => {
                               setIsDeleteCatModalOpen(true);
                             }}
                             className="text-red-500 hover:text-red-700"
-                            title="Supprimer la catégorie"
+                            title="Supprimer de la DB"
                           >
                             <IconTrash size="1rem" />
                           </button>
@@ -500,19 +717,15 @@ const EditBillet = () => {
             </div>
 
             {/* Selected categories */}
-            <div className="bg-gray-50 p-4 rounded-md">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">
-                Catégories séléctionnées
-              </h3>
-              {selectedCategories.length === 0 ? (
-                <p className="text-gray-500 text-sm">
-                  Aucune catégorie sélectionnée
-                </p>
-              ) : (
-                selectedCategories.map((cat, idx) => (
+            {selectedCategories.length > 0 && (
+              <div className="bg-gray-50 p-4 rounded-md space-y-2">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">
+                  Catégories sélectionnées pour ce billet
+                </h3>
+                {selectedCategories.map((cat, idx) => (
                   <div
                     key={cat.id}
-                    className="bg-white p-3 rounded-md border border-gray-200 mb-2"
+                    className="bg-white p-3 rounded-md border border-gray-200"
                   >
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium text-gray-800">
@@ -522,6 +735,7 @@ const EditBillet = () => {
                         type="button"
                         onClick={() => handleToggle(cat)}
                         className="text-red-500 hover:text-red-700"
+                        title="Retirer du billet"
                       >
                         <IconTrash size="1rem" />
                       </button>
@@ -576,9 +790,9 @@ const EditBillet = () => {
                       </div>
                     </div>
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -594,11 +808,11 @@ const EditBillet = () => {
           </Link>
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || (loading && !isEdit)}
             className="bg-red-700 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-red-800 disabled:opacity-50"
           >
             {submitting ? (
-              <div className="loader ease-linear rounded-full border-4 border-t-4 border-white h-5 w-5" />
+              <div className="loader ease-linear rounded-full border-4 border-t-4 border-white h-5 w-5 animate-spin" />
             ) : (
               <IconDeviceFloppy size="1rem" />
             )}
@@ -609,11 +823,14 @@ const EditBillet = () => {
 
       {/* Category Modal */}
       {showCatModal && (
-        <div className="fixed inset-0  bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
             <h2 className="text-lg font-semibold mb-4 text-red-900">
               {catForm.id ? "Modifier" : "Créer"} catégorie
             </h2>
+            {catErrors.general && (
+              <p className="text-red-600 text-sm mb-2">{catErrors.general}</p>
+            )}
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -634,7 +851,6 @@ const EditBillet = () => {
                   </p>
                 )}
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Porte*
@@ -653,7 +869,6 @@ const EditBillet = () => {
                 )}
               </div>
             </div>
-
             <div className="flex justify-end gap-3 mt-6">
               <button
                 type="button"
@@ -677,24 +892,11 @@ const EditBillet = () => {
       {isDeleteCatModalOpen && categoryToDelete && (
         <DeleteConfirmation
           title="Confirmer la suppression"
-          message={`Êtes-vous sûr de vouloir supprimer la catégorie « ${categoryToDelete.category} » de ce billet ?`}
+          message={`Êtes-vous sûr de vouloir supprimer la catégorie « ${categoryToDelete.category} » (Porte: ${categoryToDelete.gate}) de la base de données ? Ceci affectera tous les billets utilisant cette catégorie.`}
           onConfirm={async () => {
-            try {
-              await instance.delete(
-                `/ticket-categories/${categoryToDelete.id}`
-              );
-              setSelectedCategories((prev) =>
-                prev.filter((c) => c.id !== categoryToDelete.id)
-              );
-              // Optionally refresh categories list if needed:
-              await fetchCategories();
-            } catch (e) {
-              // Optionally handle error
-              console.error(e);
-            } finally {
-              setIsDeleteCatModalOpen(false);
-              setCategoryToDelete(null);
-            }
+            await handleDeleteCategoryFromDb(categoryToDelete.id); // Use the renamed function
+            setIsDeleteCatModalOpen(false);
+            setCategoryToDelete(null);
           }}
           onCancel={() => {
             setIsDeleteCatModalOpen(false);

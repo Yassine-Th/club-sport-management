@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
@@ -13,9 +12,8 @@ class TicketController extends Controller
     {
         $tickets = Ticket::with([
             'categories',
-            // Preload match + the two club names only:
-            'match' => fn($q) => $q->select('id', 'my_club_id', 'opponent_club_id', 'match_date'),
-            'match.myClub:id,name',
+            'match' => fn($q) => $q->select('id', 'my_club_id', 'opponent_club_id', 'match_date', "journée"),
+            'match.myClub:id,name,stadium_name',
             'match.opponent:id,name',
         ])->get();
 
@@ -24,9 +22,12 @@ class TicketController extends Controller
             'type'        => $ticket->type,
             'description' => $ticket->description,
             'status'      => $ticket->status,
+            'image'       => $ticket->image,
+            'location'    => $ticket->location,
+            'date'       => $ticket->date,
             'categories'  => $ticket->categories,
             'match'       => $ticket->match
-                ? $ticket->match->summary()   // or ->summary if you used the accessor
+                ? $ticket->match->summary()
                 : null,
         ]);
 
@@ -37,8 +38,8 @@ class TicketController extends Controller
     {
         $ticket = Ticket::with([
             'categories',
-            'match' => fn($q) => $q->select('id', 'my_club_id', 'opponent_club_id', 'match_date'),
-            'match.myClub:id,name',
+            'match' => fn($q) => $q->select('id', 'my_club_id', 'opponent_club_id', 'match_date', "journée"),
+            'match.myClub:id,name,stadium_name',
             'match.opponent:id,name',
         ])->find($id);
 
@@ -51,6 +52,9 @@ class TicketController extends Controller
             'type'        => $ticket->type,
             'description' => $ticket->description,
             'status'      => $ticket->status,
+            'image'       => $ticket->image,
+            'location'    => $ticket->location,
+            'date'       => $ticket->date,
             'categories'  => $ticket->categories,
             'match'       => $ticket->match
                 ? $ticket->match->summary()
@@ -60,7 +64,6 @@ class TicketController extends Controller
         return response()->json($result);
     }
 
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -69,26 +72,35 @@ class TicketController extends Controller
             'date' => 'nullable|date',
             'description' => 'required|string',
             'status' => 'required|string|in:available,limited,sold out',
+            'image' => 'nullable|file|image|max:2048',
+            'location' => 'nullable|string',
             'categories' => 'required|array',
             'categories.*.id' => 'required|exists:ticket_categories,id',
             'categories.*.price' => 'required|numeric|min:0',
             'categories.*.stock' => 'required|integer|min:0',
         ]);
 
-        // Start a transaction
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('tickets', 'public');
+            $validated['image'] = asset('storage/' . $imagePath);
+        } else {
+            $validated['image'] = null;
+        }
+
         DB::beginTransaction();
 
         try {
-            // Create the ticket
             $ticket = Ticket::create([
                 'type' => $validated['type'],
                 'matches_id' => $validated['type'] === 'match' ? $validated['matches_id'] : null,
                 'date' => $validated['type'] === 'event' ? $validated['date'] : null,
                 'description' => $validated['description'],
                 'status' => $validated['status'],
+                'image' => $validated['image'],
+                'location' => $validated['location'] ?? null,
             ]);
 
-            // Prepare categories data for sync
             $categoryData = [];
             foreach ($validated['categories'] as $category) {
                 $categoryData[$category['id']] = [
@@ -96,13 +108,10 @@ class TicketController extends Controller
                     'stock' => $category['stock'],
                 ];
             }
-
-            // Attach categories with custom pivot data
             $ticket->categories()->attach($categoryData);
 
             DB::commit();
 
-            // Return the ticket with its relationships
             return response()->json(
                 Ticket::with(['categories', 'match'])->find($ticket->id),
                 201
@@ -125,29 +134,35 @@ class TicketController extends Controller
             'matches_id' => 'nullable|exists:matches,id',
             'date' => 'nullable|date',
             'description' => 'sometimes|required|string',
-            'status' => 'sometimes|required|string|in:available,limited,sold out',
+            'status' => 'sometimes|required|string',
+            'image' => 'nullable|file|image|max:2048',
+            'location' => 'nullable|string',
             'categories' => 'sometimes|required|array',
             'categories.*.id' => 'required|exists:ticket_categories,id',
             'categories.*.price' => 'required|numeric|min:0',
             'categories.*.stock' => 'required|integer|min:0',
         ]);
 
-        // Start a transaction
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('tickets', 'public');
+            $validated['image'] = asset('storage/' . $imagePath);
+        }
+
         DB::beginTransaction();
 
         try {
-            // Update the ticket
             $ticket->update([
                 'type' => $validated['type'] ?? $ticket->type,
                 'matches_id' => isset($validated['type']) && $validated['type'] === 'match' ? $validated['matches_id'] : null,
                 'date' => isset($validated['type']) && $validated['type'] === 'event' ? $validated['date'] : null,
                 'description' => $validated['description'] ?? $ticket->description,
                 'status' => $validated['status'] ?? $ticket->status,
+                'image' => array_key_exists('image', $validated) ? $validated['image'] : $ticket->image,
+                'location' => array_key_exists('location', $validated) ? $validated['location'] : $ticket->location,
             ]);
 
-            // Sync categories if provided
             if (isset($validated['categories'])) {
-                // Prepare categories data for sync
                 $categoryData = [];
                 foreach ($validated['categories'] as $category) {
                     $categoryData[$category['id']] = [
@@ -155,14 +170,11 @@ class TicketController extends Controller
                         'stock' => $category['stock'],
                     ];
                 }
-
-                // Sync categories with custom pivot data
                 $ticket->categories()->sync($categoryData);
             }
 
             DB::commit();
 
-            // Return the updated ticket with its relationships
             return response()->json(
                 Ticket::with(['categories', 'match'])->find($ticket->id)
             );
@@ -179,14 +191,10 @@ class TicketController extends Controller
             return response()->json(['message' => 'Ticket not found'], 404);
         }
 
-        // Start a transaction
         DB::beginTransaction();
 
         try {
-            // Detach all categories first (will be done automatically by onDelete cascade, but being explicit)
             $ticket->categories()->detach();
-
-            // Delete the ticket
             $ticket->delete();
 
             DB::commit();
@@ -198,9 +206,45 @@ class TicketController extends Controller
         }
     }
 
-    // public function getCategories()
-    // {
-    //     $categories = TicketCategory::all();
-    //     return response()->json($categories);
-    // }
+    public function availableTickets()
+    {
+        $today = now()->toDateString();
+
+        $tickets = Ticket::with([
+            'categories',
+            'match' => fn($q) => $q->select('id', 'my_club_id', 'opponent_club_id', 'match_date', "journée"),
+            'match.myClub:id,name,stadium_name',
+            'match.opponent:id,name',
+        ])
+            ->where('status', 'available')
+            ->where(function ($query) use ($today) {
+                $query->where(function ($q) use ($today) {
+                    $q->where('type', 'event')
+                        ->whereDate('date', '>=', $today);
+                })
+                    ->orWhere(function ($q) use ($today) {
+                        $q->where('type', 'match')
+                            ->whereHas('match', function ($mq) use ($today) {
+                                $mq->whereDate('match_date', '>=', $today);
+                            });
+                    });
+            })
+            ->get();
+
+        $payload = $tickets->map(fn($ticket) => [
+            'id'          => $ticket->id,
+            'type'        => $ticket->type,
+            'description' => $ticket->description,
+            'status'      => $ticket->status,
+            'image'       => $ticket->image,
+            'date'       => $ticket->date,
+            'location'    => $ticket->location,
+            'categories'  => $ticket->categories,
+            'match'       => $ticket->match
+                ? $ticket->match->summary()
+                : null,
+        ]);
+
+        return response()->json($payload);
+    }
 }

@@ -29,9 +29,9 @@ export default function AdSideBar() {
       label: "my_club",
       icon: IconShield,
       children: [
-        { link: "/admin/my_club/titres", label: "Trophy" },
-        { link: "/admin/my_club/players", label: "Players" },
         { link: "/admin/my_club/matches", label: "Matches" },
+        { link: "/admin/my_club/players", label: "Players" },
+        { link: "/admin/my_club/titres", label: "Trophy" },
       ],
     },
     { link: "/admin/clubs", label: "Clubs", icon: IconUsersGroup },

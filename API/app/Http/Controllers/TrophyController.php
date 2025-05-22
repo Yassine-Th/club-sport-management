@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MyClub;
 use App\Models\Trophy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -30,6 +31,7 @@ class TrophyController extends Controller
         ]);
 
         Trophy::create([
+            "my_club_id" => MyClub::first()->id, // Assuming you have a default club ID
             'title' => $validatedData['title'],
             'year' => $validatedData['year'],
             'times_won' => $validatedData['times_won'],

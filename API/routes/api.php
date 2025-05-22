@@ -92,6 +92,9 @@ Route::delete('/news-delete/{id}', [NewsController::class, 'destroy']);
 Route::get('/news/{id}', [NewsController::class, 'edit']);
 Route::put('/news/update/{id}', [NewsController::class, 'update']);
 
+Route::get("availableTickets", [TicketController::class, 'availableTickets']);
+Route::get("ticket/{id}", [TicketController::class, 'show']);
+
 
 Route::get('/latest-news', [HomeController::class, 'index_news']);
 Route::get('/news-user', [UserNewsController::class, 'index']);
