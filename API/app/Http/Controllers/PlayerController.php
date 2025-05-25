@@ -9,14 +9,19 @@ use Illuminate\Support\Facades\Storage;
 
 class PlayerController extends Controller
 {
-   public function index(){
-    $players = Player::all();
+   public function index()
+{
+    $order = ['Gardien', 'Défenseur', 'Milieu', 'Attaquant', 'Staff'];
+
+    $players = Player::orderByRaw("
+        FIELD(position, '" . implode("','", $order) . "')
+    ")->get();
 
     return response()->json([
-        'message' => 'get players Succses',
+        'message' => 'get players success',
         'data' => $players
     ]);
-   }
+}
 
    public function destroy($id)
     {
@@ -80,7 +85,7 @@ public function update(Request $request, $id)
 {
     $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'position' => 'required|string|in:Gardien,Défenseur,Milieu,Attaquant',
+            'position' => 'required|string|in:Gardien,Défenseur,Milieu,Attaquant,Staff',
             'birth_date' => 'required|date|before:today',
             'number' => 'required|integer|min:1|max:99|unique:players,number,' . $id,
             'height' => 'required|numeric|min:100|max:250',

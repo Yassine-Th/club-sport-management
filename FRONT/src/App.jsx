@@ -51,14 +51,18 @@ import MatchEdit from "./app/Admin/matches/edit";
 import Billies from "./app/User/BILLETTERIE/Billies";
 import BilliesDetail from "./app/User/BILLETTERIE/BilliesDetail";
 import Histoire from "./app/User/Histoire/Histoire";
-
+import MatchesUser from "./app/User/Matches/matches";
+import CreateStatistique from "./app/Admin/matches/statistique/Create";
+import PlayersByPost from "./app/User/Equipe/Equipe";
+import PlayerShow from "./app/User/Equipe/shwo";
+import ShowMatchUser from "./app/User/Matches/show";
 
 function App() {
   const user_role = getUserRole();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    isLoggedIn(setIsAuthorized);      
+    isLoggedIn(setIsAuthorized);
   }, []);
 
   return (
@@ -68,11 +72,9 @@ function App() {
           {isAuthorized ? (
             <>
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
-              {/* <Route path="*" element={<UnauthorizedPage />} /> */}
-
               {user_role === "admin" && (
                 <>
-                  <Route path="/admin" element={<AdLayout></AdLayout>} />
+                  <Route path="/admin" element={<AdLayout />} />
                   <Route
                     path="/admin/news"
                     element={
@@ -226,11 +228,18 @@ function App() {
                     }
                   />
                   <Route
+                    path="/admin/matche/statistique/:id"
+                    element={
+                      <AdLayout>
+                        <CreateStatistique />
+                      </AdLayout>
+                    }
+                  />
+                  <Route
                     path="/admin/boutique/produits/ajouter"
                     element={
                       <AdLayout>
-                        {" "}
-                        <ProduitForm />{" "}
+                        <ProduitForm />
                       </AdLayout>
                     }
                   />
@@ -238,8 +247,7 @@ function App() {
                     path="/admin/boutique/produits"
                     element={
                       <AdLayout>
-                        {" "}
-                        <Produits />{" "}
+                        <Produits />
                       </AdLayout>
                     }
                   />
@@ -247,8 +255,7 @@ function App() {
                     path="/admin/boutique/produits/:id"
                     element={
                       <AdLayout>
-                        {" "}
-                        <AdProduitDetails />{" "}
+                        <AdProduitDetails />
                       </AdLayout>
                     }
                   />
@@ -256,8 +263,7 @@ function App() {
                     path="/admin/boutique/produits/edit/:id"
                     element={
                       <AdLayout>
-                        {" "}
-                        <AdUpdateProduct />{" "}
+                        <AdUpdateProduct />
                       </AdLayout>
                     }
                   />
@@ -265,8 +271,7 @@ function App() {
                     path="/admin/boutique"
                     element={
                       <AdLayout>
-                        {" "}
-                        <AdminBoutique />{" "}
+                        <AdminBoutique />
                       </AdLayout>
                     }
                   />
@@ -274,8 +279,7 @@ function App() {
                     path="/admin/boutique/orders"
                     element={
                       <AdLayout>
-                        {" "}
-                        <Orders />{" "}
+                        <Orders />
                       </AdLayout>
                     }
                   />
@@ -283,8 +287,7 @@ function App() {
                     path="/admin/boutique/orders/:id"
                     element={
                       <AdLayout>
-                        {" "}
-                        <OrderDetail />{" "}
+                        <OrderDetail />
                       </AdLayout>
                     }
                   />
@@ -292,8 +295,7 @@ function App() {
                     path="/admin/boutique/categories"
                     element={
                       <AdLayout>
-                        {" "}
-                        <Categories />{" "}
+                        <Categories />
                       </AdLayout>
                     }
                   />
@@ -301,12 +303,10 @@ function App() {
                     path="/admin/boutique/categories/:id"
                     element={
                       <AdLayout>
-                        {" "}
-                        <CategoryEdit />{" "}
+                        <CategoryEdit />
                       </AdLayout>
                     }
                   />
-
                   <Route
                     path="/admin/tickets"
                     element={
@@ -340,24 +340,21 @@ function App() {
               <Route path="/register" element={<Register />} />
             </>
           )}
-          (
-          <>
-            <Route path="/" element={<Home />} />
-            <Route path="/news" element={<NewsUser />} />
-            <Route path="/news/:id" element={<DetailNews />} />
-            <Route path="/boutique" element={<Boutique />} />
-            <Route path="/boutique/:id" element={<ProduitDetail />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/commandes" element={<Commandes />} />
-            <Route path="/billetterie" element={<Billies />} />
-            <Route path="/billies/:id" element={<BilliesDetail />} />
-            <Route path="/equipe/histoire" element={<Histoire />} />
-
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="*" element={<Login />} />
-          </>
-          )
+          <Route path="/" element={<Home />} />
+          <Route path="/news" element={<NewsUser />} />
+          <Route path="/news/:id" element={<DetailNews />} />
+          <Route path="/boutique" element={<Boutique />} />
+          <Route path="/boutique/:id" element={<ProduitDetail />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/commandes" element={<Commandes />} />
+          <Route path="/billetterie" element={<Billies />} />
+          <Route path="/billies/:id" element={<BilliesDetail />} />
+          <Route path="/equipe/histoire" element={<Histoire />} />
+          <Route path="/matches" element={<MatchesUser />} />
+          <Route path="/players" element={<PlayersByPost />} />
+          <Route path="/players/:id" element={<PlayerShow />} />
+          <Route path="/matches/:id" element={<ShowMatchUser />} />
+          <Route path="*" element={<Login />} />
         </Routes>
       </BrowserRouter>
     </>

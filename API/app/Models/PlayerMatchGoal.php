@@ -12,7 +12,7 @@ class PlayerMatchGoal  extends Model
     protected $fillable = [
         'player_match_stat_id',
         'minute',
-        'assist_player_stat_id',
+        'assist_player_id',
     ];
 
     /** The scorer’s aggregate stats row */

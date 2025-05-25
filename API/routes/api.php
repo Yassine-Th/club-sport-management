@@ -19,6 +19,7 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ClothesController;
 use App\Http\Controllers\ClubController;
 use App\Http\Controllers\MatchsController;
+use App\Http\Controllers\MyPlayerMatchStatController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProductController;
@@ -26,7 +27,9 @@ use App\Http\Controllers\SizeController;
 use App\Http\Controllers\TicketCategoryController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserMatchesController;
 use App\Http\Controllers\UserNewsController;
+use App\Http\Controllers\UserPlayersController;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
     ->middleware('guest')
@@ -97,6 +100,7 @@ Route::get("ticket/{id}", [TicketController::class, 'show']);
 
 
 Route::get('/latest-news', [HomeController::class, 'index_news']);
+Route::get('/home', [HomeController::class, 'index']);
 Route::get('/news-user', [UserNewsController::class, 'index']);
 route::get('/news-user/{id}', [UserNewsController::class, 'show']);
 
@@ -114,7 +118,6 @@ Route::get('/player-edit/{id}', [PlayerController::class, 'edit']);
 Route::put('/player/update/{id}', [PlayerController::class, 'update']);
 
 
-Route::get('/latest-players', [HomeController::class, 'index_players']);
 
 
 Route::get('/myclub', [MyClubController::class, 'index']);
@@ -144,6 +147,21 @@ Route::post('/matches-create', [MatchsController::class, 'store']);
 Route::get('/matches-edit/{id}', [MatchsController::class, 'edit']);
 Route::put('/matches/update/{id}', [MatchsController::class, 'update']);
 Route::delete('/matches-delete/{id}', [MatchsController::class, 'destroy']);
+
+
+Route::get('/user-matches', [UserMatchesController::class, 'index']);
+Route::get('/user-matches/months', [UserMatchesController::class, 'months']);
+
+
+Route::post('/statistiques', [MyPlayerMatchStatController::class, 'store']);
+Route::get('/matches/{id}/statistique', [MyPlayerMatchStatController::class, 'showStatsForMatch']);
+Route::delete('/statistique-delete/{id}', [MyPlayerMatchStatController::class, 'destroy']);
+
+Route::get('/players-user', [UserPlayersController::class, 'index']);
+Route::get('/players-user/{id}', [UserPlayersController::class, 'show']);
+
+
+
 
 
 

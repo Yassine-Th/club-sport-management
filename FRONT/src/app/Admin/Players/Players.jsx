@@ -165,17 +165,6 @@ const Players = () => {
           </select>
         </div>
       </div>
-
-      <div className="flex justify-end mb-4">
-        <UnstyledButton
-          onClick={fetchPlayers}
-          className="!text-red-600 !flex !items-center !gap-1 hover:!text-red-800"
-        >
-          <IconRefresh size="1rem" />
-          <span>Actualiser</span>
-        </UnstyledButton>
-      </div>
-
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-red-900 text-white">

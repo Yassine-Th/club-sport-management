@@ -11,7 +11,8 @@ import {
   IconAlertCircle,
   IconEye
 } from "@tabler/icons-react";
-import { Text, Badge, Tooltip, UnstyledButton, Loader } from "@mantine/core";
+import { FaChartBar } from 'react-icons/fa';
+import { Text, Badge, Tooltip, UnstyledButton, Loader, ActionIcon } from "@mantine/core";
 import instance from "../../../helpers/axios";
 import DeleteConfirmation from "../../../helpers/DeleteConfirmation";
 
@@ -133,10 +134,10 @@ export default function Matches() {
                     {item.myclub?.name}
                     </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item?.my_club_goals}
+                    {item?.my_club_goals || "--"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item?.opponent_club_goals}
+                    {item?.opponent_club_goals || "--"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {item.opponent?.name}
@@ -168,6 +169,17 @@ export default function Matches() {
                           <IconTrash size="1.2rem" />
                         </UnstyledButton>
                       </Tooltip>
+                     {
+                      item.status === "terminée" && (
+                        <Tooltip label="Ajouter les statistiques" withArrow>
+                      <Link to={`/admin/matche/statistique/${item.id}`}>
+                        <UnstyledButton className="!text-green-700 hover:!text-green-900">
+                          <FaChartBar size="1.2rem" />
+                        </UnstyledButton>
+                        </Link>
+                      </Tooltip>
+                      ) 
+                     }
                     </div>
                   </td>
                 </tr>
