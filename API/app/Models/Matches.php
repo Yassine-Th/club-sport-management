@@ -33,16 +33,16 @@ class Matches extends Model
     {
         return $this->belongsTo(MyClub::class, 'my_club_id');
     }
-
+    public function playerStats()
+    {
+        return $this->hasMany(MyPlayerMatchStat::class);
+    }
 
     public function tickets()
     {
         return $this->hasMany(Ticket::class);
     }
-    public function playerStats()
-    {
-        return $this->hasMany(MyPlayerMatchStat::class);
-    }
+    
     public function summary(): array
     {
         // Make sure the relation data has been eager-loaded:

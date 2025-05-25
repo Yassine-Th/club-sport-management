@@ -11,6 +11,7 @@ class Clothes extends Model
 
     protected $fillable = ['product_id','gender', 'type'];
 
+
     public function product()
     {
         return $this->belongsTo(Product::class);

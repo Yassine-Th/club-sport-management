@@ -25,7 +25,7 @@ class PlayerFactory extends Factory
             'weight' => $this->faker->numberBetween(50, 100), // Weight in kg
             'birth_date' => $this->faker->dateTimeBetween('-40 years', '-18 years'), 
             'nationality' => $this->faker->country(),
-            'photo' => 'images/player.jpg',
+            'photo' => 'images/player.webp',
         ];
     }
 }

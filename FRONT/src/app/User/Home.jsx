@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
 import Footer from "./Footer";
 import logo from "../../assets/logo.png";
 import Header from "./Header";
@@ -27,7 +26,7 @@ const Home = () => {
 
   useEffect(() => {
     instance
-      .get("/latest-news")
+      .get("/home")
       .then((response) => {
         setLastNews(response.data.latestNews);
       })
@@ -41,7 +40,7 @@ const Home = () => {
 
   useEffect(() => {
     instance
-      .get("/latest-players")
+      .get("/home")
       .then((response) => {
         setLastPlayers(response.data.latestPlayers);
       })
@@ -58,10 +57,11 @@ const Home = () => {
       .get("/home")
       .then((response) => {
         setMatches(response.data.nextMatch);
-        setLodingmatche(false);
       })
       .catch((error) => {
         console.error("Error fetching next match:", error);
+      })
+      .finally(() => {
         setLodingmatche(false);
       });
   }, []);
@@ -86,7 +86,7 @@ const Home = () => {
     <>
       <Header />
       {/* Hero Section */}
-      <div className=" bg-gradient-to-br from-red-800 to-red-600">
+      <div className="bg-gradient-to-br from-red-800 to-red-600">
         <section className="relative overflow-hidden">
           <div className="container mx-auto px-4 py-15 relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -189,14 +189,6 @@ const Home = () => {
                 </motion.div>
               ))}
             </AnimatePresence>
-          </div>
-          <div className="text-center mt-10">
-            <Link
-              to="/news"
-              className="inline-block bg-red-600 text-white px-6 py-3 rounded-lg font-title hover:bg-red-700 transition-colors"
-            >
-              TOUS LES ACTUALITÉS
-            </Link>
           </div>
         </div>
       </section>
@@ -381,7 +373,7 @@ const Home = () => {
                     whileHover={{
                       scale: 1.05,
                       y: -5,
-                      boxShadow: "0px 15px 25px rgba(108,99,255,0.2)",
+                      boxShadow: "0px 15px 25px rgba(0,0,0,0.2)",
                     }}
                     className="relative rounded-2xl shadow-lg overflow-hidden text-center p-4 select-none"
                   >
@@ -440,7 +432,7 @@ const Home = () => {
           )}
           <div className="text-center mt-10">
             <Link
-              to="/players"
+              to="/equipe/joueurs"
               className="inline-block bg-red-600 text-white px-6 py-3 rounded-lg font-title hover:bg-red-700 transition-colors"
             >
               TOUS LES JOUEURS

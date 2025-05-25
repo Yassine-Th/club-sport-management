@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('content');
             $table->string('image')->nullable();
-            $table->enum('category', ['match', 'transfer', 'club', 'other'])->default('other');
+            $table->enum('category', ['match', 'transfer', 'club', 'autre'])->default('other');
             $table->timestamps();
         });
     }

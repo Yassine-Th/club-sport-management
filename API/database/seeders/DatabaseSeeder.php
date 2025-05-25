@@ -144,52 +144,52 @@ class DatabaseSeeder extends Seeder
         }
         $eventTicket->categories()->attach($pivotData);
 
-        foreach ($matches as $match) {
-            // a) select 11 random starters
-            $starters = $squad->random(11);
+        // foreach ($matches as $match) {
+        //     // a) select 11 random starters
+        //     $starters = $squad->random(11);
 
-            // b) create a stat record for each starter
-            $stats = $starters->map(function ($player) use ($match) {
-                return MyPlayerMatchStat::factory()->create([
-                    'matches_id'  => $match->id,
-                    'player_id' => $player->id,
-                ]);
-            });
+        //     // b) create a stat record for each starter
+        //     $stats = $starters->map(function ($player) use ($match) {
+        //         return MyPlayerMatchStat::factory()->create([
+        //             'matches_id'  => $match->id,
+        //             'player_id' => $player->id,
+        //         ]);
+        //     });
 
-            // Only generate goals if match_date is in the past
-            if (Carbon::parse($match->match_date)->isPast()) {
-                // c) decide total goals (0-5)
-                $totalGoals = rand(0, 5);
-                if ($totalGoals > 0) {
-                    $distinctCount = min($totalGoals, $stats->count());
-                    $scorerStats   = $stats->random($distinctCount);
-                    $remaining     = $totalGoals;
+        //     // Only generate goals if match_date is in the past
+        //     if (Carbon::parse($match->match_date)->isPast()) {
+        //         // c) decide total goals (0-5)
+        //         $totalGoals = rand(0, 5);
+        //         if ($totalGoals > 0) {
+        //             $distinctCount = min($totalGoals, $stats->count());
+        //             $scorerStats   = $stats->random($distinctCount);
+        //             $remaining     = $totalGoals;
 
-                    foreach ($scorerStats as $stat) {
-                        $goals = 1;
-                        $remaining--;
-                        if ($remaining > 0 && rand(0, 1)) {
-                            $goals++;
-                            $remaining--;
-                        }
-                        PlayerMatchGoal::factory($goals)
-                            ->create(['player_match_stat_id' => $stat->id]);
-                        if ($remaining <= 0) {
-                            break;
-                        }
-                    }
-                }
-            }
+        //             foreach ($scorerStats as $stat) {
+        //                 $goals = 1;
+        //                 $remaining--;
+        //                 if ($remaining > 0 && rand(0, 1)) {
+        //                     $goals++;
+        //                     $remaining--;
+        //                 }
+        //                 PlayerMatchGoal::factory($goals)
+        //                     ->create(['player_match_stat_id' => $stat->id]);
+        //                 if ($remaining <= 0) {
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //     }
 
-            // d) update match goal totals
-            $matchGoals = $match->playerStats()
-                ->withCount('goals')
-                ->get()
-                ->sum('goals_count');
+        //     // d) update match goal totals
+        //     $matchGoals = $match->playerStats()
+        //         ->withCount('goals')
+        //         ->get()
+        //         ->sum('goals_count');
 
-            $match->my_club_goals       = $matchGoals;
-            $match->opponent_club_goals = rand(0, 5);
-            $match->save();
-        }
+        //     $match->my_club_goals       = $matchGoals;
+        //     $match->opponent_club_goals = rand(0, 5);
+        //     $match->save();
+        // }
     }
 }

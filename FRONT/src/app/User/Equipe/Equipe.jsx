@@ -68,7 +68,7 @@ const PlayersByPost = () => {
 
         {/* Filtrage par poste */}
         <motion.div
-          className="ml-40 mt-12 flex flex-wrap gap-4"
+          className="ml-40 mt-6 flex flex-wrap gap-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -272,7 +272,7 @@ const PlayerCard = ({ player }) => {
             {player.number}
           </span>
           <div className="text-left">
-            <h3 className="font-semibold text-3xl text-black drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]">
+            <h3 className="font-semibold text-2xl text-black drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]">
               {player?.name?.split(' ').slice(-1)[0]}
             </h3>
             <p className="text-lg text-black/80 font-extrabold drop-shadow-[0_0_4px_rgba(255,255,255,0.6)]">

@@ -21,7 +21,7 @@ class NewsFactory extends Factory
             'title' => $this->faker->sentence(),
             'content' => $this->faker->paragraph(),
             'image' => 'images/husa.jpg',
-            'category' => $this->faker->randomElement(['match', 'transfer', 'club', 'other']),
+            'category' => $this->faker->randomElement(['match', 'transfer', 'club', 'autre']),
             'created_at' => now(),
             'updated_at' => now(),
         ];

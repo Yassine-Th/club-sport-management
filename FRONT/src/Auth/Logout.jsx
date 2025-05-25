@@ -26,15 +26,15 @@ export default function Logout() {
       onClick={handleLogout}
       className="
         flex items-center
-        px-3 py-2
+        px-3 py-1
         bg-red-600 hover:bg-red-700
         text-white font-medium
         rounded focus:outline-none focus:ring-2 focus:ring-red-400
         transition-colors
       "
-    >
-      <IconLogout2 size={18} className="mr-2" />
+    >      
       Logout
+      <IconLogout2 size={18} className="mr-2" />
     </button>
   );
 }

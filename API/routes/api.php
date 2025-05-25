@@ -71,6 +71,7 @@ Route::apiResource('clothes', ClothesController::class)->only(['index', 'show'])
 
 
 
+Route::get('/matches/{id}', [MatchsController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('produits', ProductController::class);
@@ -87,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('matches', MatchsController::class);
     Route::get('upcomming-matches', [MatchsController::class, 'UpCommingMatches']);
     Route::get("show-matches", [MatchsController::class, 'showEditMatches']);
+    Route::get("/playersOnly", [PlayerController::class, 'playersOnly']);
 });
 
 Route::get('/news', [NewsController::class, 'index']);
@@ -142,7 +144,6 @@ Route::delete('/clubs-delete/{id}', [ClubController::class, 'destroy']);
 
 
 Route::get('/matches', [MatchsController::class, 'index']);
-Route::get('/matches/{id}', [MatchsController::class, 'show']);
 Route::post('/matches-create', [MatchsController::class, 'store']);
 Route::get('/matches-edit/{id}', [MatchsController::class, 'edit']);
 Route::put('/matches/update/{id}', [MatchsController::class, 'update']);

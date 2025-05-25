@@ -23,21 +23,8 @@ class PlayerController extends Controller
     ]);
 }
 
-   public function destroy($id)
-    {
-        $player = Player::findOrFail($id);
 
-        if ($player->photo && Storage::disk('public')->exists($player->photo)) {
-            Storage::disk('public')->delete($player->photo);
-        }
-        
-        // Supprimer la news
-        $player->delete();
-        
-        return response()->json([
-            'message' => 'player deleted successfully',
-        ], 200);
-    } 
+ 
 
      public function store(Request $request)
     {
@@ -130,8 +117,28 @@ public function update(Request $request, $id)
         'player' => $player
     ], 200);
 }
+    public function destroy($id)
+    {
+        $player = Player::findOrFail($id);
 
-    
-    
+        if ($player->photo && Storage::disk('public')->exists($player->photo)) {
+            Storage::disk('public')->delete($player->photo);
+        }
 
+        // Supprimer la news
+        $player->delete();
+
+        return response()->json([
+            'message' => 'player deleted successfully',
+        ], 200);
+    }
+    public function playersOnly(){
+        $players = Player::where('position', '!=', 'Staff')
+            ->orderByRaw("FIELD(position, 'Attaquant', 'Milieu', 'Défenseur', 'Gardien')")
+            ->get();
+        return response()->json([
+            'message' => 'get players success',
+            'data' => $players
+        ]);
+    }
 }

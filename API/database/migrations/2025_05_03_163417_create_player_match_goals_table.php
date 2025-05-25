@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('player_match_goals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('player_match_stat_id')->constrained('my_player_match_stats')->onDelete('cascade');
+            $table->foreignId('player_match_stat_id')->nullable()->constrained('my_player_match_stats')->onDelete('cascade');
             $table->string('minute');
-            $table->foreignId('assist_player_id')->nullable()->constrained('players')->onDelete('set null');
+            $table->foreignId('assist_player_id')->nullable()->constrained('players')->onDelete('set null')->nullable();
             $table->timestamps();
         });
     }

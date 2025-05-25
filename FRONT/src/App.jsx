@@ -351,7 +351,7 @@ function App() {
           <Route path="/billies/:id" element={<BilliesDetail />} />
           <Route path="/equipe/histoire" element={<Histoire />} />
           <Route path="/matches" element={<MatchesUser />} />
-          <Route path="/players" element={<PlayersByPost />} />
+          <Route path="/equipe/joueurs" element={<PlayersByPost />} />
           <Route path="/players/:id" element={<PlayerShow />} />
           <Route path="/matches/:id" element={<ShowMatchUser />} />
           <Route path="*" element={<Login />} />
