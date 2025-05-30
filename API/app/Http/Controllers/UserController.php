@@ -30,7 +30,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'phone' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
+            'address' => 'nullable|string|max:255',
         ]);
 
         // Get the authenticated user

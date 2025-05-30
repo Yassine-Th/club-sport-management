@@ -114,9 +114,9 @@ class ProductController extends Controller
 
             // Handle image upload
             if ($request->hasFile('image')) {
-                if ($product->image && Storage::disk('public')->exists($product->image)) {
-                    Storage::disk('public')->delete($product->image);
-                }
+                // if ($product->image && Storage::disk('public')->exists($product->image)) {
+                //     Storage::disk('public')->delete($product->image);
+                // }
                 $data['image'] = $request->file('image')->store('products', 'public');
             }
 

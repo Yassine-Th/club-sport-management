@@ -22,19 +22,6 @@ export default function AdSideBar() {
   }
 
   const nav_data = [
-    { link: "/admin", label: "Dashboard", icon: IconDashboard },
-   
-    {
-      link: "/admin/my_club",
-      label: "my_club",
-      icon: IconShield,
-      children: [
-        { link: "/admin/my_club/matches", label: "Matches" },
-        { link: "/admin/my_club/players", label: "Players" },
-        { link: "/admin/my_club/titres", label: "Trophy" },
-      ],
-    },
-    { link: "/admin/clubs", label: "Clubs", icon: IconUsersGroup },
     {
       link: "/admin/boutique",
       label: "Boutique",
@@ -45,8 +32,20 @@ export default function AdSideBar() {
         { link: "/admin/boutique/orders", label: "Commandes" },
       ],
     },
+    {
+      link: "/admin/my_club",
+      label: "Mon Equipe",
+      icon: IconShield,
+      children: [
+        { link: "/admin/my_club/matches", label: "Matches" },
+        { link: "/admin/my_club/players", label: "Joueurs" },
+        { link: "/admin/my_club/titres", label: "Trophy" },
+      ],
+    },
+    { link: "/admin/clubs", label: "Autres Equipes", icon: IconUsersGroup },
+
     // { link: "/admin/fixtures", label: "Fixtures", icon: IconCalendarEvent },
-    { link: "/admin/tickets", label: "Tickets", icon: IconTicket },
+    { link: "/admin/tickets", label: "Billets", icon: IconTicket },
     { link: "/admin/news", label: "Actualités", icon: IconNews },
   ];
 

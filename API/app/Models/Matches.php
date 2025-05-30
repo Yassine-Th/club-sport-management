@@ -46,7 +46,7 @@ class Matches extends Model
     public function summary(): array
     {
         // Make sure the relation data has been eager-loaded:
-        $this->loadMissing(['myClub:id,name', 'opponent:id,name', 'myClub:id,stadium_name',]);
+        $this->loadMissing(['myClub:id,name', 'opponent:id,name', 'myClub:id,stadium_name', 'opponent:id,logo', 'myClub:id,logo']);
 
         return [
             'id'                 => $this->id,
@@ -55,6 +55,8 @@ class Matches extends Model
             'match_date'         => $this->match_date,
             'match_location'     => $this->myClub->stadium_name,
             'journée'           => $this->journée,
+            'my_club_logo'       => $this->myClub->logo,
+            'opponent_club_logo' => $this->opponent->logo,
         ];
     }
     public function getSummaryAttribute(): array

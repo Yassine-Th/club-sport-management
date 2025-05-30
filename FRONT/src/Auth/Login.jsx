@@ -3,7 +3,8 @@ import instance from "../helpers/axios";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { setAxiosToken } from "../helpers/axios";
-import logo from "../assets/logo.png"
+import logo from "../assets/logo.png"; // Assuming this path is correct
+import { Facebook, Instagram, Twitter } from "lucide-react"; // Import Lucide icons
 
 const Login = () => {
   const location = useLocation();
@@ -28,11 +29,17 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userData = new FormData(e.target);
     const userInput = {
-      emailOrUsername: userData.get("emailOrUsername"),
-      password: userData.get("password"),
+      emailOrUsername: formData.emailOrUsername,
+      password: formData.password,
     };
+
+    if (!userInput.emailOrUsername || !userInput.password) {
+      setNotFound("Veuillez remplir tous les champs.");
+      return;
+    }
+    setNotFound("");
+
     const email = userInput.emailOrUsername.includes("@")
       ? userInput.emailOrUsername
       : "";
@@ -47,58 +54,69 @@ const Login = () => {
       });
       const { access_token, user } = response.data;
 
-      // Store authentication information
       localStorage.setItem("access_token", JSON.stringify(access_token));
       setAxiosToken(access_token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Check if there's a previous location in the state
       const locationState = location.state;
 
       if (user.role === "admin") {
-        window.location.href="/admin";
+        window.location.href = "/admin/boutique";
       } else {
-        // If there's a previous location, navigate there
         if (locationState && locationState.from) {
           navigate(locationState.from);
         } else {
-          // Default to boutique if no previous location
           navigate("/");
         }
       }
     } catch (error) {
-      console.error(error);
-      setNotFound("Email or Password incorrect");
+      console.error("Erreur de connexion:", error);
+      if (
+        error.response &&
+        (error.response.status === 401 || error.response.status === 422)
+      ) {
+        setNotFound("Email ou mot de passe incorrect.");
+      } else {
+        setNotFound("Une erreur est survenue. Veuillez réessayer.");
+      }
     }
   };
 
+  // You can wrap these in <a> tags if they should link somewhere
+  const socialLinks = [
+    { Icon: Facebook, href: "#", label: "Facebook" }, // Replace # with actual links
+    { Icon: Twitter, href: "#", label: "Twitter" },
+    { Icon: Instagram, href: "#", label: "Instagram" },
+  ];
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white overflow-hidden relative">
-      {/* Decorative elements */}
-      <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-r from-red-600 to-red-800"></div>
-      <div className="absolute top-0 right-0 w-64 h-64 bg-red-50 rounded-full -mr-32 -mt-32"></div>
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-red-50 rounded-full -ml-40 -mb-40"></div>
+    <div className="flex items-center justify-center min-h-screen bg-white py-8 overflow-hidden relative">
+      <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-red-600 to-red-800"></div>
+      <div className="absolute top-0 right-0 w-56 h-56 bg-red-50 rounded-full -mr-28 -mt-28 opacity-70"></div>
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-red-50 rounded-full -ml-36 -mb-36 opacity-70"></div>
 
       <div className="w-full max-w-md relative">
-        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-red-500 to-red-700 rounded-full"></div>
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-red-500 to-red-700 rounded-full"></div>
 
-        <div className="bg-white rounded-xl shadow-xl p-8 border border-gray-100">
-          <div className="text-center mb-8">
-            <div className="inline-block p-3 bg-red-50 rounded-full mb-3">
-              <img src={logo} alt="Logo" className="h-16 w-16 rounded-full" />
+        <div className="bg-white rounded-xl shadow-2xl p-6 border border-gray-200">
+          <div className="text-center mb-6">
+            <div className="inline-block p-2 bg-red-50 rounded-full mb-2">
+              <img
+                src={logo}
+                alt="Logo HUSA Club"
+                className="h-12 w-12 rounded-full"
+              />
             </div>
-            <h2 className="font-title text-3xl text-gray-800 tracking-wider">
-              HUSA CLUB
-            </h2>
-            <p className="text-gray-500 font-section text-sm mt-1">
-              MEMBER LOGIN
+
+            <p className="text-gray-600 font-section text-sm">
+              CONNEXION MEMBRE
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             {notFound && (
-              <div className="bg-red-50 p-3 rounded-lg">
-                <p className="text-sm text-red-600 font-player text-center">
+              <div className="bg-red-50 p-2.5 rounded-lg">
+                <p className="text-xs text-red-600 font-player text-center">
                   {notFound}
                 </p>
               </div>
@@ -107,16 +125,16 @@ const Login = () => {
             <div>
               <label
                 htmlFor="emailOrUsername"
-                className="block text-sm font-section text-gray-600 mb-1"
+                className="block text-xs font-medium text-gray-800 mb-0.5"
               >
-                EMAIL OR USERNAME
+                EMAIL OU NOM D'UTILISATEUR
               </label>
               <div className="relative">
                 <input
                   id="emailOrUsername"
                   name="emailOrUsername"
                   type="text"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:ring-opacity-60 transition-all text-sm"
                   value={formData.emailOrUsername}
                   onChange={handleChange}
                 />
@@ -126,7 +144,7 @@ const Login = () => {
                 ></div>
               </div>
               {err.emailUsernameErr && (
-                <p className="mt-2 text-sm text-red-600 font-player">
+                <p className="mt-0.5 text-xs text-red-600 font-player">
                   {err.emailUsernameErr}
                 </p>
               )}
@@ -135,16 +153,16 @@ const Login = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-section text-gray-600 mb-1"
+                className="block text-xs font-medium text-gray-800 mb-0.5"
               >
-                PASSWORD
+                MOT DE PASSE
               </label>
               <div className="relative">
                 <input
                   id="password"
                   name="password"
                   type="password"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:ring-opacity-60 transition-all text-sm"
                   value={formData.password}
                   onChange={handleChange}
                 />
@@ -154,44 +172,48 @@ const Login = () => {
                 ></div>
               </div>
               {err.passwordErr && (
-                <p className="mt-2 text-sm text-red-600 font-player">
+                <p className="mt-0.5 text-xs text-red-600 font-player">
                   {err.passwordErr}
                 </p>
               )}
             </div>
 
-            <div className="pt-2">
+            <div className="pt-1">
               <button
                 type="submit"
-                className="w-full px-4 py-3 text-white bg-gradient-to-r from-red-600 to-red-800 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 font-title tracking-wider text-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                className="w-full px-4 py-2.5 text-white bg-gradient-to-r from-red-600 to-red-800 rounded-lg shadow-md hover:shadow-lg hover:bg-gradient-to-br focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 font-title tracking-wider text-base transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95"
               >
-                LOGIN
+                SE CONNECTER
               </button>
             </div>
           </form>
 
-          <div className="mt-6 pt-4 text-center border-t border-gray-100">
-            <p className="text-sm text-gray-500 font-section">
-              DON'T HAVE AN ACCOUNT?{" "}
+          <div className="mt-5 pt-3 text-center border-t border-gray-200">
+            <p className="text-xs text-gray-600 font-section">
+              PAS ENCORE DE COMPTE ?{" "}
               <Link
                 to="/register"
-                className="text-red-600 hover:text-red-700 font-bold"
+                className="text-red-600 hover:text-red-700 font-bold hover:underline"
               >
-                REGISTER
+                S'INSCRIRE
               </Link>
             </p>
           </div>
 
-          <div className="mt-6 flex items-center justify-center space-x-4">
-            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-              <span className="text-red-600 font-bold text-xs">FB</span>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-              <span className="text-red-600 font-bold text-xs">TW</span>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-              <span className="text-red-600 font-bold text-xs">IG</span>
-            </div>
+          <div className="mt-4 flex items-center justify-center space-x-3">
+            {socialLinks.map((social, index) => (
+              <a
+                key={index}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.label}
+                className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center text-red-600 hover:bg-red-200 hover:text-red-700 transition-all"
+              >
+                <social.Icon size={16} strokeWidth={2} />{" "}
+                {/* Adjust size and strokeWidth as needed */}
+              </a>
+            ))}
           </div>
         </div>
       </div>

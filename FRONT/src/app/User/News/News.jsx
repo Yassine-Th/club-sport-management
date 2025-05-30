@@ -138,11 +138,8 @@ export default function NewsUser() {
         </section>
 
         {/* News Section - Modern Card Grid */}
-        <section className="container mx-auto px-4 py-10">
+        <section className="container mx-auto px-4 py-6">
           <div className="flex flex-col items-center mb-12">
-            <span className="inline-block px-3 py-1 bg-red-100 text-red-800 text-sm font-semibold rounded-full mb-4">
-              ACTUALITÉS
-            </span>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center">
               Les dernières nouvelles du club
             </h2>

@@ -13,8 +13,8 @@ class TicketController extends Controller
         $tickets = Ticket::with([
             'categories',
             'match' => fn($q) => $q->select('id', 'my_club_id', 'opponent_club_id', 'match_date', "journée"),
-            'match.myClub:id,name,stadium_name',
-            'match.opponent:id,name',
+            'match.myClub:id,name,stadium_name,logo',
+            'match.opponent:id,name,logo',
         ])->get();
 
         $payload = $tickets->map(fn($ticket) => [
@@ -39,8 +39,8 @@ class TicketController extends Controller
         $ticket = Ticket::with([
             'categories',
             'match' => fn($q) => $q->select('id', 'my_club_id', 'opponent_club_id', 'match_date', "journée"),
-            'match.myClub:id,name,stadium_name',
-            'match.opponent:id,name',
+            'match.myClub:id,name,stadium_name,logo',
+            'match.opponent:id,name,logo',
         ])->find($id);
 
         if (! $ticket) {
@@ -213,8 +213,8 @@ class TicketController extends Controller
         $tickets = Ticket::with([
             'categories',
             'match' => fn($q) => $q->select('id', 'my_club_id', 'opponent_club_id', 'match_date', "journée"),
-            'match.myClub:id,name,stadium_name',
-            'match.opponent:id,name',
+            'match.myClub:id,name,stadium_name,logo',
+            'match.opponent:id,name,logo',
         ])
             ->where('status', 'available')
             ->where(function ($query) use ($today) {

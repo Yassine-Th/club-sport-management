@@ -73,9 +73,9 @@ public function update(Request $request, $id)
 
 
     if ($request->hasFile('logo')) {
-       if ($club->logo && Storage::disk('public')->exists($club->logo)) {
-            Storage::disk('public')->delete($club->logo);
-        }
+    //    if ($club->logo && Storage::disk('public')->exists($club->logo)) {
+    //         Storage::disk('public')->delete($club->logo);
+    //     }
         // رفع الصورة الجديدة
         $club->logo =  $request->hasFile('logo') ? $request->file('logo')->store('images', 'public') : null;
 

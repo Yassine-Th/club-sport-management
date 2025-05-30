@@ -1,5 +1,4 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Header from "../Header";
 import Footer from "../Footer";
@@ -9,12 +8,12 @@ import {
   Calendar,
   CreditCard,
   MapPin,
-  // StickerIcon as Stadium, // StickerIcon might not be the best for "Journée", maybe use Hash or Tag
-  Hash as JourneeIcon, // Using Hash for Journée as an example
+  ClubIcon as JourneeIcon,
   Ticket,
   Users,
-  Info, // For "Informations importantes"
+  Info,
 } from "lucide-react";
+import { FaHome } from "react-icons/fa";
 
 const BilliesDetail = () => {
   const { id } = useParams();
@@ -23,13 +22,12 @@ const BilliesDetail = () => {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState(0); // To keep track of selected category tab
+  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     const fetchTicket = async () => {
       setLoading(true);
       try {
-        // Endpoint should be `/tickets/{id}` if it follows REST conventions and your controller
         const response = await instance.get(`/ticket/${id}`);
         setTicket(response.data);
         if (
@@ -38,7 +36,7 @@ const BilliesDetail = () => {
           response.data.categories.length > 0
         ) {
           setSelectedCategory(response.data.categories[0]);
-          setActiveTab(0); // Set first category as active by default
+          setActiveTab(0);
         }
         setError(null);
       } catch (err) {
@@ -71,7 +69,7 @@ const BilliesDetail = () => {
   };
 
   const handleQuantityChange = (value) => {
-    const newQuantity = Math.max(1, Math.min(10, value)); // Basic min/max, can be improved with stock check
+    const newQuantity = Math.max(1, Math.min(10, value));
     if (selectedCategory && newQuantity > selectedCategory.pivot.stock) {
       setQuantity(
         selectedCategory.pivot.stock > 0 ? selectedCategory.pivot.stock : 1
@@ -82,8 +80,6 @@ const BilliesDetail = () => {
   };
 
   const handlePurchase = () => {
-    // In a real app, this would involve more complex logic
-    // (e.g., checking stock, user authentication, payment processing)
     if (!selectedCategory) {
       alert("Veuillez sélectionner une catégorie.");
       return;
@@ -109,8 +105,98 @@ const BilliesDetail = () => {
   const handleCategoryChange = (category, index) => {
     setSelectedCategory(category);
     setActiveTab(index);
-    setQuantity(1); // Reset quantity when category changes
+    setQuantity(1);
   };
+
+  const renderMatchHeader = () => (
+    <div className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl overflow-hidden shadow-lg mb-8">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <FaHome className="text-yellow-300" />
+            <span className="text-sm font-medium">Match</span>
+          </div>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+            Billets disponibles
+          </span>
+        </div>
+
+        {/* Teams and VS */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              src={`http://localhost:8000/storage/${ticket.match.my_club_logo}`}
+              alt={ticket.match.my_club_name}
+              className="w-16 h-16 object-contain bg-white rounded-full p-2"
+              onError={(e) => {
+                e.target.src = "/placeholder.svg?height=64&width=64&text=Logo";
+              }}
+            />
+            <div className="text-left">
+              <div className="font-bold text-lg">
+                {ticket.match.my_club_name === "Hassania Union Sport d'Agadir"
+                  ? "HUSA"
+                  : ticket.match.my_club_name}
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <div className="text-3xl font-black">
+              {/* Display match time instead of VS */}
+              {ticket.match.match_date
+                ? new Date(ticket.match.match_date).toLocaleTimeString(
+                    "fr-FR",
+                    {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    }
+                  )
+                : "--:--"}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="font-bold text-lg">
+                {ticket.match.opponent_club_name?.split(" ")[0] || "Adversaire"}
+              </div>
+            </div>
+            <img
+              src={`http://localhost:8000/storage/${ticket.match.opponent_club_logo}`}
+              alt={ticket.match.opponent_club_name}
+              className="w-16 h-16 object-contain bg-white rounded-full p-2"
+              onError={(e) => {
+                e.target.src = "/placeholder.svg?height=64&width=64&text=Logo";
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderEventHeader = () => (
+    <div className="relative rounded-xl overflow-hidden shadow-lg mb-8">
+      <img
+        src={ticket.image || "/placeholder.svg"}
+        alt={ticket.description || "Événement"}
+        className="w-full h-64 md:h-96 object-cover"
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = `/placeholder.svg?height=500&width=1000&text=${encodeURIComponent(
+            ticket.description || "Événement"
+          )}`;
+        }}
+      />
+      <div className="absolute top-4 right-4">
+        <span className="inline-block px-3 py-1 bg-blue-600 text-white text-sm font-bold rounded-full shadow-lg">
+          Événement
+        </span>
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -152,7 +238,6 @@ const BilliesDetail = () => {
     );
   }
 
-  // Ensure selectedCategory is valid before trying to access its properties
   const currentCategoryPrice = selectedCategory
     ? Number.parseFloat(selectedCategory.pivot.price)
     : 0;
@@ -178,43 +263,10 @@ const BilliesDetail = () => {
         <div className="grid lg:grid-cols-3 gap-10">
           {/* Ticket Image and Details */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="relative rounded-xl overflow-hidden shadow-lg">
-              <img
-                src={ticket.image}
-                alt={
-                  ticket.type === "match" && ticket.match
-                    ? `${ticket.match.my_club_name || ""} vs ${
-                        ticket.match.opponent_club_name || ""
-                      }`
-                    : ticket.description || "Détail du billet"
-                }
-                className="w-full h-64 md:h-96 object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src =
-                    ticket.type === "match" && ticket.match
-                      ? `/placeholder.svg?height=500&width=1000&text=${encodeURIComponent(
-                          ticket.match.my_club_name || "Équipe A"
-                        )} vs ${encodeURIComponent(
-                          ticket.match.opponent_club_name || "Équipe B"
-                        )}`
-                      : ticket.type === "event"
-                      ? `/placeholder.svg?height=500&width=1000&text=${encodeURIComponent(
-                          ticket.description || "Événement"
-                        )}`
-                      : "/placeholder.svg?height=500&width=1000&text=Image Indisponible";
-                }}
-              />
-              <div className="absolute top-4 right-4">
-                <span
-                  className={`inline-block px-3 py-1 ${
-                    ticket.type === "match" ? "bg-red-700" : "bg-blue-600"
-                  } text-white text-sm font-bold rounded-full shadow-lg`}
-                >
-                  {ticket.type === "match" ? "Match" : "Événement"}
-                </span>
-              </div>
-            </div>
+            {/* Conditional header rendering */}
+            {ticket.type === "match" && ticket.match
+              ? renderMatchHeader()
+              : renderEventHeader()}
 
             <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
               {ticket.type === "match" && ticket.match ? (
@@ -243,7 +295,6 @@ const BilliesDetail = () => {
                       <div>
                         <p className="text-sm text-gray-500">Lieu</p>
                         <p className="font-semibold text-gray-800">
-                          {/* Prioritize ticket.location */}
                           {ticket.location ||
                             ticket.match.match_location ||
                             "Non spécifié"}
@@ -279,7 +330,6 @@ const BilliesDetail = () => {
                   </div>
                 </>
               ) : (
-                // Event type
                 <>
                   <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                     {ticket.description || "Événement Spécial"}
@@ -293,7 +343,6 @@ const BilliesDetail = () => {
                           Date de l'événement
                         </p>
                         <p className="font-semibold text-gray-800">
-                          {/* Use ticket.date for events */}
                           {formatDate(ticket.date)}
                         </p>
                       </div>
@@ -357,8 +406,6 @@ const BilliesDetail = () => {
           {/* Purchase Section */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl border shadow-lg p-6 sticky top-24">
-              {" "}
-              {/* Increased shadow */}
               <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">
                 Réserver vos billets
               </h2>
@@ -436,7 +483,7 @@ const BilliesDetail = () => {
                           selectedCategory.pivot.stock > 10
                             ? 10
                             : selectedCategory.pivot.stock
-                        } // Max 10 or available stock
+                        }
                         value={quantity}
                         onChange={(e) =>
                           handleQuantityChange(
@@ -452,7 +499,7 @@ const BilliesDetail = () => {
                           quantity >=
                             (selectedCategory.pivot.stock > 10
                               ? 10
-                              : selectedCategory.pivot.stock) || // Max 10 or available stock
+                              : selectedCategory.pivot.stock) ||
                           quantity >= selectedCategory.pivot.stock
                         }
                         aria-label="Augmenter la quantité"

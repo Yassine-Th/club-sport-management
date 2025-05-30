@@ -159,40 +159,40 @@ const ShowMatchUser = () => {
         </div>
 
         {/* Match Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className={`bg-gradient-to-r from-red-600 to-red-800  text-white py-4`}
-          >
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-8">
-                <span className="block text-lg font-semibold mb-2">
-            {match.match_date
-              ? new Date(match.match_date).toLocaleDateString("fr-FR", {
-                  weekday: "long",
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                })
-              : ""}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className={`bg-gradient-to-r from-red-600 to-red-800  text-white py-4`}
+        >
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <span className="block text-lg font-semibold mb-2">
+                {match.match_date
+                  ? new Date(match.match_date).toLocaleDateString("fr-FR", {
+                      weekday: "long",
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : ""}
+              </span>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                {match.is_home ? (
+                  <FaHome className="text-yellow-300" />
+                ) : (
+                  <FaPlaneDeparture className="text-yellow-300" />
+                )}
+                <span className="text-lg font-medium">
+                  {match.is_home ? "Match à domicile" : "Match à l'extérieur"}
                 </span>
-                <div className="flex items-center justify-center gap-2 mb-2">
-            {match.is_home ? (
-              <FaHome className="text-yellow-300" />
-            ) : (
-              <FaPlaneDeparture className="text-yellow-300" />
-            )}
-            <span className="text-lg font-medium">
-              {match.is_home ? "Match à domicile" : "Match à l'extérieur"}
-            </span>
-                </div>
-                <h1 className="text-2xl font-bold mb-2">
-            Botola Pro - Journée {match.journée}
-                </h1>
               </div>
+              <h1 className="text-2xl font-bold mb-2">
+                Botola Pro - Journée {match.journée}
+              </h1>
+            </div>
 
-              {/* Teams and Score */}
+            {/* Teams and Score */}
             <div className="flex items-center justify-center gap-4 md:gap-8 lg:gap-12">
               {" "}
               {/* Adjusted gap for responsiveness */}
@@ -226,11 +226,25 @@ const ShowMatchUser = () => {
                 <div className="text-5xl md:text-6xl lg:text-8xl font-black mb-1 md:mb-2">
                   {" "}
                   {/* Adjusted font size */}
-                  {match.status === "terminée"
-                    ? `${match.my_club_goals || 0} - ${
-                        match.opponent_club_goals || 0
-                      }`
-                    : "VS"}
+                  {match.status === "terminée" ? (
+                    `${match.my_club_goals || 0} - ${
+                      match.opponent_club_goals || 0
+                    }`
+                  ) : (
+                    <div className="text-3xl font-black">
+                      {/* Display match time instead of VS */}
+                      {match.match_date
+                        ? new Date(match.match_date).toLocaleTimeString(
+                            "fr-FR",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                            }
+                          )
+                        : "--:--"}
+                    </div>
+                  )}
                 </div>
                 <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 md:px-4 md:py-2">
                   {" "}

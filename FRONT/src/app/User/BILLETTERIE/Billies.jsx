@@ -4,15 +4,13 @@ import { Link } from "react-router-dom";
 import Header from "../Header";
 import Footer from "../Footer";
 import instance from "../../../helpers/axios";
+import { CalendarIcon, Loader2, Users, MapPin, Ticket } from "lucide-react";
 import {
-  Calendar as CalendarIcon,
-  Loader2,
-  Users,
-  MapPin,
-  Clock,
-  Ticket,
-} from "lucide-react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+  FaChevronLeft,
+  FaChevronRight,
+  FaHome,
+  FaCrosshairs,
+} from "react-icons/fa";
 
 const Billies = () => {
   const [tickets, setTickets] = useState([]);
@@ -143,6 +141,246 @@ const Billies = () => {
       ...categories.map((cat) => Number.parseFloat(cat.pivot.price))
     );
   };
+
+  const renderMatchCard = (ticket) => (
+    <div
+      key={ticket.id}
+      className="group bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border border-gray-100 flex flex-col h-full"
+    >
+      {/* Header with teams - Fixed height section */}
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 flex-shrink-0">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <FaHome className="text-yellow-300" />
+            <span className="text-sm font-medium">Match</span>
+          </div>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+            Billets disponibles
+          </span>
+        </div>
+
+        {/* Teams and VS */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              src={`http://localhost:8000/storage/${ticket.match.my_club_logo}`}
+              alt={ticket.match.my_club_name}
+              className="w-12 h-12 object-contain bg-white rounded-full p-1"
+              onError={(e) => {
+                e.target.src = "/placeholder.svg?height=48&width=48&text=Logo";
+              }}
+            />
+            <div className="text-left">
+              <div className="font-bold text-sm">
+                {ticket.match.my_club_name === "Hassania Union Sport d'Agadir"
+                  ? "HUSA"
+                  : ticket.match.my_club_name}
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <div className="text-xl font-black">
+              {/* Display match time instead of VS */}
+              {ticket.match.match_date
+                ? new Date(ticket.match.match_date).toLocaleTimeString(
+                    "fr-FR",
+                    {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    }
+                  )
+                : "--:--"}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="font-bold text-sm">
+                {ticket.match.opponent_club_name?.split(" ")[0] || "Adversaire"}
+              </div>
+            </div>
+            <img
+              src={`http://localhost:8000/storage/${ticket.match.opponent_club_logo}`}
+              alt={ticket.match.opponent_club_name}
+              className="w-12 h-12 object-contain bg-white rounded-full p-1"
+              onError={(e) => {
+                e.target.src = "/placeholder.svg?height=48&width=48&text=Logo";
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Match Details - Flexible content area */}
+      <div className="p-6 space-y-4 flex-grow">
+        <div className="flex items-center gap-3 text-gray-600">
+          <CalendarIcon className="w-5 h-5 text-red-500" />
+          <span className="text-sm">{formatDate(ticket.match.match_date)}</span>
+        </div>
+
+        <div className="flex items-center gap-3 text-gray-600">
+          <MapPin className="w-5 h-5 text-red-500" />
+          <span className="text-sm">
+            {ticket.location ||
+              ticket.match.match_location ||
+              "Lieu non défini"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 text-gray-600">
+          <FaCrosshairs className="w-5 h-5 text-red-500" />
+          <span className="text-sm font-semibold">
+            Journée {ticket.match.journée || "N/A"}
+          </span>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-600">
+              Catégories:
+            </span>
+            <span className="text-sm text-gray-600">
+              {ticket.categories?.length || 0} disponibles
+            </span>
+          </div>
+
+          {ticket.categories && ticket.categories.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {ticket.categories.map((category) => (
+                <span
+                  key={category.id}
+                  className="inline-block px-2 py-1 bg-gray-50 text-gray-700 text-xs rounded-full border border-gray-200"
+                >
+                  {category.category}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-between items-center pt-2">
+            <div className="flex items-center">
+              <Users className="h-4 w-4 mr-1 text-gray-500" />
+              <span className="text-sm text-gray-600">
+                {ticket.categories?.reduce(
+                  (sum, cat) => sum + (cat.pivot?.stock || 0),
+                  0
+                ) || 0}{" "}
+                places
+              </span>
+            </div>
+            <div className="text-red-600 font-bold">
+              À partir de {getLowestPrice(ticket.categories)} MAD
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Fixed footer section */}
+      <div className="p-6 pt-0 flex-shrink-0">
+        <Link to={`/billies/${ticket.id}`} className="w-full">
+          <button className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors">
+            Acheter des billets
+          </button>
+        </Link>
+      </div>
+    </div>
+  );
+
+  const renderEventCard = (ticket) => (
+    <div
+      key={ticket.id}
+      className="group bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border border-gray-100 flex flex-col h-full"
+    >
+      {/* Event image - Fixed height section to match match header */}
+      <div className="relative h-[140px] overflow-hidden flex-shrink-0">
+        <img
+          src={ticket.image || "/placeholder.svg"}
+          alt={ticket.description || "Événement"}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = `/placeholder.svg?height=300&width=500&text=${encodeURIComponent(
+              ticket.description || "Événement Special"
+            )}`;
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="absolute top-4 right-4 z-10">
+          <span className="inline-block px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full shadow-lg">
+            Événement
+          </span>
+        </div>
+      </div>
+
+      {/* Event Details - Flexible content area */}
+      <div className="p-6 flex-grow">
+        <div className="flex items-center text-sm text-gray-500 mb-3">
+          <CalendarIcon className="h-4 w-4 mr-2" />
+          {formatDate(ticket.date)}
+        </div>
+        <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-red-700 transition-colors">
+          {ticket.description || "Événement Spécial"}
+        </h3>
+        {ticket.location && (
+          <div className="flex items-center text-sm text-gray-600 mb-1">
+            <MapPin className="h-4 w-4 mr-2 text-red-500" />
+            {ticket.location}
+          </div>
+        )}
+
+        <div className="mt-4 space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-600">
+              Catégories:
+            </span>
+            <span className="text-sm text-gray-600">
+              {ticket.categories?.length || 0} disponibles
+            </span>
+          </div>
+
+          {ticket.categories && ticket.categories.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {ticket.categories.map((category) => (
+                <span
+                  key={category.id}
+                  className="inline-block px-2 py-1 bg-gray-50 text-gray-700 text-xs rounded-full border border-gray-200"
+                >
+                  {category.category}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-between items-center pt-2">
+            <div className="flex items-center">
+              <Users className="h-4 w-4 mr-1 text-gray-500" />
+              <span className="text-sm text-gray-600">
+                {ticket.categories?.reduce(
+                  (sum, cat) => sum + (cat.pivot?.stock || 0),
+                  0
+                ) || 0}{" "}
+                places
+              </span>
+            </div>
+            <div className="text-red-600 font-bold">
+              À partir de {getLowestPrice(ticket.categories)} MAD
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Fixed footer section */}
+      <div className="p-6 pt-0 flex-shrink-0">
+        <Link to={`/billies/${ticket.id}`} className="w-full">
+          <button className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors">
+            Acheter des billets
+          </button>
+        </Link>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-white">
@@ -329,158 +567,14 @@ const Billies = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {currentTickets.map((ticket) => (
-                <div
-                  key={ticket.id}
-                  className="group bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border border-gray-100 flex flex-col h-full"
-                >
-                  {/* Modified image container with aspect ratio instead of fixed height */}
-                  <div className="relative w-full pb-[60%] overflow-hidden">
-                    <img
-                      src={
-                        ticket.image ||
-                        (ticket.type === "match" && ticket.match
-                          ? `/placeholder.svg?height=300&width=500&text=${encodeURIComponent(
-                              ticket.match.my_club_name || "Équipe A"
-                            )} vs ${encodeURIComponent(
-                              ticket.match.opponent_club_name || "Équipe B"
-                            )}`
-                          : ticket.type === "event"
-                          ? `/placeholder.svg?height=300&width=500&text=${encodeURIComponent(
-                              ticket.description || "Événement"
-                            )}`
-                          : "/placeholder.svg?height=300&width=500&text=Billet")
-                      }
-                      alt={
-                        ticket.type === "match" && ticket.match
-                          ? `${ticket.match.my_club_name || ""} vs ${
-                              ticket.match.opponent_club_name || ""
-                            }`
-                          : ticket.description || "Détail du billet"
-                      }
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src =
-                          ticket.type === "match" && ticket.match
-                            ? `/placeholder.svg?height=300&width=500&text=${encodeURIComponent(
-                                ticket.match.my_club_name || "Équipe A"
-                              )} vs ${encodeURIComponent(
-                                ticket.match.opponent_club_name || "Équipe B"
-                              )}`
-                            : ticket.type === "event"
-                            ? `/placeholder.svg?height=300&width=500&text=${encodeURIComponent(
-                                ticket.description || "Événement Special"
-                              )}`
-                            : "/placeholder.svg?height=300&width=500&text=Image Indisponible";
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute top-4 right-4 z-10">
-                      <span
-                        className={`inline-block px-3 py-1 ${
-                          ticket.type === "match" ? "bg-red-600" : "bg-blue-600"
-                        } text-white text-xs font-bold rounded-full shadow-lg`}
-                      >
-                        {ticket.type === "match" ? "Match" : "Événement"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-6 flex-grow">
-                    {ticket.type === "match" && ticket.match ? (
-                      <>
-                        <div className="flex items-center text-sm text-gray-500 mb-3">
-                          <CalendarIcon className="h-4 w-4 mr-2" />
-                          {formatDate(ticket.match.match_date)}
-                        </div>
-                        <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-red-700 transition-colors">
-                          {ticket.match.my_club_name || "Mon Équipe"} vs{" "}
-                          {ticket.match.opponent_club_name || "Adversaire"}
-                        </h3>
-                        {ticket.location && (
-                          <div className="flex items-center text-sm text-gray-600 mb-1">
-                            <MapPin className="h-4 w-4 mr-2 text-red-500" />
-                            {ticket.location}
-                          </div>
-                        )}
-                        {!ticket.location && ticket.match.match_location && (
-                          <div className="flex items-center text-sm text-gray-600 mb-1">
-                            <MapPin className="h-4 w-4 mr-2 text-red-500" />
-                            {ticket.match.match_location}
-                          </div>
-                        )}
-                        <div className="flex items-center text-sm text-gray-600 mb-3">
-                          <Clock className="h-4 w-4 mr-2 text-red-500" />
-                          Journée {ticket.match.journée || "N/A"}
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex items-center text-sm text-gray-500 mb-3">
-                          <CalendarIcon className="h-4 w-4 mr-2" />
-                          {formatDate(ticket.date)}
-                        </div>
-                        <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-red-700 transition-colors">
-                          {ticket.description || "Événement Spécial"}
-                        </h3>
-                        {ticket.location && (
-                          <div className="flex items-center text-sm text-gray-600 mb-1">
-                            <MapPin className="h-4 w-4 mr-2 text-red-500" />
-                            {ticket.location}
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    <div className="mt-4 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-gray-600">
-                          Catégories:
-                        </span>
-                        <span className="text-sm text-gray-600">
-                          {ticket.categories?.length || 0} disponibles
-                        </span>
-                      </div>
-
-                      {ticket.categories && ticket.categories.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {ticket.categories.map((category) => (
-                            <span
-                              key={category.id}
-                              className="inline-block px-2 py-1 bg-gray-50 text-gray-700 text-xs rounded-full border border-gray-200"
-                            >
-                              {category.category}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="flex justify-between items-center pt-2">
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-1 text-gray-500" />
-                          <span className="text-sm text-gray-600">
-                            {ticket.categories?.reduce(
-                              (sum, cat) => sum + (cat.pivot?.stock || 0),
-                              0
-                            ) || 0}{" "}
-                            places
-                          </span>
-                        </div>
-                        <div className="text-red-600 font-bold">
-                          À partir de {getLowestPrice(ticket.categories)} MAD
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-6 pt-0">
-                    <Link to={`/billies/${ticket.id}`} className="w-full">
-                      <button className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors">
-                        Acheter des billets
-                      </button>
-                    </Link>
-                  </div>
-                </div>
-              ))}
+              {currentTickets.map((ticket) => {
+                // Conditional rendering based on ticket type
+                if (ticket.type === "match" && ticket.match) {
+                  return renderMatchCard(ticket);
+                } else {
+                  return renderEventCard(ticket);
+                }
+              })}
             </div>
 
             {totalPages > 1 && (

@@ -92,9 +92,7 @@ public function update(Request $request, $id)
         $monclub->description = $validatedData['description'];
 
     if ($request->hasFile('logo')) {
-       if ($monclub->logo && Storage::disk('public')->exists($monclub->logo)) {
-            Storage::disk('public')->delete($monclub->image);
-        }
+      
         // رفع الصورة الجديدة
         $monclub->logo =  $request->hasFile('logo') ? $request->file('logo')->store('images', 'public') : null;
 

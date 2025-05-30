@@ -74,7 +74,15 @@ function App() {
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
               {user_role === "admin" && (
                 <>
-                  <Route path="/admin" element={<AdLayout />} />
+                  <Route
+                    path="/admin"
+                    element={
+                      <AdLayout>
+                        {" "}
+                        <AdminBoutique />
+                      </AdLayout>
+                    }
+                  />
                   <Route
                     path="/admin/news"
                     element={

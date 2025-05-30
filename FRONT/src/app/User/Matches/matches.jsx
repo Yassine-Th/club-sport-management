@@ -337,13 +337,25 @@ const MatchesUser = () => {
 
                       <div className="text-center">
                         <div className="text-3xl font-black">
-                          {match.status === "terminée"
-                            ? `${match.my_club_goals || 0} - ${
-                                match.opponent_club_goals || 0
-                              }`
-                            : "VS"}
+                          {match.status === "terminée" ? (
+                            `${match.my_club_goals || 0} - ${
+                              match.opponent_club_goals || 0
+                            }`
+                          ) : (
+                              <div className="text-2xl font-black">
+                                {/* Display match time instead of VS */}
+                                {match.match_date
+                                  ? new Date(
+                                      match.match_date
+                                    ).toLocaleTimeString("fr-FR", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false,
+                                    })
+                                  : "--:--"}
+                              </div>
+                          )}
                         </div>
-
                       </div>
 
                       <div className="flex items-center gap-3">
@@ -393,7 +405,7 @@ const MatchesUser = () => {
 
                     {/* Action Button */}
                     <div className="pt-1">
-                      {match.status  ? (
+                      {match.status ? (
                         <button
                           onClick={() => navigate(`/matches/${match.id}`)}
                           className=" text-blue-600 hover:text-blue-800 underline transition-colors cursor-pointer font-medium"
@@ -401,7 +413,7 @@ const MatchesUser = () => {
                           ... Voir les détails
                         </button>
                       ) : (
-                       <></>
+                        <></>
                       )}
                     </div>
                   </div>

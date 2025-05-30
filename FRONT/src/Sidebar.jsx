@@ -7,6 +7,7 @@ import {
   IconChevronLeft,
   IconChevronDown,
 } from "@tabler/icons-react";
+import img from "./assets/logo.png"; // Assuming you have a logo image
 
 function Sidebar({ navData, user }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -169,7 +170,7 @@ function Sidebar({ navData, user }) {
         {!collapsed ? (
           <div className="flex items-center">
             <img
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/z7UKOJyj_400x400.jpg-FaTwQMgv7594yqhjFNixF4tBplhmUG.jpeg"
+              src={img}
               alt="Club Logo"
               className="h-12 w-12" // Removed mb-2, spacing handled by flex gap or parent padding
             />
@@ -192,7 +193,7 @@ function Sidebar({ navData, user }) {
 
       {/* Nav links */}
       <div
-        className={`flex-grow overflow-y-auto px-2 ${
+        className={`flex-grow overflow-y-auto px-2 py-5 ${
           collapsed ? "flex flex-col items-center" : ""
         }`}
       >
