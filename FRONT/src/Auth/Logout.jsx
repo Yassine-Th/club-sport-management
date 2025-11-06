@@ -1,5 +1,5 @@
 import React from "react";
-import { IconLogout2 } from "@tabler/icons-react";
+import { IconLogout } from "@tabler/icons-react";
 import instance from "../helpers/axios";
 
 export default function Logout() {
@@ -32,9 +32,9 @@ export default function Logout() {
         rounded focus:outline-none focus:ring-2 focus:ring-red-400
         transition-colors
       "
-    >      
+    >
       Logout
-      <IconLogout2 size={18} className="mr-2" />
+      <IconLogout size={18} className="mr-2 ml-2" />
     </button>
   );
 }
