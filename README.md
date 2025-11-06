@@ -7,14 +7,13 @@ Complete web platform for the sports club including public area (news, match sch
 ---
 ## Screenshots
 *(Replace with your actual screenshots in the `screenshots/` folder)*  
-
 ![Dashboard](screenshots/dashboard.png)  
-![ACTUALITÉS](screenshots/actualite.png)  
+![Actualités](screenshots/actualite.png)  
 ![Matchs](screenshots/matchs.png)  
-![Bootique](screenshots/bootique.png)  
-![Login](screenshots/login.png) 
-![AdminPanel](screenshots/AdminPanel.png) 
-![admin](screenshots/admin.png) 
+![Boutique](screenshots/bootique.png)  
+![Login](screenshots/login.png)  
+![Admin Panel](screenshots/AdminPanel.png)  
+![Admin](screenshots/Admin.png)
 
 
 
